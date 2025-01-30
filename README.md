@@ -22,18 +22,15 @@ working together to create a privately hosted messaging application so that stud
 can utilize a platform that accounts for their working environment and prioritizes their data and privacy.
 
 ## Technologies Used
-<a href="https://flask.palletsprojects.com/en/stable/">Flask</a>
-Flask - Backend web Framework for API (Maybe not a “Technology” to list)
-Python - Primary backend Programming Language (Also maybe not a “Technology” to list)
-React - Frontend UI
+<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API (Maybe not a “Technology” to list)
+<a href="https://www.python.org/">Python</a> - Primary backend Programming Language (Also maybe not a “Technology” to list)
+<a href="https://react.dev/">React</a> - Frontend UI
 Database Technology - Options for storage
-	MongoDB - Flexible document-based database
-	SQLite - Lightweight option, possibly better for the scope of this project
+	<a href="https://www.mongodb.com/">MongoDB</a> - Flexible document-based database
+	<a href="https://www.sqlite.org/">SQLite</a> - Lightweight option, possibly better for the scope of this project
 	Other Database Option?
 Authentication Technology - If we want to encode logins, might not be necessary for this small scale development though.
-Deployment Technology -
-Traditional Cloud Server? - Hyperlink currently leads to AWS as an example
-Docker - Ensures easy deployment and scalability can utilize other servers
+Deployment Technology - Specific Deployment Technology to be discussed at a later date
 
 
 ## Features
@@ -44,7 +41,7 @@ List the ready features here:
 
 
 ## Screenshots
-![Example screenshot](./img/screenshot.png)
+<img src="https://i.imgur.com/QxqSWGx.png" alt="AI Generated Secure Chat Logo" width="500" height="500">
 <!-- If you have screenshots you'd like to share, include them here. -->
 
 
@@ -69,8 +66,8 @@ Project is: _in progress_ / _complete_ / _no longer being worked on_. If you are
 Include areas you believe need improvement / could be improved. Also add TODOs for future development.
 
 Room for improvement:
-- Improvement to be done 1
-- Improvement to be done 2
+- Gather users or "beta testers" to collect usability features
+- Address hosting and server resource concerns
 
 To do:
 - Feature to be added 1

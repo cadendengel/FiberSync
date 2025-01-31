@@ -59,7 +59,7 @@ Provide various use cases and code examples here.
 
 
 ## Project Status
-Project is: _in progress_ / _complete_ / _no longer being worked on_. If you are no longer working on it, provide reasons why.
+-  in progress 
 
 
 ## Room for Improvement
@@ -70,15 +70,15 @@ Room for improvement:
 - Address hosting and server resource concerns
 
 To do:
-- Feature to be added 1
-- Feature to be added 2
+1.  User sign-up & sign-in
+2.  Basic user profile
+3.  Single Messaging “Wall”
+4.  Message Persistence
+
 
 
 ## Acknowledgements
-Give credit here.
-- This project was inspired by...
-- This project was based on [this tutorial](https://www.example.com).
-- Many thanks to...
+- This project is inspired by Discord and Slack, combining casual and professional messaging into one seamless platform.
 
 
 ## Contact

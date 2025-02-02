@@ -1,22 +1,20 @@
 # FiberSync
-> Outline a brief description of your project.
-> Live demo [_here_](https://www.example.com). <!-- If you have the project hosted somewhere, include the link here. -->
+Fibersync is a social messaging service designed to be safe, user-friendly, and professional.
+<!-- Link to working project website will go here later -->
+
 
 ## Table of Contents
 * [General Info](#general-information)
 * [Technologies Used](#technologies-used)
 * [Features](#features)
 * [Screenshots](#screenshots)
-* [Setup](#setup)
-* [Usage](#usage)
 * [Project Status](#project-status)
 * [Room for Improvement](#room-for-improvement)
 * [Acknowledgements](#acknowledgements)
-* [Contact](#contact)
-<!-- * [License](#license) -->
 
 
 ## General Information
+
 We are a team of programmers called the Changelings (Chris Beverly, Chris Clark, Caden Dengel, and Ricky Mosqueda-Torres) 
 
 working together to create a privately hosted messaging application so that students, professionals, and recreational users 
@@ -31,17 +29,17 @@ can utilize a platform that accounts for their working environment and prioritiz
 *	Database Technology - Options for storage
 	*	<a href="https://www.mongodb.com/">MongoDB</a> - Flexible document-based database
 	*	<a href="https://www.sqlite.org/">SQLite</a> - Lightweight option, possibly better for the scope of this project
-	*	Other Database Option?
-*	Authentication Technology - If we want to encode logins, might not be necessary for this small scale development though.
-*	Deployment Technology - Specific Deployment Technology to be discussed at a later date
+*	Authentication Technology - TBD, May be necessary to encode logins, might not be necessary for this small scale development though.
+*	Deployment Technology - TBD
 
 
 ## Features
-List the ready features here:
 
-*	Awesome feature 1
-*	Awesome feature 2
-*	Awesome feature 3
+For our first sprint, we will lay the groundwork for the project by developing the following features:
+
+*	A website that multiple users can connect to from different devices
+*	A real time messaging channel with scrolling functionality that any user with a name can post to
+*	Online users section that displays connected users in real time
 
 
 ## Screenshots
@@ -49,28 +47,11 @@ List the ready features here:
 <!-- If you have screenshots you'd like to share, include them here. -->
 
 
-## Setup
-What are the project requirements/dependencies? Where are they listed? A requirements.txt or a Pipfile.lock file perhaps? Where is it located?
-
-Proceed to describe how to install / setup one's local environment / get started with the project.
-
-
-## Usage
-How does one go about using it?
-Provide various use cases and code examples here.
-
-`write-your-code-here`
-
-
 ## Project Status
 -  in progress 
 
 
 ## Room for Improvement
-Include areas you believe need improvement / could be improved. Also add TODOs for future development.
-
-
-Room for improvement:
 
 *	Gather users or "beta testers" to collect usability features
 *	Address hosting and server resource concerns
@@ -83,13 +64,11 @@ To do:
 4.  Message Persistence
 5.	User Status
 
+
 ## Acknowledgements
-- This project is inspired by Discord and Slack, combining casual and professional messaging into one seamless platform.
-
-
-## Contact
-Created by [@flynerdpl](https://www.flynerd.pl/) - feel free to contact me!
-
+- This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal
+to an adult demographic, while "Slack" is not casual enough to appeal to a younger demographic. 
+- We hope to combine casual and professional messaging into one seamless platform.
 
 <!-- Optional -->
 <!-- ## License -->

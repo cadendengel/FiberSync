@@ -37,8 +37,13 @@ h1 {
                0 0 10px #4a90e2, 
 }
 
-/* Hover Effect to Enhance Glow */
+/* Hover Effect to turbo super Enhance Glow */
 .App:hover {
   box-shadow: 0 0 25px rgba(74, 144, 226, 0.8), 
               0 0 50px rgba(74, 144, 226, 0.5);
+}
+
+.logo {
+  width: 150px; /* Adjust size as needed */
+  margin-bottom: 20px;
 }

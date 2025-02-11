@@ -1,0 +1,44 @@
+/* Base Line for us to build */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Background & Layout */
+body {
+  background-color: #1e1e2e; /* Dark grey-blue */
+  color: #ffffff; /* White text for contrast */
+  font-family: 'Arial', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+/* App Container */
+.App {
+  background: linear-gradient(145deg, #2a2a3a, #1a1a24);
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5), 
+              0 0 100px rgba(74, 144, 226, 0.3); /* Glowing blue edges */
+  transition: all 0.3s ease-in-out; /* These two lines apply the Glow */
+}
+
+/* Title */
+h1 {
+  font-size: 3rem;
+  color: #4a90e2;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  text-shadow: 0 0 5px #4a90e2, 
+               0 0 10px #4a90e2, 
+}
+
+/* Hover Effect to Enhance Glow */
+.App:hover {
+  box-shadow: 0 0 25px rgba(74, 144, 226, 0.8), 
+              0 0 50px rgba(74, 144, 226, 0.5);
+}

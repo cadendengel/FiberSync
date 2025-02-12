@@ -98,27 +98,45 @@ h1 {
   overflow: hidden;
 }
 
-/* Sidebar (Left & Right Panels) */
+/* Sidebar (Left Panel - Channels) */
 .chat-sidebar {
   width: 20%;
   background: #2a2a3a;
   padding: 20px;
-  text-align: center;
   color: white;
   font-size: 1.2rem;
   display: flex;
-  align-items: top;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Right Panel Styling */
+/* Ensure Right Panel Also Aligns Properly */
 .chat-layout .chat-sidebar:last-child {
   border-left: 1px solid rgba(255, 255, 255, 0.2);
   border-right: none;
 }
 
-/* Chat Window (Middle Section) */
+/* Left-align Channel List */
+.channel-list {
+  list-style: none;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.channel-list li {
+  padding: 8px 0;
+  font-size: 1rem;
+  color: #cfd8dc;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.channel-list li:hover {
+  color: #4a90e2;
+}
+
+/* Chat Window */
 .chat-window {
   flex: 1;
   padding: 20px;
@@ -129,7 +147,7 @@ h1 {
   text-align: center;
 }
 
-/* Chat Messages Section */
+/* Chat Messages */
 .chat-messages {
   text-align: left;
   margin-top: 20px;
@@ -145,4 +163,21 @@ h1 {
   margin: 10px 0;
 }
 
+/* User List */
+.user-list {
+  list-style: none;
+  padding: 10px 0;
+  text-align: left;
+}
 
+.user-list li {
+  padding: 8px 0;
+  font-size: 1rem;
+  color: #cfd8dc;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.user-list li:hover {
+  color: #4a90e2;
+}

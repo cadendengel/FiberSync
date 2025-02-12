@@ -30,4 +30,4 @@ pipelines:
           - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON > firebase-key.json
           - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/firebase-key.json
           - npm install -g firebase-tools
-          - firebase deploy -- Project $FIREBASE_PROJECT
+          - firebase deploy --project $FIREBASE_PROJECT

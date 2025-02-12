@@ -14,6 +14,7 @@ pipelines:
     - step:
         name: Build
         script:
+          - cd frontend # Please dear god let this be the issue?
           - npm install && npm run build
         artifacts:
           - frontend/build/**

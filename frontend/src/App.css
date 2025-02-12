@@ -84,3 +84,65 @@ h1 {
     transform: translateY(0);
   }
 }
+
+/* Below is formatting for the second phase, chat UI */
+
+/* Chat Layout */
+.chat-layout {
+  display: flex;
+  width: 80%;
+  height: 80vh;
+  background: rgba(30, 30, 46, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+  overflow: hidden;
+}
+
+/* Sidebar (Left & Right Panels) */
+.chat-sidebar {
+  width: 20%;
+  background: #2a2a3a;
+  padding: 20px;
+  text-align: center;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: top;
+  justify-content: center;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Right Panel Styling */
+.chat-layout .chat-sidebar:last-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: none;
+}
+
+/* Chat Window (Middle Section) */
+.chat-window {
+  flex: 1;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+/* Chat Messages Section */
+.chat-messages {
+  text-align: left;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 5px;
+  height: 60vh;
+  overflow-y: auto;
+}
+
+/* Placeholder Chat Messages */
+.chat-messages p {
+  margin: 10px 0;
+}
+
+

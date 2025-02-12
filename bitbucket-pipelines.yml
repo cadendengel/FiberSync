@@ -1,0 +1,34 @@
+image: node
+
+pipelines:
+  default:
+    - step:
+        name: Test
+        script:
+          - npm install && npm test
+          - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON
+          - echo $FIREBASE_PROJECT
+          - echo $KEY_FILE
+          - echo $GOOGLE_APPLICATION_CREDENTIALS
+
+    - step:
+        name: Build
+        script:
+          - cd frontend # Please dear god let this be the issue?
+          - npm install && npm run build
+        artifacts:
+          - frontend/build/**
+
+    - step:
+        name: Deploy to Firebase
+        deployment: production
+        script:
+          - ls -R frontend/build/
+          - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON
+          - echo $FIREBASE_PROJECT
+          - echo $KEY_FILE
+          - echo $GOOGLE_APPLICATION_CREDENTIALS
+          - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON > firebase-key.json
+          - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/firebase-key.json
+          - npm install -g firebase-tools
+          - firebase deploy --project $FIREBASE_PROJECT

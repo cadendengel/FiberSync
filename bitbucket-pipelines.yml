@@ -16,13 +16,13 @@ pipelines:
         script:
           - npm install && npm run build
         artifacts:
-          - build/**
+          - frontend/build/**
 
     - step:
         name: Deploy to Firebase
         deployment: production
         script:
-          - ls -R
+          - ls -R frontend/build/
           - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON
           - echo $FIREBASE_PROJECT
           - echo $KEY_FILE

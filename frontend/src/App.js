@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import './App.css';
 import logo from './FiberSyncLogo.png'; // Ensure the logo image is in /src
+import ChannelSidebar from './components/ChannelSidebar';
+import ChatWindow from './components/ChatWindow';
+import UserSidebar from './components/UserSidebar';
+import ChatInput from './components/ChatInput';
 
 function App() {
   const [enteredChat, setEnteredChat] = useState(false);
-  const [message, setMessage] = useState("");
+  const [messages, setMessages] = useState([
+    { user: "User1", text: "Hello!" },
+    { user: "User2", text: "Welcome to FiberSync!" }
+  ]);
 
   const handleClick = () => {
     setEnteredChat(true);
   };
 
-  const handleMessageChange = (e) => {
-    setMessage(e.target.value);
-  };
-
-  const handleSendMessage = () => {
-    console.log("Message submitted:", message);
-    setMessage("");
+  const handleSendMessage = (messageText) => {
+    if (messageText.trim() === "") return;
+    setMessages([...messages, { user: "You", text: messageText }]);
   };
 
   return (
@@ -28,46 +31,12 @@ function App() {
         </div>
       ) : (
         <div className="chat-layout">
-          {/* Left Panel - Channels */}
-          <div className="chat-sidebar">
-            <h2>Channels</h2>
-            <ul className="channel-list">
-              <li>#Primary</li>
-              <li>#Project Complaining</li>
-              <li>#Dr. Lehr rumors</li>
-              <li>#Social</li>
-            </ul>
+          <ChannelSidebar />
+          <div className="chat-main">
+            <ChatWindow messages={messages} />
+            <ChatInput onSendMessage={handleSendMessage} />
           </div>
-
-          {/* Center Chat Window */}
-          <div className="chat-window">
-            <h2>Chat Messages</h2>
-            <div className="chat-messages">
-              <p><strong>User1:</strong> Hello!</p>
-              <p><strong>User2:</strong> Welcome to FiberSync!</p>
-            </div>
-            {/* Chat Box Input, sub Div of Chat Window */}
-            <div className="chatbox">
-              <input 
-                type="text" 
-                placeholder="Type a message..." 
-                value={message} 
-                onChange={handleMessageChange} 
-                className="chat-input" 
-              />
-              <button onClick={handleSendMessage} className="send-button">Send</button>
-            </div>
-          </div>
-
-          {/* Right Panel - Users */}
-          <div className="chat-sidebar">
-            <h2>Users</h2>
-            <ul className="user-list">
-              <li>👤 User1</li>
-              <li>👤 User2</li>
-              <li>👤 User (You)</li>
-            </ul>
-          </div>
+          <UserSidebar />
         </div>
       )}
     </div>

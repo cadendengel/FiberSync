@@ -136,6 +136,14 @@ h1 {
   color: #4a90e2;
 }
 
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px;
+}
+
 /* Chat Window */
 .chat-window {
   flex: 1;
@@ -154,7 +162,6 @@ h1 {
   background: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
-  height: 60vh;
   overflow-y: auto;
 }
 

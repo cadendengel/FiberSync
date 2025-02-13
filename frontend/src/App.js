@@ -4,9 +4,19 @@ import logo from './FiberSyncLogo.png'; // Ensure the logo image is in /src
 
 function App() {
   const [enteredChat, setEnteredChat] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleClick = () => {
     setEnteredChat(true);
+  };
+
+  const handleMessageChange = (e) => {
+    setMessage(e.target.value);
+  };
+
+  const handleSendMessage = () => {
+    console.log("Message submitted:", message);
+    setMessage("");
   };
 
   return (
@@ -22,10 +32,10 @@ function App() {
           <div className="chat-sidebar">
             <h2>Channels</h2>
             <ul className="channel-list">
-              <li># Primary</li>
-              <li># Project Complaining</li>
-              <li># Dr. Lehr rumors</li>
-              <li># Social</li>
+              <li>#Primary</li>
+              <li>#Project Complaining</li>
+              <li>#Dr. Lehr rumors</li>
+              <li>#Social</li>
             </ul>
           </div>
 
@@ -35,6 +45,17 @@ function App() {
             <div className="chat-messages">
               <p><strong>User1:</strong> Hello!</p>
               <p><strong>User2:</strong> Welcome to FiberSync!</p>
+            </div>
+            {/* Chat Box Input, sub Div of Chat Window */}
+            <div className="chatbox">
+              <input 
+                type="text" 
+                placeholder="Type a message..." 
+                value={message} 
+                onChange={handleMessageChange} 
+                className="chat-input" 
+              />
+              <button onClick={handleSendMessage} className="send-button">Send</button>
             </div>
           </div>
 

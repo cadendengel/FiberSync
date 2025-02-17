@@ -4,6 +4,11 @@ import ChatWindow from "../ChatWindow";
 import "@testing-library/jest-dom";
 
 describe("ChatWindow Component", () => {
+     /* 
+     * This test covers the placeholder messages for testing purposes.
+     * In the future, when messages are dynamically retrieved from a backend,
+     * these test cases should be updated to reflect the new data source.
+     */
     test("renders messages correctly", () => {
       const messages = [
         { type: "message", user: "User1", text: "Hello!", timestamp: "2024-02-11T12:00:00Z" },
@@ -34,4 +39,16 @@ describe("ChatWindow Component", () => {
 
     expect(chatMessagesDiv.scrollTop).toBe(chatMessagesDiv.scrollHeight - chatMessagesDiv.clientHeight);
   });
+
+  test("renders long messages properly without breaking layout", () => {
+    const longMessage = "This is a very long message that should wrap correctly inside the chat window without breaking the UI or overflowing.";
+    const messages = [
+      { type: "message", user: "User1", text: longMessage, timestamp: "2024-02-11T12:03:00Z" }
+    ];
+
+    render(<ChatWindow messages={messages} />);
+    
+    expect(screen.getByText(longMessage)).toBeInTheDocument();
+  });
+
 });

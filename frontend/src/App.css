@@ -144,30 +144,39 @@ h1 {
   padding: 20px;
 }
 
-/* Chat Window */
 .chat-window {
   flex: 1;
+  min-width: 500px; /* Ensures it never shrinks too much */
+  max-width: 700px; /* Prevents it from expanding infinitely */
   padding: 20px;
   color: white;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   text-align: center;
+  overflow: hidden; /* Prevents expansion issues */
 }
 
-/* Chat Messages */
+/* Chat Messages - Ensure text wraps properly */
 .chat-messages {
   text-align: left;
   margin-top: 20px;
   background: rgba(255, 255, 255, 0.1);
   padding: 15px;
   border-radius: 5px;
+  height: 60vh;
   overflow-y: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%; /* Ensures messages stay within the chat window */
 }
 
-/* Placeholder Chat Messages */
+/* Individual Chat Messages */
 .chat-messages p {
-  margin: 10px 0;
+  white-space: pre-wrap; /* Allows long messages to wrap properly */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 75%; /* Prevents messages from stretching across the whole width */
 }
 
 /* User List */

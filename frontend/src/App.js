@@ -9,8 +9,8 @@ import ChatInput from './components/ChatInput';
 function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([
-    { user: "User1", text: "Hello!" },
-    { user: "User2", text: "Welcome to FiberSync!" }
+    { type: "message", user: "User1", text: "Hello!", timestamp: new Date().toISOString() },
+    { type: "message", user: "User2", text: "Welcome to FiberSync!", timestamp: new Date().toISOString() }
   ]);
 
   const handleClick = () => {
@@ -18,8 +18,16 @@ function App() {
   };
 
   const handleSendMessage = (messageText) => {
-    if (messageText.trim() === "") return;
-    setMessages([...messages, { user: "You", text: messageText }]);
+    if (!messageText || !messageText.trim()) return;
+    
+    const chatEvent = {
+      type: "message",
+      user: "You",
+      text: messageText,
+      timestamp: new Date().toISOString()
+    };
+    
+    setMessages(prevMessages => [...prevMessages, chatEvent]);
   };
 
   return (

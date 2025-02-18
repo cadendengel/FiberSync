@@ -17,7 +17,7 @@ describe("ChatWindow Component", () => {
   
       render(<ChatWindow messages={messages} />);
   
-      // Function matchers to allow finding text split by elements
+      // Function matchers to allow finding text split by elements, this was causing an error before
       expect(screen.getByText((content, element) => 
         element?.textContent === "User1: Hello!"
       )).toBeInTheDocument();

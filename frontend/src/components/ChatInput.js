@@ -4,21 +4,12 @@ function ChatInput({ onSendMessage }) {
   const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
-    setMessage(e.target.value);
+    setMessage(e.target.value); // update input with text as user types
   };
 
   const handleSend = () => {
     if (message.trim() === "") return;
-
-    // Below is the chat event object, with more details for each
-    const chatEvent = {
-      type: "message", // Event type, useful for future expansion such as user joins or system messages
-      user: "You", // Placeholder for now, can later be dynamic with Username branch
-      text: message, // The actual message content
-      timestamp: new Date().toISOString() // Standardized timestamp format
-    };
-
-    onSendMessage(message);
+    onSendMessage(message); // Send text to parent
     setMessage(""); // Clear input after sending
   };
 

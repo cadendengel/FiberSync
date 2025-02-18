@@ -40,3 +40,12 @@ def store_message(messageid, userid, timestamp, message):
                             "timestamp": timestamp, 
                             "username": userid, 
                             "message": message})
+    
+def get_message_by_id(messageid):
+    return db.messages.find_one({"messageid": messageid})
+
+def get_messages_by_user(userid):
+    return db.messages.find({"username": userid})
+
+def get_messages_since(timestamp):
+    return db.messages.find({"timestamp": {"$gt": timestamp}}) # $gt = greater than

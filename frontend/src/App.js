@@ -10,16 +10,16 @@ import ChatMessage from './src/ChatMessage';
 function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([
-    new ChatMessage("Hello!", "User1"),
-    new ChatMessage("Welcome to FiberSync!", "User2")
+    new ChatMessage("User1", "Hello!"),
+    new ChatMessage("User2", "Welcome to FiberSync!")
   ]);
 
   const handleClick = () => {
     setEnteredChat(true);
   };
 
-  const handleSendMessage = (messageText, username) => {
-    const chatEvent = new ChatMessage(messageText, username); 
+  const handleSendMessage = (messageText) => {
+    const chatEvent = new ChatMessage(username = "You", messageText); // get the real username when implemented
     setMessages(prevMessages => [...prevMessages, chatEvent]);
   };
 

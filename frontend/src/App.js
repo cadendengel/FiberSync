@@ -5,16 +5,28 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
+import './backend/src/UserDB/database.py' // CADEN: DOUBLE CHECK THIS, DOES IT EVEN WORK???
 
 function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [enteredChat, setEnteredChat] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState([ // CADEN: CHANGE THIS LATER FOR MESSAGE DB?
     { type: "message", user: "User1", text: "Hello!", timestamp: new Date().toISOString() },
     { type: "message", user: "User2", text: "Welcome to FiberSync!", timestamp: new Date().toISOString() }
   ]);
 
-  const handleClick = () => {
-    setEnteredChat(true);
+  const handleLogin = (username, password, cookie) => {
+    if (cookie) {
+      setLoggedIn(true);
+      return;
+    }
+    if (username == "admin" && password == "password") { // CADEN: THIS LINE IS TEMPORARY, WILL GET FROM DB AND IMPLEMENT LOGIC LATER
+      setLoggedIn(true);
+    }
+  };
+  
+  const handleClick = () => { // CADEN: USE THIS IN LOGIN??
+    if (loggedIn) setEnteredChat(true);
   };
 
   const handleSendMessage = (messageText) => {

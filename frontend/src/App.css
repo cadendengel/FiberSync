@@ -35,6 +35,21 @@ h1 {
   width: 100vw;
 }
 
+// CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C.
+// CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C.
+// CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C.
+// CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C.
+// CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C.
+/* Login Form */
+.login-form {
+  background: linear-gradient(145deg, #2a2a3a, #1a1a24);
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5), 
+              0 0 30px rgba(74, 144, 226, 0.3);
+  transition: all 0.3s ease-in-out;
+}
+
 /* Clickable Entry Box */
 .entry-box {
   background: linear-gradient(145deg, #2a2a3a, #1a1a24);

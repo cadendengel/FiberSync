@@ -9,18 +9,18 @@ function ChatInput({ onSendMessage }) {
 
   const handleSend = () => {
     if (message.trim() === "") return;
-
-    // Below is the chat event object, with more details for each
+  
     const chatEvent = {
-      type: "message", // Event type, useful for future expansion such as user joins or system messages
-      user: "You", // Placeholder for now, can later be dynamic with Username branch
-      text: message, // The actual message content
-      timestamp: new Date().toISOString() // Standardized timestamp format
+      type: "message",
+      user: "You",  // Placeholder for now, will be dynamic later
+      text: message,
+      timestamp: new Date().toISOString(),
     };
-
-    onSendMessage(message);
-    setMessage(""); // Clear input after sending
+  
+    onSendMessage(chatEvent); // Pass the full chat event instead of just message
+    setMessage("");  // Clear input after sending
   };
+  
 
   // Allows the user to press enter to submit their message
   const handleKeyPress = (e) => {

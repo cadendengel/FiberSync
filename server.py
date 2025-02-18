@@ -3,7 +3,7 @@ from flask_cors import CORS
 import os
 
 app = Flask(__name__, static_folder="frontend/build", static_url_path="")
-CORS(app)  # Enable CORS for cross-origin requests
+CORS(app)  # Enable CORS for cross-origin requests (so that the frontend can access the backend despite running on different ports)
 
 @app.route('/')
 def serve():

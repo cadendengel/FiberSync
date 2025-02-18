@@ -23,13 +23,12 @@ can utilize a platform that accounts for their working environment and prioritiz
 
 
 ## Technologies Used
-*	<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API (Maybe not a “Technology” to list)
-*	<a href="https://www.python.org/">Python</a> - Primary backend Programming Language (Also maybe not a “Technology” to list)
+*	<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API
 *	<a href="https://react.dev/">React</a> - Frontend UI
 *	Database Technology - Options for storage
 	*	<a href="https://www.mongodb.com/">MongoDB</a> - Flexible document-based database
 	*	<a href="https://www.sqlite.org/">SQLite</a> - Lightweight option, possibly better for the scope of this project
-*	Authentication Technology - TBD, May be necessary to encode logins, might not be necessary for this small scale development though.
+*	Authentication Technology - TBD
 *	Deployment Technology - TBD
 
 

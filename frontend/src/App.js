@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Axios from 'axios';
 import './App.css';
 import logo from './FiberSyncLogo.png'; // Ensure the logo image is in /src
 import ChannelSidebar from './components/ChannelSidebar';
@@ -21,6 +22,13 @@ function App() {
   const handleSendMessage = (messageText) => {
     const chatEvent = new ChatMessage(username = "You", messageText); // get the real username when implemented
     setMessages(prevMessages => [...prevMessages, chatEvent]);
+    Axios.post("http://localhost:5000/", chatEvent) // this assumes that Flask is running at localhost:5000.
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (

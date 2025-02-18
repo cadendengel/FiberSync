@@ -36,7 +36,7 @@ def get_users():
 def create_user():
     data = request.json
     username = data.get('username')
-    password = data.get('password')  # Currently stored as plain text (to be updated)
+    password = data.get('password')  # Currently stored as plain text (to be updated)``
 
     # Prevent empty fields
     if not username or not password:

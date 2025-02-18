@@ -1,11 +1,10 @@
-/* Base Line for us to build */
+/* Reset and Layout */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* Background & Layout */
 body {
   background-color: #1e1e2e; /* Dark grey-blue */
   color: #ffffff; /* White text for contrast */
@@ -15,16 +14,6 @@ body {
   justify-content: center;
   height: 100vh;
   text-align: center;
-}
-
-/* App Container */
-.App {
-  background: linear-gradient(145deg, #2a2a3a, #1a1a24);
-  padding: 30px;
-  border-radius: 10px;
-  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5), 
-              0 0 100px rgba(74, 144, 226, 0.3); /* Glowing blue edges */
-  transition: all 0.3s ease-in-out; /* These two lines apply the Glow */
 }
 
 /* Title */
@@ -37,13 +26,158 @@ h1 {
                0 0 10px #4a90e2, 
 }
 
-/* Hover Effect to turbo super Enhance Glow */
-.App:hover {
-  box-shadow: 0 0 25px rgba(74, 144, 226, 0.8), 
-              0 0 50px rgba(74, 144, 226, 0.5);
+/* Center Container */
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  width: 100vw;
 }
 
+/* Clickable Entry Box */
+.entry-box {
+  background: linear-gradient(145deg, #2a2a3a, #1a1a24);
+  padding: 50px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5), 
+              0 0 30px rgba(74, 144, 226, 0.3);
+  transition: all 0.3s ease-in-out;
+}
+
+/* Glow Effect on Hover */
+.entry-box:hover {
+  box-shadow: 0 0 25px rgba(74, 144, 226, 0.8), 
+              0 0 50px rgba(74, 144, 226, 0.5);
+  transform: scale(1.05);
+}
+
+/* Click Effect */
+.entry-box:active {
+  transform: scale(0.98);
+  box-shadow: 0 0 40px rgba(74, 144, 226, 1);
+}
+
+/* Logo */
 .logo {
   width: 150px; /* Adjust size as needed */
   margin-bottom: 20px;
+}
+
+/* Chat Container (After Clicking) */
+.chat-container {
+  background: rgba(30, 30, 46, 0.9);
+  padding: 50px;
+  border-radius: 10px;
+  animation: fadeIn 1s ease-in-out;
+}
+
+/* Fade In Effect */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Below is formatting for the second phase, chat UI */
+
+/* Chat Layout */
+.chat-layout {
+  display: flex;
+  width: 80%;
+  height: 80vh;
+  background: rgba(30, 30, 46, 0.9);
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+  overflow: hidden;
+}
+
+/* Sidebar (Left Panel - Channels) */
+.chat-sidebar {
+  width: 20%;
+  background: #2a2a3a;
+  padding: 20px;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Ensure Right Panel Also Aligns Properly */
+.chat-layout .chat-sidebar:last-child {
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  border-right: none;
+}
+
+/* Left-align Channel List */
+.channel-list {
+  list-style: none;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.channel-list li {
+  padding: 8px 0;
+  font-size: 1rem;
+  color: #cfd8dc;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.channel-list li:hover {
+  color: #4a90e2;
+}
+
+/* Chat Window */
+.chat-window {
+  flex: 1;
+  padding: 20px;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+/* Chat Messages */
+.chat-messages {
+  text-align: left;
+  margin-top: 20px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 15px;
+  border-radius: 5px;
+  height: 60vh;
+  overflow-y: auto;
+}
+
+/* Placeholder Chat Messages */
+.chat-messages p {
+  margin: 10px 0;
+}
+
+/* User List */
+.user-list {
+  list-style: none;
+  padding: 10px 0;
+  text-align: left;
+}
+
+.user-list li {
+  padding: 8px 0;
+  font-size: 1rem;
+  color: #cfd8dc;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.user-list li:hover {
+  color: #4a90e2;
 }

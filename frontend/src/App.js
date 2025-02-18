@@ -5,30 +5,21 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-import { v4 as uuidv4 } from 'uuid';
+import ChatMessage from './src/ChatMessage';
 
 function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([
-    { type: "message", user: "User1", text: "Hello!", timestamp: new Date().toISOString(), messageid: uuidv4() },
-    { type: "message", user: "User2", text: "Welcome to FiberSync!", timestamp: new Date().toISOString(), messageid: uuidv4() }
+    new ChatMessage("Hello!", "User1"),
+    new ChatMessage("Welcome to FiberSync!", "User2")
   ]);
 
   const handleClick = () => {
     setEnteredChat(true);
   };
 
-  const handleSendMessage = (messageText) => {
-    if (!messageText || !messageText.trim()) return;
-    
-    const chatEvent = {
-      type: "message",
-      user: "You",
-      text: messageText,
-      timestamp: new Date().toISOString(),
-      messageid: uuidv4()
-    };
-    
+  const handleSendMessage = (messageText, username) => {
+    const chatEvent = new ChatMessage(messageText, username); 
     setMessages(prevMessages => [...prevMessages, chatEvent]);
   };
 

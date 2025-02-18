@@ -35,5 +35,8 @@ def delete_all_users():
 # Message Database Functions #
 ##############################
 
-def store_message():
-    db.messages.insert_one({})
+def store_message(messageid, userid, timestamp, message):
+    db.messages.insert_one({"messageid": messageid, 
+                            "timestamp": timestamp, 
+                            "username": userid, 
+                            "message": message})

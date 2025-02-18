@@ -9,11 +9,15 @@ client = MongoClient(os.getenv('MONGODB_LOGIN'))
 db = client['userdb']
 
 
-######################
-# database functions #
-######################
+#############################
+# Global Database Functions #
+#############################
 def init_db():
     pass
+
+###########################
+# User Database Functions #
+###########################
 
 def get_user_count():
     return db.users.count_documents({})
@@ -26,3 +30,10 @@ def add_user(username, password):
     
 def delete_all_users():
     db.users.delete_many({})
+
+##############################
+# Message Database Functions #
+##############################
+
+def store_message():
+    db.messages.insert_one({})

@@ -1,5 +1,5 @@
 import unittest
-from fibersync.UserDB import database
+from fibersync.frontend.Mongo.UserDB import database
 
 
 class TestUserDB(unittest.IsolatedAsyncioTestCase):

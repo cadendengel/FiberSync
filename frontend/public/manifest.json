@@ -1,0 +1,7 @@
+{
+  "short_name": "FiberSync",
+  "name": "FiberSync Chat",
+  "theme_color": "#1e1e2e",
+  "background_color": "#1e1e2e",
+  "display": "standalone"
+}

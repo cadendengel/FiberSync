@@ -10,7 +10,7 @@ import './backend/src/UserDB/database.py' // CADEN: DOUBLE CHECK THIS, DOES IT E
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [enteredChat, setEnteredChat] = useState(false);
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
       fetch("http://127.0.0.1:5000/api/messages")

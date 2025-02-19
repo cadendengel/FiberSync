@@ -68,3 +68,7 @@ build/Release
 /.pnp
 .pnp.js
 .DS_Store
+
+# Pycache ignores
+__pycache__/
+*.pyc

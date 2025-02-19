@@ -239,6 +239,20 @@ h1 {
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* Username Input */
+.username-input {
+  width: 80%;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #4a90e2;
+  background: #1e1e2e;
+  color: white;
+  text-align: center;
+  outline: none;
+}
+
 .send-button {
   background: #4a90e2;
   color: white;

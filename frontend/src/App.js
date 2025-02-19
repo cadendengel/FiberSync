@@ -5,10 +5,10 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-import './backend/src/UserDB/database.py' // CADEN: DOUBLE CHECK THIS, DOES IT EVEN WORK???
+// CADEN: still need to handle connection to backend via routes
 
 function App() {
-  const [loggedIn, setLoggedIn] = useState(false);
+  const [username, setUsername] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -23,18 +23,14 @@ function App() {
 
   const handleLogin = (username, password, cookie) => {
     if (cookie) {
-      setLoggedIn(true);
+      setEnteredChat(true);
       return;
     }
-    if (username == "admin" && password == "password") { // CADEN: THIS LINE IS TEMPORARY, WILL GET FROM DB AND IMPLEMENT LOGIC LATER
-      setLoggedIn(true);
+    if (username === "admin" && password === "password") { // CADEN: THIS LINE IS TEMPORARY, WILL GET FROM DB AND IMPLEMENT LOGIC LATER
+      setEnteredChat(true);
     }
+    setEnteredChat(true);
   };
-  
-  const handleClick = () => { // CADEN: USE THIS IN LOGIN??
-    if (loggedIn) setEnteredChat(true);
-  };
-
 
   // Sends messages to the correct route
   const handleSendMessage = (chatEvent) => {
@@ -59,9 +55,18 @@ function App() {
   return (
     <div className="container">
       {!enteredChat ? (
-        <div className="entry-box" onClick={handleClick}>
+        <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" />
           <h1>FiberSync</h1>
+          <input
+            type="text"
+            className="username-input"
+            placeholder="Enter your username..."
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+          />
+          <button className="enter-button" onClick={handleLogin}>➡</button>
         </div>
       ) : (
         <div className="chat-layout">
@@ -70,11 +75,11 @@ function App() {
             <ChatWindow messages={messages} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
-          <UserSidebar />
+          <UserSidebar username={username} />
         </div>
       )}
     </div>
   );
-}
+  }
 
-export default App;
+  export default App;

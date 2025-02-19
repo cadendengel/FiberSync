@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import './App.css';
-import logo from './FiberSyncLogo.png'; // Ensure the logo image is in /src
+import logo from './resources/FiberSyncLogo.png';
 import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
@@ -10,10 +10,16 @@ import './backend/src/UserDB/database.py' // CADEN: DOUBLE CHECK THIS, DOES IT E
 function App() {
   const [loggedIn, setLoggedIn] = useState(false);
   const [enteredChat, setEnteredChat] = useState(false);
-  const [messages, setMessages] = useState([ // CADEN: CHANGE THIS LATER FOR MESSAGE DB?
-    { type: "message", user: "User1", text: "Hello!", timestamp: new Date().toISOString() },
-    { type: "message", user: "User2", text: "Welcome to FiberSync!", timestamp: new Date().toISOString() }
-  ]);
+  const [messages, setMessages] = useState([
+  useEffect(() => {
+    if (enteredChat) {
+      fetch("http://127.0.0.1:5000/api/messages")
+        .then((response) => response.json())
+        .then((data) => setMessages(data))
+        .catch((error) => console.error("Error fetching messages:", error));
+    }
+  }, [enteredChat]);
+
 
   const handleLogin = (username, password, cookie) => {
     if (cookie) {
@@ -29,18 +35,26 @@ function App() {
     if (loggedIn) setEnteredChat(true);
   };
 
-  const handleSendMessage = (messageText) => {
-    if (!messageText || !messageText.trim()) return;
-    
-    const chatEvent = {
-      type: "message",
-      user: "You",
-      text: messageText,
-      timestamp: new Date().toISOString()
-    };
-    
-    setMessages(prevMessages => [...prevMessages, chatEvent]);
-  };
+
+  // Sends messages to the correct route
+  const handleSendMessage = (chatEvent) => {
+  if (!chatEvent.text || !chatEvent.text.trim()) return;
+
+  fetch("http://127.0.0.1:5000/api/messages", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(chatEvent),
+  })
+  .then((response) => response.json())
+  .then((data) => {
+    console.log("Message received from backend:", data);  // Debugging log
+    setMessages((prevMessages) => [...prevMessages, data]); // Append new message
+  })
+  .catch((error) => console.error("Error sending message:", error));
+};
+
 
   return (
     <div className="container">

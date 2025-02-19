@@ -10,6 +10,7 @@ import ChatInput from './components/ChatInput';
 function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [cookie, setCookie] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -23,15 +24,78 @@ function App() {
 
 
   const handleLogin = (username, password, cookie) => {
-    if (cookie) {
+
+    // AUTHENTICATION VIA COOKIES
+    fetch("http://127.0.0.1:5000/api/users/authentication/cookies", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json",
+      },
+      body: JSON.stringify({cookies: cookie})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.authenticated) {
       setEnteredChat(true);
-      return;
-    }
-    if (username === "admin" && password === "password") { // CADEN: THIS LINE IS TEMPORARY, WILL GET FROM DB AND IMPLEMENT LOGIC LATER
+      }
+    })
+    .catch((error) => console.error("Error during authentication:", error));
+
+    // AUTHENTICATION VIA USERNAME AND PASSWORD
+    fetch("http://127.0.0.1:5000/api/users/authentication/credentials", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json",
+      },
+      body: JSON.stringify({username: username, password: password}),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.authenticated) {
       setEnteredChat(true);
-    }
-    setEnteredChat(true);
+      }
+    })
+    .catch((error) => console.error("Error during authentication:", error));
+
+    // ELSE CREATE NEW USER
+    fetch("http://127.0.0.1:5000/api/users/create", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json",
+      },
+      body: JSON.stringify({username: username, password: password, cookies: cookie})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((error) => console.error("Error during authentication:", error));
+
   };
+
+
+
+  const testFunction = () => {
+    fetch("http://127.0.0.1:5000/api/users/authentication/cookies", {
+      method: "POST",
+      headers: {
+      "Content-Type": "application/json",
+      },
+      body: JSON.stringify({cookies: cookie})
+    })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.authenticated) {
+      setEnteredChat(true);
+      }
+    })
+    .catch((error) => console.error("Error during authentication:", error));
+  };
+
+
+
+
+
 
   // Sends messages to the correct route
   const handleSendMessage = (chatEvent) => {
@@ -65,7 +129,7 @@ function App() {
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
           <input
             type="password"
@@ -73,9 +137,10 @@ function App() {
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
           <button className="enter-button" onClick={handleLogin}>➡</button>
+          <button className="test-button" onClick={testFunction}>TEST</button>
         </div>
       ) : (
         <div className="chat-layout">

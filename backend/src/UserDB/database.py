@@ -24,11 +24,25 @@ def get_all_users():
 def get_user_by_username(username):
     return db.users.find_one({"username": username})
 
+def get_user_by_cookies(cookies):
+    return db.users.find_one({"cookies": cookies})
+
 def add_user(username, password, cookies):
+    print("Adding user:", username)
     db.users.insert_one({"username": username, "password": password, "cookies": cookies})
 
 def update_user_cookies(username, cookies):
     db.users.update_one({"username": username}, {"$set": {"cookies": cookies}})
+
+def is_cookie_authenticated(cookies):
+    for user in db.users.find():
+        if user["cookies"] == cookies:
+            return True
+    return False
+
+def is_user_authenticated(username, password):
+    user = db.users.find_one({"username": username, "password": password})
+    return user is not None
 
 def delete_user(username):
     db.users.delete_one({"username": username})

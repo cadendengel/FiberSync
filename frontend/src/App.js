@@ -9,6 +9,7 @@ import ChatInput from './components/ChatInput';
 
 function App() {
   const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -64,6 +65,14 @@ function App() {
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+          />
+          <input
+            type="password"
+            className="password-input"
+            placeholder="Enter your password..."
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
           <button className="enter-button" onClick={handleLogin}>➡</button>

@@ -8,9 +8,9 @@ import ChatInput from './components/ChatInput';
 // CADEN: still need to handle connection to backend via routes
 
 function App() {
+  const [cookie] = useState(document.cookie);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [cookie, setCookie] = useState("");
+  const [password, setPassword] = "password"; //useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -23,76 +23,23 @@ function App() {
   }, [enteredChat]);
 
 
-  const handleLogin = (username, password, cookie) => {
-
-    // AUTHENTICATION VIA COOKIES
-    fetch("http://127.0.0.1:5000/api/users/authentication/cookies", {
-      method: "POST",
-      headers: {
-      "Content-Type": "application/json",
-      },
-      body: JSON.stringify({cookies: cookie})
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.authenticated) {
-      setEnteredChat(true);
-      }
-    })
-    .catch((error) => console.error("Error during authentication:", error));
-
-    // AUTHENTICATION VIA USERNAME AND PASSWORD
-    fetch("http://127.0.0.1:5000/api/users/authentication/credentials", {
-      method: "POST",
-      headers: {
-      "Content-Type": "application/json",
-      },
-      body: JSON.stringify({username: username, password: password}),
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.authenticated) {
-      setEnteredChat(true);
-      }
-    })
-    .catch((error) => console.error("Error during authentication:", error));
-
-    // ELSE CREATE NEW USER
+  const handleLogin = () => {
+    // CADEN: For the first sprint, we will not be implementing password authentication
+    //        instead we will be using the username as the only form of authentication
     fetch("http://127.0.0.1:5000/api/users/create", {
       method: "POST",
       headers: {
-      "Content-Type": "application/json",
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({username: username, password: password, cookies: cookie})
+      body: JSON.stringify({ username, password }),
     })
     .then((response) => response.json())
     .then((data) => {
-      console.log(data);
-    })
-    .catch((error) => console.error("Error during authentication:", error));
-
-  };
-
-
-
-  const testFunction = () => {
-    fetch("http://127.0.0.1:5000/api/users/authentication/cookies", {
-      method: "POST",
-      headers: {
-      "Content-Type": "application/json",
-      },
-      body: JSON.stringify({cookies: cookie})
-    })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.authenticated) {
+      console.log("User created successfully:", data); // Debugging log
       setEnteredChat(true);
-      }
     })
-    .catch((error) => console.error("Error during authentication:", error));
+    .catch((error) => console.error("Error creating user:", error));
   };
-
-
 
 
 
@@ -129,8 +76,11 @@ function App() {
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
+
+          {/*
+          // CADEN: Password authentication will not yet implemented
           <input
             type="password"
             className="password-input"
@@ -139,8 +89,9 @@ function App() {
             onChange={(e) => setPassword(e.target.value)}
             //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
+          */}
+
           <button className="enter-button" onClick={handleLogin}>➡</button>
-          <button className="test-button" onClick={testFunction}>TEST</button>
         </div>
       ) : (
         <div className="chat-layout">

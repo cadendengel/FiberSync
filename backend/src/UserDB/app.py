@@ -28,12 +28,12 @@ def get_all_users():
     users = database.get_all_users()
     return jsonify(users)
 
+# Get user count
 @app.route('/api/users/count', methods=['GET'])
 def get_user_count():
     return database.get_user_count()
 
-
-# Create a new user entry (Only username for now, password later)
+# Create a new user entry
 @app.route('/api/users/create', methods=['POST'])
 def create_user():
     data = request.json

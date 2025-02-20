@@ -72,3 +72,6 @@ build/Release
 # Pycache ignores
 __pycache__/
 *.pyc
+frontend/package-lock.json
+
+frontend/package.json

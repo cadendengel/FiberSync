@@ -1,5 +1,5 @@
 import unittest
-from fibersync.UserDB import database
+from backend.src.UserDB import database
 
 
 class TestUserDB(unittest.IsolatedAsyncioTestCase):

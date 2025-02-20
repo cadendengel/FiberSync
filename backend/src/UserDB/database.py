@@ -18,11 +18,36 @@ def init_db():
 def get_user_count():
     return db.users.count_documents({})
 
+def get_all_users():
+    return db.users.find()
+
 def get_user_by_username(username):
     return db.users.find_one({"username": username})
 
-def add_user(username, password):
-    db.users.insert_one({"username": username, "password": password})
+def get_user_by_cookies(cookies):
+    return db.users.find_one({"cookies": cookies})
+
+def temp_add_user(username):
+    db.users.insert_one({"username": username, "password": "password", "cookies": []})
+
+def add_user(username, password, cookies):
+    db.users.insert_one({"username": username, "password": password, "cookies": cookies})
+
+def update_user_cookies(username, cookies):
+    db.users.update_one({"username": username}, {"$set": {"cookies": cookies}})
+
+def is_cookie_authenticated(cookies):
+    for user in db.users.find():
+        if user["cookies"] == cookies:
+            return True
+    return False
+
+def is_user_authenticated(username, password):
+    user = db.users.find_one({"username": username, "password": password})
+    return user is not None
+
+def delete_user(username):
+    db.users.delete_one({"username": username})
     
 def delete_all_users():
     db.users.delete_many({})

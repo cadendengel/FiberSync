@@ -2,12 +2,11 @@
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
-from database import db, get_user_by_username, add_user  # Import Caden's database functions directly
 from datetime import datetime, timezone
-
+import database
 
 # Initialize Flask app
-app = Flask(__name__, static_folder="../frontend/build", static_url_path="")  
+app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
 # Serve React App (Production)
@@ -25,40 +24,55 @@ def serve():
 
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
-def get_users():
-    #users = list(db.users.find({}, {"_id": 0}))  # Retrieves all users without MongoDB's ObjectID
-    # TEMPORARY BYPASS - Return Dummy Users
-    users = [{"username": "Chris"}, {"username": "Alice"}]
-    return jsonify(users)
+def get_all_users():
+    users = database.get_all_users()
+    user_data = []
+    for user in users:
+        user_data.append(user['username'])
+    return jsonify(user_data), 200
 
-# Create a new user entry (Only username for now, password later)
-@app.route('/api/users', methods=['POST'])
+# Get user count
+@app.route('/api/users/count', methods=['GET'])
+def get_user_count():
+    count = database.get_user_count()
+    return jsonify({"count": count}), 200
+
+# Create a new user entry
+@app.route('/api/users/create', methods=['POST'])
 def create_user():
     data = request.json
     username = data.get('username')
-    password = data.get('password')  # Currently stored as plain text (to be updated)``
 
     # Prevent empty fields
-    if not username or not password:
-        return jsonify({"error": "Missing username or password"}), 400  
-    
-    # Check if username already exists in the database
-    #if get_user_by_username(username):  
-    #    return jsonify({"error": "Username already exists"}), 409  
-
-    # TEMPORARY BYPASS - Skip DB Check, was having issues with above connecting to MongoDB^
-    if username == "existing_user":  
-        return jsonify({"error": "Username already exists"}), 409  
-
+    if not data or not username:
+        return jsonify({"error": "Missing data"}), 404
 
     # Store the new user
-    #add_user(username, password)
-    # TEMPORARY BYPASS - Skip MongoDB Insert
-    if username == "existing_user":
-        return jsonify({"error": "Username already exists"}), 409  
+    database.add_user(username, "password", [])
 
-    print(f"Simulated: Added user {username}")  # Debugging log
-    return jsonify({"message": "User created successfully"}), 201
+    # The below line might be a bug?
+    return jsonify({"message": "User created successfully"}), 200
+
+# Verify user credentials (username and password)
+@app.route('/api/users/authentication/credentials', methods=['POST'])
+def is_user_authenticated():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+
+    if database.is_user_authenticated(username, password):
+        return jsonify({"authenticated": True}), 200
+    return jsonify({"authenticated": False}), 401
+
+# Verify user credentials (cookies)
+@app.route('/api/users/authentication/cookies', methods=['POST'])
+def is_cookie_authenticated():
+    data = request.json
+    cookies = data.get('cookies')
+
+    if database.is_cookie_authenticated(cookies):
+        return jsonify({"authenticated": True}), 200
+    return jsonify({"authenticated": False}), 401
 
 
 

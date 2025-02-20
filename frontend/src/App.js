@@ -5,8 +5,12 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
+// CADEN: still need to handle connection to backend via routes
 
 function App() {
+  //const [cookie] = useState(document.cookie);
+  const [username, setUsername] = useState("");
+  //const [password, setPassword] = "password"; //useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -19,10 +23,33 @@ function App() {
   }, [enteredChat]);
 
 
-
-  const handleClick = () => {
-    setEnteredChat(true);
+  const handleLogin = () => {
+    // CADEN: For the first sprint, we will not be implementing password authentication
+    //        instead we will be using the username as the only form of authentication
+    fetch("http://127.0.0.1:5000/api/users/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: username})
+    })
+    /*
+    // Not sure that this is necessary
+    .then((response) => 
+      {
+        console.log("Username:", username); // Debugging log
+        console.log("Response:", response); // Debugging log
+        return response.json()
+      })
+    */
+    .then((data) => {
+      console.log("User created successfully:", data); // Debugging log
+      setEnteredChat(true);
+    })
+    .catch((error) => console.error("Error creating user:", error));
   };
+
+
 
 
   // Sends messages to the correct route
@@ -48,9 +75,31 @@ function App() {
   return (
     <div className="container">
       {!enteredChat ? (
-        <div className="entry-box" onClick={handleClick}>
+        <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" />
           <h1>FiberSync</h1>
+          <input
+            type="text"
+            className="username-input"
+            placeholder="Enter your username..."
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+          />
+
+          {/*
+          // CADEN: Password authentication will not yet implemented
+          <input
+            type="password"
+            className="password-input"
+            placeholder="Enter your password..."
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+          />
+          */}
+
+          <button className="enter-button" onClick={handleLogin}>➡</button>
         </div>
       ) : (
         <div className="chat-layout">
@@ -59,11 +108,11 @@ function App() {
             <ChatWindow messages={messages} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
-          <UserSidebar />
+          <UserSidebar username={username} />
         </div>
       )}
     </div>
   );
-}
+  }
 
-export default App;
+  export default App;

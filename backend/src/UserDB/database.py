@@ -27,8 +27,10 @@ def get_user_by_username(username):
 def get_user_by_cookies(cookies):
     return db.users.find_one({"cookies": cookies})
 
+def temp_add_user(username):
+    db.users.insert_one({"username": username, "password": "password", "cookies": []})
+
 def add_user(username, password, cookies):
-    print("Adding user:", username)
     db.users.insert_one({"username": username, "password": password, "cookies": cookies})
 
 def update_user_cookies(username, cookies):

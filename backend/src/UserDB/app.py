@@ -5,7 +5,11 @@ import os
 from datetime import datetime, timezone
 import database
 
+<<<<<<< HEAD
 # Initialize Flask app
+=======
+# Initialize Flask apps
+>>>>>>> SCRUM-31-update-frontend-to-display-user
 app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
@@ -52,6 +56,13 @@ def create_user():
 
     # The below line might be a bug?
     return jsonify({"message": "User created successfully"}), 200
+
+# Get username
+@app.route('/api/users/username', methods=['GET'])
+def get_username():
+    username = database.temp_get_random_user()
+    return jsonify({"username": username}), 200
+
 
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
@@ -108,8 +119,8 @@ def send_message():
 def get_messages():
     # Dummy messages for testing we can replace with DB retrieval later
     messages = [
-        {"user": "Chris", "text": "Hello, world!", "timestamp": "2025-02-18T12:30:00Z"},
-        {"user": "Alice", "text": "Welcome to FiberSync!", "timestamp": "2025-02-18T12:31:00Z"}
+        {"user": database.temp_get_random_user(), "text": "Hello, world!", "timestamp": "2025-02-18T12:30:00Z"},
+        {"user": database.temp_get_random_user(), "text": "Welcome to FiberSync!", "timestamp": "2025-02-18T12:31:00Z"}
     ]
     return jsonify(messages), 200
 

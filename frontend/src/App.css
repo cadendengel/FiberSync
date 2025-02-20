@@ -310,3 +310,27 @@ h1 {
 .send-button:active {
   transform: scale(0.95);
 }
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+.status-indicator.online {
+  background-color: #4CAF50; /* Green */
+  box-shadow: 0 0 5px #4CAF50;
+}
+
+.status-indicator.offline {
+  background-color: #D32F2F; /* Red */
+  box-shadow: 0 0 5px #D32F2F;
+}
+
+.status-indicator.away {
+  background-color: #FFC107; /* Yellow */
+  box-shadow: 0 0 5px #FFC107;
+}

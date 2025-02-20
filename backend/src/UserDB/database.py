@@ -24,6 +24,9 @@ def get_all_users():
 def get_user_by_username(username):
     return db.users.find_one({"username": username})
 
+def temp_get_random_user():
+    return db.users.aggregate([{ "$sample": { "size": 1 } }]).next()["username"]
+
 def get_user_by_cookies(cookies):
     return db.users.find_one({"cookies": cookies})
 

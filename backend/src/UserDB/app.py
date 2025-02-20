@@ -43,11 +43,11 @@ def create_user():
 
     # Prevent empty fields
     if not data or not username or not password:
-        return jsonify({"error": "Missing data"}), 400
+        return jsonify({"error": "Missing data"})
     
     # Check if username already exists in the database
     if database.get_user_by_username(username):  
-        return jsonify({"error": "Username already exists"}), 409 
+        return jsonify({"error": "Username already exists"}) 
 
     # handle no cookies
     if cookies is None:
@@ -58,7 +58,7 @@ def create_user():
 
     # CADEN: NOT SURE IF THESE BELOW LINES ARE NECESSARY
     print(f"Simulated: Added user {username}")  # Debugging log
-    return jsonify({"message": "User created successfully"}), 201
+    return jsonify({"message": "User created successfully"})
 
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])

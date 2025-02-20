@@ -27,11 +27,12 @@ function App() {
     // CADEN: For the first sprint, we will not be implementing password authentication
     //        instead we will be using the username as the only form of authentication
     fetch("http://127.0.0.1:5000/api/users/create", {
+      mode: 'no-cors',
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username: username, password: password }),
     })
     .then((response) => response.json())
     .then((data) => {

@@ -11,16 +11,20 @@ function UserSidebar() {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        <li>👤 User1 - <span className="status online">Online</span></li>
-        <li>👤 User2 - <span className="status online">Online</span></li>
+        <li>👤 User1 - <span className="status-indicator online"></span> Online</li>
+        <li>👤 User2 - <span className="status-indicator online"></span> Online</li>
         <li>
           👤 User (You) - 
           <span 
-            className={`status ${status}`} 
+            className={`status-indicator ${status}`} 
             onClick={toggleStatus} 
-            style={{ cursor: 'pointer', textDecoration: 'underline' }}
+            style={{ cursor: 'pointer', marginLeft: '8px' }}
+          ></span>
+          <span 
+            onClick={toggleStatus} 
+            style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px' }}
           >
-            {status === "online" ? "Online" : "Offline"}
+            {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         </li>
       </ul>

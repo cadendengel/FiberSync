@@ -8,9 +8,9 @@ import ChatInput from './components/ChatInput';
 // CADEN: still need to handle connection to backend via routes
 
 function App() {
-  const [cookie] = useState(document.cookie);
+  //const [cookie] = useState(document.cookie);
   const [username, setUsername] = useState("");
-  const [password, setPassword] = "password"; //useState("");
+  //const [password, setPassword] = "password"; //useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -27,14 +27,21 @@ function App() {
     // CADEN: For the first sprint, we will not be implementing password authentication
     //        instead we will be using the username as the only form of authentication
     fetch("http://127.0.0.1:5000/api/users/create", {
-      mode: 'no-cors',
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ username: username, password: password }),
+      body: JSON.stringify({ username: username})
     })
-    .then((response) => response.json())
+    /*
+    // Not sure that this is necessary
+    .then((response) => 
+      {
+        console.log("Username:", username); // Debugging log
+        console.log("Response:", response); // Debugging log
+        return response.json()
+      })
+    */
     .then((data) => {
       console.log("User created successfully:", data); // Debugging log
       setEnteredChat(true);

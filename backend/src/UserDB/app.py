@@ -26,39 +26,32 @@ def serve():
 @app.route('/api/users', methods=['GET'])
 def get_all_users():
     users = database.get_all_users()
-    return jsonify(users)
+    user_data = []
+    for user in users:
+        user_data.append(user['username'])
+    return jsonify(user_data), 200
 
 # Get user count
 @app.route('/api/users/count', methods=['GET'])
 def get_user_count():
-    return database.get_user_count()
+    count = database.get_user_count()
+    return jsonify({"count": count}), 200
 
 # Create a new user entry
 @app.route('/api/users/create', methods=['POST'])
 def create_user():
     data = request.json
     username = data.get('username')
-    password = data.get('password')  # Currently stored as plain text (to be updated)
-    cookies = data.get('cookies')    # Not implemented yet
 
     # Prevent empty fields
-    if not data or not username or not password:
-        return jsonify({"error": "Missing data"})
-    
-    # Check if username already exists in the database
-    if database.get_user_by_username(username):  
-        return jsonify({"error": "Username already exists"}) 
-
-    # handle no cookies
-    if cookies is None:
-        cookies = []
+    if not data or not username:
+        return jsonify({"error": "Missing data"}), 404
 
     # Store the new user
-    database.add_user(username, password, cookies)
+    database.add_user(username, "password", [])
 
-    # CADEN: NOT SURE IF THESE BELOW LINES ARE NECESSARY
-    print(f"Simulated: Added user {username}")  # Debugging log
-    return jsonify({"message": "User created successfully"})
+    # The below line might be a bug?
+    return jsonify({"message": "User created successfully"}), 200
 
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
@@ -68,8 +61,8 @@ def is_user_authenticated():
     password = data.get('password')
 
     if database.is_user_authenticated(username, password):
-        return jsonify({"authenticated": True})
-    return jsonify({"authenticated": False})
+        return jsonify({"authenticated": True}), 200
+    return jsonify({"authenticated": False}), 401
 
 # Verify user credentials (cookies)
 @app.route('/api/users/authentication/cookies', methods=['POST'])
@@ -78,8 +71,8 @@ def is_cookie_authenticated():
     cookies = data.get('cookies')
 
     if database.is_cookie_authenticated(cookies):
-        return jsonify({"authenticated": True})
-    return jsonify({"authenticated": False})
+        return jsonify({"authenticated": True}), 200
+    return jsonify({"authenticated": False}), 401
 
 
 

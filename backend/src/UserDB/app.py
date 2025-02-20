@@ -6,8 +6,8 @@ from database import db, get_user_by_username, add_user  # Import Caden's databa
 from datetime import datetime, timezone
 
 
-# Initialize Flask app
-app = Flask(__name__, static_folder="../frontend/build", static_url_path="")  
+# Initialize Flask apps
+app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
 # Serve React App (Production)

@@ -262,3 +262,8 @@ h1 {
   background-color: #D32F2F; /* Red */
   box-shadow: 0 0 5px #D32F2F;
 }
+
+.status-indicator.away {
+  background-color: #FFC107; /* Yellow */
+  box-shadow: 0 0 5px #FFC107;
+}

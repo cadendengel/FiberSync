@@ -1,5 +1,5 @@
 import unittest
-from frontend.Mongo.UserDB import database
+from backend.src.UserDB import database
 
 
 class TestUserDB(unittest.IsolatedAsyncioTestCase):

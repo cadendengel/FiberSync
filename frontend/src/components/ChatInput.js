@@ -12,6 +12,7 @@ function ChatInput({ onSendMessage }) {
     onSendMessage(message); // Send text to parent
     setMessage(""); // Clear input after sending
   };
+  
 
   // Allows the user to press enter to submit their message
   const handleKeyPress = (e) => {

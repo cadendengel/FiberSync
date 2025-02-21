@@ -8,8 +8,6 @@ import database
 # Initialize Flask apps
 app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
-cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type' # Allows posts to be made without breaking CORS
 
 # Serve React App (Production)
 @app.route('/')
@@ -88,8 +86,6 @@ def is_cookie_authenticated():
 ####################################
 # ===== Chat Message Handling =====# (Chris)
 ####################################
-# This section allows users to send chat messages. Currently, messages are not stored persistently.
-# Chris can modify this to store and retrieve messages from the database.
 
 # Post message to database
 @app.route('/api/messages/create', methods=['POST'])
@@ -106,17 +102,29 @@ def send_message():
         "user": data["user"],
         "text": data["text"]
     }
+
     # Store the message in the database
     database.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
+
     return jsonify(chat_event), 201
 
-# Get all messages
+# Get all messages (Later, change to get all in channel only)
 @app.route('/api/messages/all', methods=['GET'])
 def get_messages():
-    messages = database.get_all_messages() # Make this get messages from only the channel
-    if not messages:
+    messages = database.get_all_messages()
+    result = []
+    # Convert ObjectId to string for JSON serialization
+    for document in messages:
+        document["_id"] = str(document["_id"])
+        result.append(document)
+
+    # Sort messages by timestamp
+    result.sort(key=lambda x: x["timestamp"])
+
+    if not result:
         return jsonify({"error": "No messages found"}), 404
-    return jsonify(messages), 200
+    
+    return result, 200
 
 # Get message by ID
 @app.route('/api/messages/id', methods=['GET'])

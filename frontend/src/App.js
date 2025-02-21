@@ -13,54 +13,30 @@ function App() {
   const [username, setUsername] = useState("");
   //const [password, setPassword] = "password"; //useState("");
   const [enteredChat, setEnteredChat] = useState(false);
-  const [messages, setMessages] = useState([
-    new ChatMessage("User1", "Hello!"),
-    new ChatMessage("User2", "Welcome to FiberSync!")
-  ]);
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
-      axios.get('http://localhost:5000/api/messages') // get & parse JSON from backend via axios
-        .then((response) => { 
-          console.log("Messages received from backend:"); // Debugging log
-          setMessages(response.data); // Set messages to the response data
-        })
+      axios.get("http://localhost:5000/api/messages/all")
+        .then((response) => setMessages(response.data)) // Set messages to the response data
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
 
-  /* // CHRIS: This is how I am attempting to rework the login function to use axios.
-  // I have so far been unable to get it working, running into CORS errors.
+  // Passwords NYI
   const handleLogin = () => {
-    axios.post("http://localhost:5000/api/users/create", { name: username })
+    axios.post("http://localhost:5000/api/users/create", { username: username })
     .then((response) => {
-      console.log("User created:", response.data); // Debugging log
       setEnteredChat(true);
+      console.log("User created:", response.data); // Debugging log
     })
     .catch((error) => {
       console.error("Error creating user:", error);
     });
   };
-  */
-
-  // CADEN: For the first sprint, we will not be implementing password authentication
-  // instead we will be using the username as the only form of authentication
-  const handleLogin = () => {
-    fetch("http://127.0.0.1:5000/api/users/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: username})
-    })
-    .then((data) => {
-      console.log(data); // Debugging log
-    })
-  };
 
   // Send message to the backend
   const handleSendMessage = (chatEvent) => {
-    // empty chat events are handled elsewhere
-    axios.post("http://localhost:5000/api/messages", chatEvent)
+    axios.post("http://localhost:5000/api/messages/create", new ChatMessage(username, chatEvent))
     .then((response) => {
       console.log("Message sent to backend", response.data); // debug log
       setMessages((prevMessages) => [...prevMessages, response.data]); // Append new message
@@ -68,7 +44,7 @@ function App() {
     .catch((error) => console.error("Error sending message:", error));
   };
 
-  // Deletes message by ID (user can't do it yet)
+  // Delete message by ID (Button NYI)
   const handleDeleteMessage = (messageId) => {
     axios.delete("http://localhost:5000/api/messages/id", messageId)
     .then((response) => {

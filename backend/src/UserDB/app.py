@@ -8,6 +8,8 @@ import database
 # Initialize Flask apps
 app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
+app.config['CORS_HEADERS'] = 'Content-Type' # Allows posts to be made without breaking CORS
 
 # Serve React App (Production)
 @app.route('/')

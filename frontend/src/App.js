@@ -53,7 +53,7 @@ function App() {
       body: JSON.stringify({ username: username})
     })
     .then((data) => {
-      console.log("User created successfully:", data); // Debugging log
+      console.log(data); // Debugging log
     })
   };
 

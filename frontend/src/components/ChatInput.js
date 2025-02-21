@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
+import ChatMessage from './ChatMessage';
 
 function ChatInput({ onSendMessage }) {
   const [message, setMessage] = useState("");
 
+  // update input with text as user types
   const handleChange = (e) => {
-    setMessage(e.target.value); // update input with text as user types
+    setMessage(e.target.value); 
   };
 
+  // Creates chat message to be sent to parent component
   const handleSend = () => {
     if (message.trim() === "") return;
-    onSendMessage(message); // Send text to parent
+    onSendMessage(new ChatMessage("You", message)); //Fix "You" to username
     setMessage(""); // Clear input after sending
   };
   

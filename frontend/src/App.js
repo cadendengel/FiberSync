@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import './App.css';
 import logo from './resources/FiberSyncLogo.png';
 import ChannelSidebar from './components/ChannelSidebar';
@@ -18,62 +19,39 @@ function App() {
   ]);
   useEffect(() => {
     if (enteredChat) {
-      fetch("http://127.0.0.1:5000/api/messages")
-        .then((response) => response.json())
-        .then((data) => setMessages(data))
+      axios.get('http://localhost:5000/api/messages') // get & parse JSON from backend via axios
+        .then((response) => { 
+          console.log("Messages received from backend:"), // Debugging log
+          setMessages(response.data); // Set messages to the response data
+        })
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
 
 
+  // CADEN: For the first sprint, we will not be implementing password authentication
+  // instead we will be using the username as the only form of authentication
   const handleLogin = () => {
-    // CADEN: For the first sprint, we will not be implementing password authentication
-    //        instead we will be using the username as the only form of authentication
-    fetch("http://127.0.0.1:5000/api/users/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: username})
-    })
-    /*
-    // Not sure that this is necessary
-    .then((response) => 
-      {
-        console.log("Username:", username); // Debugging log
-        console.log("Response:", response); // Debugging log
-        return response.json()
-      })
-    */
-    .then((data) => {
-      console.log("User created successfully:", data); // Debugging log
+    axios.post("http://localhost:5000/api/users/create", { username })
+    .then((response) => {
+      console.log("User created:", response.data); // Debugging log
       setEnteredChat(true);
     })
-    .catch((error) => console.error("Error creating user:", error));
+    .catch((error) => {
+      console.error("Error creating user:", error);
+    });
   };
 
-
-
-
-  // Sends messages to the correct route
+  // Send message to the backend
   const handleSendMessage = (chatEvent) => {
-  if (!chatEvent.text || !chatEvent.text.trim()) return;
-
-  fetch("http://127.0.0.1:5000/api/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(chatEvent),
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    console.log("Message received from backend:", data);  // Debugging log
-    setMessages((prevMessages) => [...prevMessages, data]); // Append new message
-  })
-  .catch((error) => console.error("Error sending message:", error));
-};
-
+    // empty chat events are handled elsewhere
+    axios.post("http://localhost:5000/api/messages", chatEvent)
+    .then((response) => {
+      console.log("Message sent to backend", response.data); // debug log
+      setMessages((prevMessages) => [...prevMessages, response.data]); // Append new message
+    })
+    .catch((error) => console.error("Error sending message:", error));
+  };
 
   return (
     <div className="container">

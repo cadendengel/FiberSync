@@ -5,11 +5,7 @@ import os
 from datetime import datetime, timezone
 import database
 
-<<<<<<< HEAD
-# Initialize Flask app
-=======
 # Initialize Flask apps
->>>>>>> SCRUM-31-update-frontend-to-display-user
 app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
@@ -93,38 +89,37 @@ def is_cookie_authenticated():
 # This section allows users to send chat messages. Currently, messages are not stored persistently.
 # Chris can modify this to store and retrieve messages from the database.
 
-# Send a chat message (Currently, only returns message object)
-@app.route('/api/messages', methods=['POST'])
+# Load messages
+@app.route('/api/messages/all', methods=['GET'])
+def get_messages():
+    messages = database.get_all_messages() # Make this get messages from only the channel
+    return jsonify(messages), 200
+
+# Chat message sent by a user
+@app.route('/api/messages/create', methods=['POST'])
 def send_message():
     data = request.json
 
     if not data or "user" not in data or "text" not in data:
         return jsonify({"error": "Missing username or message text"}), 400  
-
-    # Use timezone-aware datetime to fix deprecation warning
-    timestamp = data.get("timestamp", datetime.now(timezone.utc).isoformat())
-
-    chat_event = {
-        "type": "message",
+    
+    # Message ID and timestamp generation happen during object creation
+    chat_event = { 
+        "id": data["messageid"],
         "user": data["user"],
         "text": data["text"],
-        "timestamp": timestamp
+        "timestamp": data["timestamp"] 
     }
-
+    # Store the message in the database
+    database.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
     return jsonify(chat_event), 201
 
-
-# Get Messages, ensures this is working
-@app.route('/api/messages', methods=['GET'])
-def get_messages():
-    # Dummy messages for testing we can replace with DB retrieval later
-    messages = [
-        {"user": database.temp_get_random_user(), "text": "Hello, world!", "timestamp": "2025-02-18T12:30:00Z"},
-        {"user": database.temp_get_random_user(), "text": "Welcome to FiberSync!", "timestamp": "2025-02-18T12:31:00Z"}
-    ]
-    return jsonify(messages), 200
-
-
+@app.route('/api/messages/<int:message_id>', methods=['GET'])
+def get_message_by_id(message_id):
+    message = database.get_message_by_id(message_id)
+    if message:
+        return jsonify(message), 200
+    return jsonify({"error": "Message not found"}), 404
 
 #########################################
 # ===== User Online/Offline Status =====# (Ricky)

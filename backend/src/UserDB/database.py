@@ -54,3 +54,24 @@ def delete_user(username):
     
 def delete_all_users():
     db.users.delete_many({})
+
+##########################
+# chat message functions #
+##########################
+
+def get_all_messages():
+    return db.messages.find()
+
+def get_message_by_username(username):
+    return db.messages.find({"username": username})
+
+def get_message_by_id(message_id):
+    return db.messages.find_one({"_id": message_id})
+
+def add_message(messageid, timestamp, user, text):
+    db.messages.insert_one({
+        "messageid": messageid,
+        "timestamp": timestamp,
+        "user": user,
+        "text": text
+    })

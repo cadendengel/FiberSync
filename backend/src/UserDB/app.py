@@ -127,7 +127,7 @@ def get_message_by_id():
 
     message = database.get_message_by_id(message_id)
     if not message:
-        return jsonify({"error": "Message not found"}), 404
+        return jsonify({"error": "Message with that ID not found"}), 404
 
     return jsonify(message), 200
 
@@ -147,7 +147,7 @@ def get_messages_by_username():
     return jsonify(messages), 200
 
 # Delete all messages
-@app.route('/api/messages/delete/all', methods=['DELETE'])
+@app.route('/api/messages/all', methods=['DELETE'])
 def delete_all_messages():
     result = database.delete_all_messages()
     if result.deleted_count == 0:
@@ -155,7 +155,7 @@ def delete_all_messages():
     return jsonify({"message": "All messages deleted successfully"}), 200
 
 # Delete message by ID
-@app.route('/api/messages/delete', methods=['DELETE'])
+@app.route('/api/messages/id', methods=['DELETE'])
 def delete_message():
     data = request.json
     message_id = data["messageid"]
@@ -163,8 +163,8 @@ def delete_message():
         return jsonify({"error": "Missing message ID"}), 400
     result = database.delete_message(message_id)
     if result.deleted_count == 0:
-        return jsonify({"error": "Message not found"}), 404
-    return jsonify({"message": "Message deleted successfully"}), 200
+        return jsonify({"error": "Message with that ID not found"}), 404
+    return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
 
 #########################################
 # ===== User Online/Offline Status =====# (Ricky)

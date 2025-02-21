@@ -53,6 +53,16 @@ function App() {
     .catch((error) => console.error("Error sending message:", error));
   };
 
+  // Deletes message by ID (user can't do it yet)
+  const handleDeleteMessage = (messageId) => {
+    axios.delete("http://localhost:5000/api/messages/id", messageId)
+    .then((response) => {
+      console.log("Message deleted:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
+    })
+    .catch((error) => console.error("Error deleting message:", error));
+  }   
+
   return (
     <div className="container">
       {!enteredChat ? (

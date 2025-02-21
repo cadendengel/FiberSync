@@ -86,16 +86,6 @@ def is_cookie_authenticated():
 ####################################
 # ===== Chat Message Handling =====# (Chris)
 ####################################
-# This section allows users to send chat messages. Currently, messages are not stored persistently.
-# Chris can modify this to store and retrieve messages from the database.
-
-# Get all messages
-@app.route('/api/messages/all', methods=['GET'])
-def get_messages():
-    messages = database.get_all_messages() # Make this get messages from only the channel
-    if not messages:
-        return jsonify({"error": "No messages found"}), 404
-    return jsonify(messages), 200
 
 # Post message to database
 @app.route('/api/messages/create', methods=['POST'])
@@ -112,9 +102,29 @@ def send_message():
         "user": data["user"],
         "text": data["text"]
     }
+
     # Store the message in the database
     database.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
+
     return jsonify(chat_event), 201
+
+# Get all messages (Later, change to get all in channel only)
+@app.route('/api/messages/all', methods=['GET'])
+def get_messages():
+    messages = database.get_all_messages()
+    result = []
+    # Convert ObjectId to string for JSON serialization
+    for document in messages:
+        document["_id"] = str(document["_id"])
+        result.append(document)
+
+    # Sort messages by timestamp
+    result.sort(key=lambda x: x["timestamp"])
+
+    if not result:
+        return jsonify({"error": "No messages found"}), 404
+    
+    return result, 200
 
 # Get message by ID
 @app.route('/api/messages/id', methods=['GET'])
@@ -127,7 +137,7 @@ def get_message_by_id():
 
     message = database.get_message_by_id(message_id)
     if not message:
-        return jsonify({"error": "Message not found"}), 404
+        return jsonify({"error": "Message with that ID not found"}), 404
 
     return jsonify(message), 200
 
@@ -145,6 +155,26 @@ def get_messages_by_username():
         return jsonify({"error": "No messages found for this user"}), 404
 
     return jsonify(messages), 200
+
+# Delete all messages
+@app.route('/api/messages/all', methods=['DELETE'])
+def delete_all_messages():
+    result = database.delete_all_messages()
+    if result.deleted_count == 0:
+        return jsonify({"error": "No messages found"}), 404
+    return jsonify({"message": "All messages deleted successfully"}), 200
+
+# Delete message by ID
+@app.route('/api/messages/id', methods=['DELETE'])
+def delete_message():
+    data = request.json
+    message_id = data["messageid"]
+    if not message_id:
+        return jsonify({"error": "Missing message ID"}), 400
+    result = database.delete_message(message_id)
+    if result.deleted_count == 0:
+        return jsonify({"error": "Message with that ID not found"}), 404
+    return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
 
 #########################################
 # ===== User Online/Offline Status =====# (Ricky)

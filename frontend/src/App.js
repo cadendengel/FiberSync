@@ -6,36 +6,28 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-import ChatMessage from './src/ChatMessage';
+import ChatMessage from './components/ChatMessage';
 
 function App() {
   //const [cookie] = useState(document.cookie);
   const [username, setUsername] = useState("");
   //const [password, setPassword] = "password"; //useState("");
   const [enteredChat, setEnteredChat] = useState(false);
-  const [messages, setMessages] = useState([
-    new ChatMessage("User1", "Hello!"),
-    new ChatMessage("User2", "Welcome to FiberSync!")
-  ]);
+  const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
-      axios.get('http://localhost:5000/api/messages') // get & parse JSON from backend via axios
-        .then((response) => { 
-          console.log("Messages received from backend:"), // Debugging log
-          setMessages(response.data); // Set messages to the response data
-        })
+      axios.get("http://localhost:5000/api/messages/all")
+        .then((response) => setMessages(response.data)) // Set messages to the response data
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
 
-
-  // CADEN: For the first sprint, we will not be implementing password authentication
-  // instead we will be using the username as the only form of authentication
+  // Passwords NYI
   const handleLogin = () => {
-    axios.post("http://localhost:5000/api/users/create", { username })
+    axios.post("http://localhost:5000/api/users/create", { username: username })
     .then((response) => {
-      console.log("User created:", response.data); // Debugging log
       setEnteredChat(true);
+      console.log("User created:", response.data); // Debugging log
     })
     .catch((error) => {
       console.error("Error creating user:", error);
@@ -44,14 +36,23 @@ function App() {
 
   // Send message to the backend
   const handleSendMessage = (chatEvent) => {
-    // empty chat events are handled elsewhere
-    axios.post("http://localhost:5000/api/messages", chatEvent)
+    axios.post("http://localhost:5000/api/messages/create", new ChatMessage(username, chatEvent))
     .then((response) => {
       console.log("Message sent to backend", response.data); // debug log
       setMessages((prevMessages) => [...prevMessages, response.data]); // Append new message
     })
     .catch((error) => console.error("Error sending message:", error));
   };
+
+  // Delete message by ID (Button NYI)
+  const handleDeleteMessage = (messageId) => {
+    axios.delete("http://localhost:5000/api/messages/id", messageId)
+    .then((response) => {
+      console.log("Message deleted:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
+    })
+    .catch((error) => console.error("Error deleting message:", error));
+  }   
 
   return (
     <div className="container">

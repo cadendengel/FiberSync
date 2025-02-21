@@ -9,10 +9,10 @@ function ChatInput({ onSendMessage }) {
     setMessage(e.target.value); 
   };
 
-  // Creates chat message to be sent to parent component
+  // Sends message to parent component
   const handleSend = () => {
     if (message.trim() === "") return;
-    onSendMessage(new ChatMessage("You", message)); //Fix "You" to username
+    onSendMessage(message);
     setMessage(""); // Clear input after sending
   };
   

@@ -6,7 +6,7 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-import ChatMessage from './src/ChatMessage';
+import ChatMessage from './components/ChatMessage';
 
 function App() {
   //const [cookie] = useState(document.cookie);
@@ -21,18 +21,17 @@ function App() {
     if (enteredChat) {
       axios.get('http://localhost:5000/api/messages') // get & parse JSON from backend via axios
         .then((response) => { 
-          console.log("Messages received from backend:"), // Debugging log
+          console.log("Messages received from backend:"); // Debugging log
           setMessages(response.data); // Set messages to the response data
         })
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
 
-
-  // CADEN: For the first sprint, we will not be implementing password authentication
-  // instead we will be using the username as the only form of authentication
+  /* // CHRIS: This is how I am attempting to rework the login function to use axios.
+  // I have so far been unable to get it working, running into CORS errors.
   const handleLogin = () => {
-    axios.post("http://localhost:5000/api/users/create", { username })
+    axios.post("http://localhost:5000/api/users/create", { name: username })
     .then((response) => {
       console.log("User created:", response.data); // Debugging log
       setEnteredChat(true);
@@ -40,6 +39,22 @@ function App() {
     .catch((error) => {
       console.error("Error creating user:", error);
     });
+  };
+  */
+
+  // CADEN: For the first sprint, we will not be implementing password authentication
+  // instead we will be using the username as the only form of authentication
+  const handleLogin = () => {
+    fetch("http://127.0.0.1:5000/api/users/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ username: username})
+    })
+    .then((data) => {
+      console.log("User created successfully:", data); // Debugging log
+    })
   };
 
   // Send message to the backend

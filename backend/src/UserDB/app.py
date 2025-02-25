@@ -5,11 +5,8 @@ import os
 from datetime import datetime, timezone
 import database
 
-<<<<<<< HEAD
+
 # Initialize Flask app
-=======
-# Initialize Flask apps
->>>>>>> SCRUM-31-update-frontend-to-display-user
 app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 

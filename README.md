@@ -1,6 +1,6 @@
 # FiberSync
 Fibersync is a social messaging service designed to be safe, user-friendly, and professional.
-<!-- Link to working project website will go here later -->
+https://fibersync-fd2e2.web.app/
 
 
 ## Table of Contents
@@ -16,30 +16,53 @@ Fibersync is a social messaging service designed to be safe, user-friendly, and 
 ## General Information
 
 We are a team of programmers called the Changelings (Chris Beverly, Chris Clark, Caden Dengel, and Ricky Mosqueda-Torres) 
-
 working together to create a privately hosted messaging application so that students, professionals, and recreational users 
-
 can utilize a platform that accounts for their working environment and prioritizes their data and privacy.
 
 
 ## Technologies Used
-*	<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API (Maybe not a “Technology” to list)
-*	<a href="https://www.python.org/">Python</a> - Primary backend Programming Language (Also maybe not a “Technology” to list)
+*	<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API
+*	<a href="https://www.python.org/">Python</a> - Primary backend Programming Language
 *	<a href="https://react.dev/">React</a> - Frontend UI
 *	Database Technology - Options for storage
 	*	<a href="https://www.mongodb.com/">MongoDB</a> - Flexible document-based database
-	*	<a href="https://www.sqlite.org/">SQLite</a> - Lightweight option, possibly better for the scope of this project
 *	Authentication Technology - TBD, May be necessary to encode logins, might not be necessary for this small scale development though.
 *	Deployment Technology - TBD
 
 
 ## Features
 
-For our first sprint, we will lay the groundwork for the project by developing the following features:
+Sprint 1: For our first sprint we hoped to lay out the groundwork for the project by developing the following features:
+* A website that multiple users can connect to from different devices
+* A real time messaging channel with scrolling functionality that any user with a name can post to
+* Online users section that displays connected users in real time
 
-*	A website that multiple users can connect to from different devices
-*	A real time messaging channel with scrolling functionality that any user with a name can post to
-*	Online users section that displays connected users in real time
+Contributions:
+Clark: Built off of a REACT framework to develop the frontend UI, deployed the REACT App through Firebase, implemented a bitbucket pipeline for auto deployment and
+designed a temporarily functioning Frontend with components that designate: channels, chat window, chat input, and users. Created temporary Unit tests based off
+the REACT components, to be modified with the functioning backend and implement Integration tests.
+
+* Jira Task: Deploy Frontend to a Public URL
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-35"> SCRUM-35</a>
+* Jira Task: Implement a CI/CD Pipeline for Automated Deployment
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-36"> SCRUM-36</a>
+* Jira Task: Design the Primary Chat Channel UI and Frontend Components
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-12"> SCRUM-12</a>
+* Jira Task: Design the Chat Box UI and Frontend Components
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-15"> SCRUM-15</a>
+* Jira Task: Implement Events for the Primary Chat Channel
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-13"> SCRUM-13</a>
+* Jira Task: Write Unit and Integration Tests
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-14"> SCRUM-14</a>
+
+Caden:
+
+
+Ricky:
+
+
+Chris B:
+
 
 
 ## Screenshots

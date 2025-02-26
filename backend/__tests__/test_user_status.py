@@ -1,7 +1,7 @@
 import unittest
 import warnings
 from datetime import datetime, timedelta
-from src.UserDB.user_status import UserStatusManager 
+from backend.src.UserDB.user_status import get_user_status_by_username
 
 # Test using: cd backend
 # then use this command in the terminal: PYTHONPATH=src python -m unittest discover -s backend/tests -p "test_user_status.py"

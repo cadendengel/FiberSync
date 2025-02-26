@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import './App.css';
 import logo from './resources/FiberSyncLogo.png';
 import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-// CADEN: still need to handle connection to backend via routes
+import ChatMessage from './components/ChatMessage';
 
 function App() {
   //const [cookie] = useState(document.cookie);
@@ -15,62 +16,43 @@ function App() {
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
-      fetch("http://127.0.0.1:5000/api/messages")
-        .then((response) => response.json())
-        .then((data) => setMessages(data))
+      axios.get("http://127.0.0.1:5000/api/messages/all")
+        .then((response) => setMessages(response.data)) // Set messages to the response data
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
 
-
+  // Passwords NYI
   const handleLogin = () => {
-    // CADEN: For the first sprint, we will not be implementing password authentication
-    //        instead we will be using the username as the only form of authentication
-    fetch("http://127.0.0.1:5000/api/users/create", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ username: username})
-    })
-    /*
-    // Not sure that this is necessary
-    .then((response) => 
-      {
-        console.log("Username:", username); // Debugging log
-        console.log("Response:", response); // Debugging log
-        return response.json()
-      })
-    */
-    .then((data) => {
-      console.log("User created successfully:", data); // Debugging log
+    axios.post("http://127.0.0.1:5000/api/users/create", { username: username })
+    .then((response) => {
       setEnteredChat(true);
+      console.log("User created:", response.data); // Debugging log
     })
-    .catch((error) => console.error("Error creating user:", error));
+    .catch((error) => {
+      console.error("Error creating user:", error);
+    });
   };
 
-
-
-
-  // Sends messages to the correct route
+  // Send message to the backend
   const handleSendMessage = (chatEvent) => {
-  if (!chatEvent.text || !chatEvent.text.trim()) return;
+    axios.post("http://127.0.0.1:5000/api/messages/create", new ChatMessage(username, chatEvent))
+    .then((response) => {
+      console.log("Message sent to backend", response.data); // debug log
+      setMessages((prevMessages) => [...prevMessages, response.data]); // Append new message
+    })
+    .catch((error) => console.error("Error sending message:", error));
+  };
 
-  fetch("http://127.0.0.1:5000/api/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(chatEvent),
-  })
-  .then((response) => response.json())
-  .then((data) => {
-    console.log("Message received from backend:", data);  // Debugging log
-    setMessages((prevMessages) => [...prevMessages, data]); // Append new message
-  })
-  .catch((error) => console.error("Error sending message:", error));
-};
-
+  // Delete message by ID (Button NYI)
+  const handleDeleteMessage = (messageId) => {
+    axios.delete("http://127.0.0.1:5000/api/messages/id", messageId)
+    .then((response) => {
+      console.log("Message deleted:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
+    })
+    .catch((error) => console.error("Error deleting message:", error));
+  }   
 
   return (
     <div className="container">

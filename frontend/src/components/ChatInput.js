@@ -1,24 +1,19 @@
 import React, { useState } from 'react';
+import ChatMessage from './ChatMessage';
 
 function ChatInput({ onSendMessage }) {
   const [message, setMessage] = useState("");
 
+  // update input with text as user types
   const handleChange = (e) => {
-    setMessage(e.target.value);
+    setMessage(e.target.value); 
   };
 
+  // Sends message to parent component
   const handleSend = () => {
     if (message.trim() === "") return;
-  
-    const chatEvent = {
-      type: "message",
-      user: "You",  // Placeholder for now, will be dynamic later
-      text: message,
-      timestamp: new Date().toISOString(),
-    };
-  
-    onSendMessage(chatEvent); // Pass the full chat event instead of just message
-    setMessage("");  // Clear input after sending
+    onSendMessage(message);
+    setMessage(""); // Clear input after sending
   };
   
 

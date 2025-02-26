@@ -18,8 +18,9 @@ db = client['userdb']
 ######################
 # database functions #
 ######################
-def init_db():
-    pass
+def init_db_for_testing():
+    global db
+    db = client['__test_userdb__']
 
 def get_user_count():
     return db.users.count_documents({})

@@ -1,16 +1,19 @@
 import unittest
 import warnings
 from datetime import datetime, timedelta
-from backend.src.UserDB.user_status import get_user_status_by_username
+from backend.src.UserDB import user_status
 
-# Test using: cd backend
-# then use this command in the terminal: PYTHONPATH=src python -m unittest discover -s backend/tests -p "test_user_status.py"
+# Run all tests:
+# python -m unittest discover -s ./backend/__tests__ -p *_test.py
+
+# Run this test:
+# python -m unittest discover -s ./backend/__tests__ -p user_status_test.py
 
 class TestUserStatusManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         """Set up a test database connection."""
-        cls.manager = UserStatusManager(db_name="test_fibersync")  # Use a test database
+        cls.manager = user_status.UserStatusManager(db_name="test_fibersync")  # Use a test database
         warnings.filterwarnings("ignore", category=DeprecationWarning)  # Suppress deprecation warnings
         warnings.filterwarnings("ignore", category=ResourceWarning)  # Suppress resource warnings
 

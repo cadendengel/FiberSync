@@ -71,7 +71,18 @@ python unittest testing for some of the backend. Added temporary login and user 
 * Jira Task: Design Database Schema for User Management
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-24"> SCRUM-24</a>
 
-Ricky:
+Ricky: Created a user status database, implemented frontend display for statuses and buttons to change current status, developed unit tests for the database,
+	   and added an inactivity tracker to update status based on user activity.
+
+* Jira Task: Design Database Schema for User Status Tracking 
+   * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-29">SCRUM-29</a>
+* Jira Task: Update Frontend to Display User Status 
+   * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-31">SCRUM-31</a>
+* Jira Task: Detect User Inactivity and Update Status (CHECK LABEL) 
+   * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-32">SCRUM-32</a>
+* Jira Task: Write Unit and Integration Tests
+   * <a href="https://cs3398-changelings-spring.atlassian.net/jira/software/projects/SCRUM/boards/1?selectedIssue=SCRUM-33">SCRUM-33</a>
+
 
 
 Chris B:

@@ -11,6 +11,9 @@ db = client['messagedb']
 # chat message functions #
 ##########################
 
+def init_db_for_testing():
+    db = client['test_message_db']
+
 def add_message(messageid, timestamp, user, text):
     db.messages.insert_one({
         "messageid": messageid,
@@ -27,6 +30,9 @@ def get_message_by_id(message_id):
 
 def get_messages_by_username(username):
     return db.messages.find({"username": username})
+
+def get_message_count():
+    return db.messages.count_documents({})
 
 def delete_all_messages():
     db.messages.delete_many({})

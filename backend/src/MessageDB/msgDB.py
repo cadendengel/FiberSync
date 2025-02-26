@@ -12,7 +12,8 @@ db = client['messagedb']
 ##########################
 
 def init_db_for_testing():
-    db = client['test_message_db']
+    global db
+    db = client['__test_messagedb__']
 
 def add_message(messageid, timestamp, user, text):
     db.messages.insert_one({

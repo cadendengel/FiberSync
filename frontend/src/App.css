@@ -35,6 +35,18 @@ h1 {
   width: 100vw;
 }
 
+/* CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C. */
+
+/* Login Form */
+.login-form {
+  background: linear-gradient(145deg, #2a2a3a, #1a1a24);
+  padding: 50px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5), 
+              0 0 30px rgba(74, 144, 226, 0.3);
+  transition: all 0.3s ease-in-out;
+}
+
 /* Clickable Entry Box */
 .entry-box {
   background: linear-gradient(145deg, #2a2a3a, #1a1a24);
@@ -224,6 +236,61 @@ h1 {
   color: rgba(255, 255, 255, 0.5);
 }
 
+/* Login */
+.username-input {
+  width: 80%;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #4a90e2;
+  background: #1e1e2e;
+  color: white;
+  text-align: center;
+  outline: none;
+}
+.password-input {
+  width: 70%;
+  padding: 10px;
+  margin-top: 15px;
+  font-size: 1rem;
+  border-radius: 5px;
+  border: 1px solid #4a90e2;
+  background: #1e1e2e;
+  color: white;
+  text-align: center;
+  outline: none;
+}
+.enter-button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+.enter-button:hover {
+  background: #357bd8;
+}
+.enter-button:active {
+  transform: scale(0.95);
+}
+
+.test-button {
+  background:rgb(226, 74, 74);
+  color: red;
+  border: none;
+  padding: 10px 15px;
+  margin-top: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
 .send-button {
   background: #4a90e2;
   color: white;
@@ -242,4 +309,28 @@ h1 {
 
 .send-button:active {
   transform: scale(0.95);
+}
+
+/* Status Indicator */
+.status-indicator {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 8px;
+}
+
+.status-indicator.online {
+  background-color: #4CAF50; /* Green */
+  box-shadow: 0 0 5px #4CAF50;
+}
+
+.status-indicator.offline {
+  background-color: #D32F2F; /* Red */
+  box-shadow: 0 0 5px #D32F2F;
+}
+
+.status-indicator.away {
+  background-color: #FFC107; /* Yellow */
+  box-shadow: 0 0 5px #FFC107;
 }

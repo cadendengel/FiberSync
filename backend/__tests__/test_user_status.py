@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from user_status import get_user_status_by_username
+from backend.src.UserDB.user_status import get_user_status_by_username
 
 
 ### use "pytest -s backend/test_user_status.py" to test using termianl ###

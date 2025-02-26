@@ -3,10 +3,11 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
-import database
+from UserDB import userDB
+from MessageDB import msgDB
 
 # Initialize Flask apps
-app = Flask(__name__, static_folder="../../../frontend/build", static_url_path="")  
+app = Flask(__name__, static_folder="../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
 # Serve React App (Production)
@@ -25,7 +26,7 @@ def serve():
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
 def get_all_users():
-    users = database.get_all_users()
+    users = userDB.get_all_users()
     user_data = []
     for user in users:
         user_data.append(user['username'])
@@ -34,7 +35,7 @@ def get_all_users():
 # Get user count
 @app.route('/api/users/count', methods=['GET'])
 def get_user_count():
-    count = database.get_user_count()
+    count = userDB.get_user_count()
     return jsonify({"count": count}), 200
 
 # Create a new user entry
@@ -48,7 +49,7 @@ def create_user():
         return jsonify({"error": "Missing data"}), 404
 
     # Store the new user
-    database.add_user(username, "password", [])
+    userDB.add_user(username, "password", [])
 
     # The below line might be a bug?
     return jsonify({"message": "User created successfully"}), 200
@@ -56,7 +57,7 @@ def create_user():
 # Get username
 @app.route('/api/users/username', methods=['GET'])
 def get_username():
-    username = database.temp_get_random_user()
+    username = userDB.temp_get_random_user()
     return jsonify({"username": username}), 200
 
 
@@ -67,7 +68,7 @@ def is_user_authenticated():
     username = data.get('username')
     password = data.get('password')
 
-    if database.is_user_authenticated(username, password):
+    if userDB.is_user_authenticated(username, password):
         return jsonify({"authenticated": True}), 200
     return jsonify({"authenticated": False}), 401
 
@@ -77,7 +78,7 @@ def is_cookie_authenticated():
     data = request.json
     cookies = data.get('cookies')
 
-    if database.is_cookie_authenticated(cookies):
+    if userDB.is_cookie_authenticated(cookies):
         return jsonify({"authenticated": True}), 200
     return jsonify({"authenticated": False}), 401
 
@@ -104,14 +105,14 @@ def send_message():
     }
 
     # Store the message in the database
-    database.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
+    msgDB.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
 
     return jsonify(chat_event), 201
 
 # Get all messages (Later, change to get all in channel only)
 @app.route('/api/messages/all', methods=['GET'])
 def get_messages():
-    messages = database.get_all_messages()
+    messages = msgDB.get_all_messages()
     result = []
     # Convert ObjectId to string for JSON serialization
     for document in messages:
@@ -135,7 +136,7 @@ def get_message_by_id():
     if not message_id:
         return jsonify({"error": "Missing message ID"}), 400
 
-    message = database.get_message_by_id(message_id)
+    message = msgDB.get_message_by_id(message_id)
     if not message:
         return jsonify({"error": "Message with that ID not found"}), 404
 
@@ -150,7 +151,7 @@ def get_messages_by_username():
     if not username:
         return jsonify({"error": "Missing username"}), 400
 
-    messages = database.get_messages_by_username(username)
+    messages = msgDB.get_messages_by_username(username)
     if not messages:
         return jsonify({"error": "No messages found for this user"}), 404
 
@@ -159,7 +160,7 @@ def get_messages_by_username():
 # Delete all messages
 @app.route('/api/messages/all', methods=['DELETE'])
 def delete_all_messages():
-    result = database.delete_all_messages()
+    result = msgDB.delete_all_messages()
     if result.deleted_count == 0:
         return jsonify({"error": "No messages found"}), 404
     return jsonify({"message": "All messages deleted successfully"}), 200
@@ -171,7 +172,7 @@ def delete_message():
     message_id = data["messageid"]
     if not message_id:
         return jsonify({"error": "Missing message ID"}), 400
-    result = database.delete_message(message_id)
+    result = msgDB.delete_message(message_id)
     if result.deleted_count == 0:
         return jsonify({"error": "Message with that ID not found"}), 404
     return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200

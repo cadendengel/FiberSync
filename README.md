@@ -105,12 +105,19 @@ Chris B:
 
 To do:
 
+Sprint 1:
+
 1.	Primary Chat Channel
 2.	Chat Entry Box
 3.	Usernames
 4.  Message Persistence
 5.	User Status
 
+Sprint 2:
+
+1. Fix bugs
+2. Refactor quick/temporary "hacks" into development code
+3. Gracefully combine our individual code into one coherent project
 
 ## Acknowledgements
 - This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal

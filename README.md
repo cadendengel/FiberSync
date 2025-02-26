@@ -81,7 +81,7 @@ Ricky: Created a user status database, implemented frontend display for statuses
 * Jira Task: Detect User Inactivity and Update Status (CHECK LABEL: completed in SCRUM-31) 
    * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-32">SCRUM-32</a>
 * Jira Task: Write Unit and Integration Tests
-   * <a href="https://cs3398-changelings-spring.atlassian.net/jira/software/projects/SCRUM/boards/1?selectedIssue=SCRUM-33">SCRUM-33</a>
+   * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-33">SCRUM-33</a>
 
 
 

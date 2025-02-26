@@ -7,6 +7,13 @@ load_dotenv()
 client = MongoClient(os.getenv('MONGODB_LOGIN'))
 db = client['userdb']
 
+# TODO: RESTRUCTURE DATABASE TO USE A UUID SYSTEM
+#
+#       This will allow for more secure and unique user identification
+#       as well as allow for more secure cookie storage and authentication
+#       via password. We can then have a TRUE username persistence system
+#       that will not permit duplicate usernames on different accounts.
+
 
 ######################
 # database functions #

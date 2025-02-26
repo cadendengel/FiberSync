@@ -55,8 +55,21 @@ the REACT components, to be modified with the functioning backend and implement 
 * Jira Task: Write Unit and Integration Tests
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-14"> SCRUM-14</a>
 
-Caden:
+Caden: Registered, set up, and implemented a MongoDB backend, connected it via fetch API calls (later changed to Axios by Chris B.). Created temporary and limited
+python unittest testing for some of the backend. Added temporary login and user creation functionality. Integrated Usernames with the chat window.
 
+* Jira Task: Set Up Cloud Hosting for Backend and Database
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-34"> SCRUM-34</a>
+* Jira Task: Write Unit and Integration Tests
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-28"> SCRUM-28</a>
+* Jira Task: Persist Usernames Across Sessions
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-27"> SCRUM-27</a>
+* Jira Task: Display Usernames in Chat Messages
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-26"> SCRUM-26</a>
+* Jira Task: Implement Backend API for Username Registration & Updates
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-25"> SCRUM-25</a>
+* Jira Task: Design Database Schema for User Management
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-24"> SCRUM-24</a>
 
 Ricky:
 

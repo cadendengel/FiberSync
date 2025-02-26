@@ -1,9 +1,11 @@
 import unittest
 import warnings
 from datetime import datetime, timedelta
-from user_status import UserStatusManager 
+from src.UserDB.user_status import UserStatusManager 
 
-# Test using: python -m unittest -v test_user_status.py
+# Test using: cd backend
+# then use this command in the terminal: PYTHONPATH=src python -m unittest discover -s backend/tests -p "test_user_status.py"
+
 class TestUserStatusManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

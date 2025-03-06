@@ -39,29 +39,35 @@ def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
 
-# Create a new user entry
-@app.route('/api/users/create', methods=['POST'])
-def create_user():
+# Delete all users
+@app.route('/api/users', methods=['DELETE'])
+def delete_all_users():
+    userDB.delete_all_users()
+    return jsonify({"message": "All users deleted"}), 200
+
+# Login OR Register user
+# Will be adding a Login/Register feature in SCRUM-69
+@app.route('/api/users/login', methods=['POST'])
+def user_login():
     data = request.json
     username = data.get('username')
+    password = data.get('password')
 
     # Prevent empty fields
     if not data or not username:
         return jsonify({"error": "Missing data"}), 404
-
-    # Store the new user
-    userDB.add_user(username, "password", [])
+    
+    # Check if user already exists
+    if userDB.get_user_by_username(username):
+        if not userDB.is_user_authenticated(username, password):
+            return jsonify({"error": "User already exists"}), 400
+    else:
+        userDB.add_user(username, data.get('password'), [])
 
     # The below line might be a bug?
-    return jsonify({"message": "User created successfully"}), 200
+    return jsonify({"message": "User logged in successfully"}), 200
 
-# Get username
-@app.route('/api/users/username', methods=['GET'])
-def get_username():
-    username = userDB.temp_get_random_user()
-    return jsonify({"username": username}), 200
-
-
+# LIKELY NOT NEEDED
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
 def is_user_authenticated():

@@ -9,9 +9,9 @@ import ChatInput from './components/ChatInput';
 import ChatMessage from './components/ChatMessage';
 
 function App() {
-  //const [cookie] = useState(document.cookie);
+  const [cookie] = useState(document.cookie);
   const [username, setUsername] = useState("");
-  //const [password, setPassword] = "password"; //useState("");
+  const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
@@ -22,15 +22,27 @@ function App() {
     }
   }, [enteredChat]);
 
-  // Passwords NYI
+  // Clear the database, will be accessible from the inspect element console for now
+  const clearUserDB = () => {
+    axios.delete("http://127.0.0.1:5000/api/users")
+    .then((response) => console.log("Database cleared:", response.data)) // Debugging log
+    .catch((error) => console.error("Error clearing database:", error));
+  }
+  window.clearUserDB = clearUserDB; // Expose the function to the window object
+
   const handleLogin = () => {
-    axios.post("http://127.0.0.1:5000/api/users/create", { username: username })
+    axios.post("http://127.0.0.1:5000/api/users/login", { username: username, password: password })
     .then((response) => {
       setEnteredChat(true);
-      console.log("User created:", response.data); // Debugging log
+      console.log("User logged in:", response.data); // Debugging log
     })
     .catch((error) => {
-      console.error("Error creating user:", error);
+      if (error.response.status === 400) {
+        alert("User already exists. Please login.");
+        console.log("User already exists:", error.response.data); // Debugging log
+      } else {
+        console.error("Error creating user:", error);
+      }
     });
   };
 
@@ -68,18 +80,14 @@ function App() {
             onChange={(e) => setUsername(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
-
-          {/*
-          // CADEN: Password authentication will not yet implemented
           <input
             type="password"
             className="password-input"
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            //onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
           />
-          */}
 
           <button className="enter-button" onClick={handleLogin}>➡</button>
         </div>

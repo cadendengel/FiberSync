@@ -31,14 +31,15 @@ def get_all_users():
 def get_user_by_username(username):
     return db.users.find_one({"username": username})
 
+def get_uuid_by_username(username):
+    return db.users.find_one({"username": username})["_id"]
+
+# LIKELY NOT NEEDED
 def temp_get_random_user():
     return db.users.aggregate([{ "$sample": { "size": 1 } }]).next()["username"]
 
 def get_user_by_cookies(cookies):
     return db.users.find_one({"cookies": cookies})
-
-def temp_add_user(username):
-    db.users.insert_one({"username": username, "password": "password", "cookies": []})
 
 def add_user(username, password, cookies):
     db.users.insert_one({"username": username, "password": password, "cookies": cookies})
@@ -61,3 +62,7 @@ def delete_user(username):
     
 def delete_all_users():
     db.users.delete_many({})
+    
+
+# TESTING
+print(get_uuid_by_username("Caden"))

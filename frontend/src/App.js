@@ -13,6 +13,7 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
+  const [newUser, setNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
@@ -72,6 +73,13 @@ function App() {
         <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" />
           <h1>FiberSync</h1>
+          <div className="switch-container">
+            <label className="switch">
+              <input type="checkbox" onClick={() => setNewUser(!newUser)} />
+              <span className="slider round"></span>
+            </label>
+            <p>{newUser ? "Create new user" : "Login"}</p>
+          </div>
           <input
             type="text"
             className="username-input"

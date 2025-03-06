@@ -9,10 +9,11 @@ import ChatInput from './components/ChatInput';
 import ChatMessage from './components/ChatMessage';
 
 function App() {
-  const [cookie] = useState(document.cookie);
+  //const [cookie] = useState(document.cookie); // Not sure about this yet
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
@@ -31,19 +32,27 @@ function App() {
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
   const handleLogin = () => {
-    axios.post("http://127.0.0.1:5000/api/users/login", { username: username, password: password })
-    .then((response) => {
-      setEnteredChat(true);
-      console.log("User logged in:", response.data); // Debugging log
-    })
-    .catch((error) => {
-      if (error.response.status === 400) {
-        alert("User already exists. Please login.");
-        console.log("User already exists:", error.response.data); // Debugging log
-      } else {
+    if (isNewUser) {
+      axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
+      .then((response) => {
+        console.log("User created:", response.data); // Debugging log
+        setEnteredChat(true); // Enter the chat
+      })
+      .catch((error) => {
         console.error("Error creating user:", error);
-      }
-    });
+        alert("Username already exists."); // Alert the user of the error
+      })
+    } else {
+      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
+      .then((response) => {
+        console.log("User logged in:", response.data); // Debugging log
+        setEnteredChat(true);
+      })
+      .catch((error) => {
+        console.error("Error logging in:", error);
+        alert("Invalid username or password."); // Alert the user of the error
+      })
+    }
   };
 
   // Send message to the backend
@@ -72,13 +81,20 @@ function App() {
         <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" />
           <h1>FiberSync</h1>
+          <div className="switch-container">
+            <label className="switch">
+              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
+              <span className="slider round"></span>
+            </label>
+            <p>{isNewUser ? "Create new user" : "Login"}</p>
+          </div>
           <input
             type="text"
             className="username-input"
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
           <input
             type="password"
@@ -86,7 +102,7 @@ function App() {
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
 
           <button className="enter-button" onClick={handleLogin}>➡</button>

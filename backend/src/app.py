@@ -53,21 +53,38 @@ def user_login():
     username = data.get('username')
     password = data.get('password')
 
-    # Prevent empty fields
-    if not data or not username:
+    # Prevent empty fields (for debugging)
+    if not data or not username or not password:
         return jsonify({"error": "Missing data"}), 404
     
-    # Check if user already exists
+    # Check if user is in the database
     if userDB.get_user_by_username(username):
-        if not userDB.is_user_authenticated(username, password):
-            return jsonify({"error": "User already exists"}), 400
+        if userDB.is_user_authenticated(username, password):
+            return jsonify({"message": "User logged in successfully"}), 200
+        else:
+            return jsonify({"error": "Invalid username or password"}), 401
     else:
-        userDB.add_user(username, data.get('password'), [])
+        return jsonify({"error": "User not found"}), 404
+    
+@app.route('/api/users/create', methods=['POST'])
+def user_create():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
 
-    # The below line might be a bug?
-    return jsonify({"message": "User logged in successfully"}), 200
+    # Prevent empty fields (for debugging)
+    if not data or not username or not password:
+        return jsonify({"error": "Missing data"}), 404
+    
+    # Check if user is in the database
+    if userDB.get_user_by_username(username):     
+        return jsonify({"error": "User already exists"}), 409
+    else:
+        userDB.add_user(username, password, [])
+        return jsonify({"message": "User created successfully"}), 200
+    
 
-# LIKELY NOT NEEDED
+# ROUTE LIKELY NOT NEEDED
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
 def is_user_authenticated():

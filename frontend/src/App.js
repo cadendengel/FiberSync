@@ -75,6 +75,16 @@ function App() {
     .catch((error) => console.error("Error deleting message:", error));
   }   
 
+  // Edit message by ID (Button NYI)
+  const handleEditMessage = (messageId, newText) => {
+    axios.put("http://127.0.0.1:5000/api/messages/id", { id: messageId, text: newText })
+    .then((response) => {
+      console.log("Message edited:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.map(message => message.id === messageId ? { ...message, text: newText } : message)); // Update message
+    })
+    .catch((error) => console.error("Error editing message:", error));
+  }
+
   return (
     <div className="container">
       {!enteredChat ? (
@@ -111,7 +121,7 @@ function App() {
         <div className="chat-layout">
           <ChannelSidebar />
           <div className="chat-main">
-            <ChatWindow messages={messages} />
+            <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
           <UserSidebar username={username} />

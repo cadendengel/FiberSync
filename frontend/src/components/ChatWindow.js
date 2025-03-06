@@ -7,6 +7,8 @@ function ChatWindow({ messages }) {
   const pickerRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
   const [openPicker, setOpenPicker] = useState(null);
+  const [editingMessageId, setEditingMessageId] = useState(null);
+  const [editingText, setEditingText] = useState("");
 
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -54,6 +56,22 @@ function ChatWindow({ messages }) {
   const togglePicker = (messageId) => {
     setOpenPicker(openPicker === messageId ? null : messageId);
   };
+  
+  const startEditing = (messageId, text) => {
+    setEditingMessageId(messageId);
+    setEditingText(text);
+  };
+  
+  const saveEditedMessage = (messageId) => {
+    if (editingText.trim()) {
+      onEditMessage(messageId, editingText);
+    }
+    setEditingMessageId(null);
+  };
+  
+  const deleteMessage = (messageId) => {
+    onDeleteMessage(messageId);
+  };
 
   return (
     <div className="chat-window" style={{ flex: 1, overflowY: "auto", maxHeight: "60vh", padding: "10px" }}>
@@ -65,10 +83,22 @@ function ChatWindow({ messages }) {
             className="message-container"
             style={{ position: "relative", padding: "8px", borderBottom: "1px solid #ddd" }}
           >
-            <p>
-              <strong>{msg.user}:</strong> {msg.text}
-            </p>
-
+            {editingMessageId === msg.messageid ? (
+              <input
+                type="text"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+                onBlur={() => saveEditedMessage(msg.messageid)}
+                onKeyDown={(e) => e.key === "Enter" && saveEditedMessage(msg.messageid)}
+                autoFocus
+                style={{ width: "100%", padding: "5px", fontSize: "1em" }}
+              />
+            ) : (
+              <p>
+                <strong>{msg.user}:</strong> {msg.text}
+              </p>
+            )}
+  
             <div className="reactions" style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
               {messageReactions[msg.messageid] &&
                 Object.entries(messageReactions[msg.messageid]).map(([emoji, count]) => (
@@ -86,12 +116,11 @@ function ChatWindow({ messages }) {
                   </span>
                 ))}
             </div>
-
-            <div className="reaction-picker" style={{ position: "absolute", right: "10px", top: "10px", cursor: "pointer" }}>
-              <span 
-                onClick={() => togglePicker(msg.messageid)}
-                style={{ color: "#222", fontWeight: "bold" }}
-              >
+  
+            {/* Reaction Picker, Edit, and Delete Buttons */}
+            <div className="message-options" style={{ position: "absolute", right: "10px", top: "10px", display: "flex", gap: "5px" }}>
+              {/* Add Reaction Button */}
+              <span onClick={() => togglePicker(msg.messageid)} style={{ cursor: "pointer", fontWeight: "bold" }}>
                 ➕
               </span>
               {openPicker === msg.messageid && (
@@ -130,6 +159,22 @@ function ChatWindow({ messages }) {
                   ))}
                 </div>
               )}
+  
+              {/* Edit Button */}
+              <span
+                onClick={() => startEditing(msg.messageid, msg.text)}
+                style={{ cursor: "pointer", marginLeft: "5px" }}
+              >
+                ✏️
+              </span>
+  
+              {/* Delete Button */}
+              <span
+                onClick={() => deleteMessage(msg.messageid)}
+                style={{ cursor: "pointer", color: "red", marginLeft: "5px" }}
+              >
+                🗑️
+              </span>
             </div>
           </div>
         ))}

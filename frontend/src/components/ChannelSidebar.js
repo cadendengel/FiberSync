@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function ChannelSidebar() {
   /* State Management: This is Temporary for now, replaced by eventual API Calls */
@@ -6,9 +6,14 @@ function ChannelSidebar() {
   const [showMenu, setShowMenu] = useState(null); // Which Channel Menu is open, only one menu can be open at a time currently
   const [newChannelName, setNewChannelName] = useState(""); // New Channel Names
   const [showInput, setShowInput] = useState(false); // Controls visibility of input box
-  const [selectedChannel, setSelectedChannel] = useState(null); // Tracks active channel
+  const [selectedChannel, setSelectedChannel] = useState(1); // Tracks active channel, starts on Channel 1
 
-
+  /** Effect Hook: Ensure a valid channel is always selected */
+ useEffect(() => {
+  if (!channels.find(channel => channel.id === selectedChannel)) {
+    setSelectedChannel(channels.length > 0 ? channels[0].id : 1);
+  }
+  }, [channels]); // Runs whenever channels change
 
   // Function to create a new channel
   function createChannel() {
@@ -42,6 +47,12 @@ function ChannelSidebar() {
   // Function to delete a channel
   function deleteChannel(id) {
     setChannels(channels.filter(channel => channel.id !== id));
+
+    // In case you have a channel selected that you then delete
+    if (selectedChannel === id) {
+      setSelectedChannel(1);
+    }
+
     setShowMenu(null);
   }
 

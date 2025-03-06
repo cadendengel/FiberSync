@@ -51,9 +51,10 @@ function ChannelSidebar() {
         onClick: () => setShowInput(!showInput),
         className: "create-channel-button"
       },
-      showInput ? "Cancel" : "➕ Create Channel"
+      showInput ? "Cancel" : "Create Channel"
     ),
 
+    // Input box appears only if showInput is true
     // Input box appears only if showInput is true
     showInput &&
       React.createElement(
@@ -61,21 +62,23 @@ function ChannelSidebar() {
         { className: "create-channel" },
         React.createElement("input", {
           type: "text",
+          className: "channel-input",
           placeholder: "Enter Channel Name",
           value: newChannelName,
           onChange: (e) => setNewChannelName(e.target.value),
         }),
         React.createElement(
           "button",
-          { onClick: createChannel },
+          { onClick: createChannel, className: "send-button" },
           "Create"
         )
       ),
+    
 
     // Channels now map user-friendly names (frontend) to their respective MongoDB collections (backend)
     React.createElement(
       "ul",
-      null,
+      { className: "channel-list" },  // Ensure class is applied
       channels.map((channel) =>
         React.createElement(
           "li",
@@ -106,6 +109,7 @@ function ChannelSidebar() {
             : null
         )
       )
+    
     )
   );
 }

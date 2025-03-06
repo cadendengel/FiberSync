@@ -121,6 +121,35 @@ h1 {
   flex-direction: column;
   justify-content: flex-start;
   border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+/* CHANNEL SIDEBAR SPECIFIC STYLING */
+.channel-sidebar {
+  width: 20%;
+  background: #2a2a3a;
+  padding: 20px;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+/* Ensure both sidebars (Users & Channels) match */
+.user-sidebar {
+  width: 20%;
+  background: #2a2a3a;
+  padding: 20px;
+  color: white;
+  font-size: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
 }
 
 /* Ensure Right Panel Also Aligns Properly */
@@ -129,23 +158,28 @@ h1 {
   border-right: none;
 }
 
-/* Left-align Channel List */
+/* Fix Channel List (Removes Bullet Points) */
 .channel-list {
-  list-style: none;
-  padding: 10px 0;
-  text-align: left;
+  list-style: none !important;  /* Ensures it removes bullets */
+  margin: 0;
+  padding: 0;
 }
 
 .channel-list li {
-  padding: 8px 0;
+  list-style-type: none !important;  /* Extra safety */
+  padding: 8px 12px;
   font-size: 1rem;
   color: #cfd8dc;
   transition: 0.3s;
   cursor: pointer;
+  display: flex;
+  align-items: center;  /* Ensures text aligns properly */
 }
 
 .channel-list li:hover {
   color: #4a90e2;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
 }
 
 .chat-main {
@@ -335,3 +369,69 @@ h1 {
   box-shadow: 0 0 5px #FFC107;
 }
 
+/*Create Channel Stuff */
+/* CREATE CHANNEL BUTTON */
+.create-channel-button {
+  background: #4a90e2; /* Same blue theme */
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+  width: 100%;  /* Makes it span the sidebar width */
+  text-align: center;
+}
+
+.create-channel-button:hover {
+  background: #357bd8;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+}
+
+.create-channel-button:active {
+  transform: scale(0.98);
+}
+
+/* Channel Input Stuff */
+.channel-input {
+  flex: 1;
+  background: #1e1e2e;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 6px;
+  border-radius: 3px;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.2);
+}
+
+.channel-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.5);
+}
+
+/* SEND BUTTON */
+.send-button {
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);
+}
+
+.send-button:hover {
+  background: #357bd8;
+  box-shadow: 0 0 15px rgba(74, 144, 226, 0.5);
+}
+
+.send-button:active {
+  transform: scale(0.98);
+}

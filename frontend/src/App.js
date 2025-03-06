@@ -32,19 +32,27 @@ function App() {
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
   const handleLogin = () => {
-    axios.post("http://127.0.0.1:5000/api/users/login", { username: username, password: password })
-    .then((response) => {
-      setEnteredChat(true);
-      console.log("User logged in:", response.data); // Debugging log
-    })
-    .catch((error) => {
-      if (error.response.status === 400) {
-        alert("User already exists. Please login.");
-        console.log("User already exists:", error.response.data); // Debugging log
-      } else {
+    if (newUser) {
+      axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
+      .then((response) => {
+        console.log("User created:", response.data); // Debugging log
+        setEnteredChat(true); // Enter the chat
+      })
+      .catch((error) => {
         console.error("Error creating user:", error);
-      }
-    });
+        alert("Username already exists."); // Alert the user of the error
+      })
+    } else {
+      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
+      .then((response) => {
+        console.log("User logged in:", response.data); // Debugging log
+        setEnteredChat(true); // Enter the chat
+      })
+      .catch((error) => {
+        console.error("Error logging in:", error);
+        alert("Invalid username or password."); // Alert the user of the error
+      })
+    }
   };
 
   // Send message to the backend

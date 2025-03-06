@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 
 function ChannelSidebar() {
-  // Temporary state (replaces API call for now)
+  /* State Management: This is Temporary for now, replaced by eventual API Calls */
   const [channels, setChannels] = useState([{ id: 1, name: "Primary Channel" }]);
-  const [showMenu, setShowMenu] = useState(null);
-  const [newChannelName, setNewChannelName] = useState("");
+  const [showMenu, setShowMenu] = useState(null); // Which Channel Menu is open, only one menu can be open at a time currently
+  const [newChannelName, setNewChannelName] = useState(""); // New Channel Names
   const [showInput, setShowInput] = useState(false); // Controls visibility of input box
+  const [selectedChannel, setSelectedChannel] = useState(null); // Tracks active channel
+
+
 
   // Function to create a new channel
   function createChannel() {
@@ -21,6 +24,8 @@ function ChannelSidebar() {
     setShowInput(false); // Hide input box after creating a channel
   }
 
+
+
   // Function to rename a channel
   function renameChannel(id) {
     const newName = prompt("Enter new name");
@@ -32,12 +37,16 @@ function ChannelSidebar() {
     setShowMenu(null);
   }
 
+
+
   // Function to delete a channel
   function deleteChannel(id) {
     setChannels(channels.filter(channel => channel.id !== id));
     setShowMenu(null);
   }
 
+
+  
   return React.createElement(
     "div",
     { className: "channel-sidebar" },
@@ -54,7 +63,6 @@ function ChannelSidebar() {
       showInput ? "Cancel" : "Create Channel"
     ),
 
-    // Input box appears only if showInput is true
     // Input box appears only if showInput is true
     showInput &&
       React.createElement(
@@ -82,13 +90,17 @@ function ChannelSidebar() {
       channels.map((channel) =>
         React.createElement(
           "li",
-          { key: channel.id, className: "channel-item" },  // ✅ Make the `li` the positioning anchor
+          {
+            key: channel.id,
+            className: `channel-item ${selectedChannel === channel.id ? "selected" : ""}`,
+            onClick: () => setSelectedChannel(channel.id)
+          },
           React.createElement("span", null, channel.name),
         
           showMenu === channel.id
             ? React.createElement(
                 "div",
-                { className: "channel-menu" },  // ✅ Now correctly positions relative to the channel
+                { className: "channel-menu" },
                 React.createElement(
                   "button",
                   { onClick: () => renameChannel(channel.id), className: "channel-action-button" },
@@ -111,7 +123,7 @@ function ChannelSidebar() {
                   onClick: () => setShowMenu(channel.id),
                   className: "channel-menu-button"
                 },
-                "⋮"
+                "⋮" // We could change this to a gear icon if we want?
               )
         )
       )

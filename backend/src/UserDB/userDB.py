@@ -62,7 +62,3 @@ def delete_user(username):
     
 def delete_all_users():
     db.users.delete_many({})
-    
-
-# TESTING
-print(get_uuid_by_username("Caden"))

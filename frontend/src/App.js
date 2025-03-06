@@ -9,11 +9,11 @@ import ChatInput from './components/ChatInput';
 import ChatMessage from './components/ChatMessage';
 
 function App() {
-  const [cookie] = useState(document.cookie);
+  //const [cookie] = useState(document.cookie); // Not sure about this yet
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
-  const [newUser, setNewUser] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
@@ -32,7 +32,7 @@ function App() {
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
   const handleLogin = () => {
-    if (newUser) {
+    if (isNewUser) {
       axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
       .then((response) => {
         console.log("User created:", response.data); // Debugging log
@@ -46,7 +46,7 @@ function App() {
       axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
-        setEnteredChat(true); // Enter the chat
+        setEnteredChat(true);
       })
       .catch((error) => {
         console.error("Error logging in:", error);
@@ -83,10 +83,10 @@ function App() {
           <h1>FiberSync</h1>
           <div className="switch-container">
             <label className="switch">
-              <input type="checkbox" onClick={() => setNewUser(!newUser)} />
+              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
               <span className="slider round"></span>
             </label>
-            <p>{newUser ? "Create new user" : "Login"}</p>
+            <p>{isNewUser ? "Create new user" : "Login"}</p>
           </div>
           <input
             type="text"
@@ -94,7 +94,7 @@ function App() {
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
           <input
             type="password"
@@ -102,7 +102,7 @@ function App() {
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()} // Allow pressing Enter to proceed
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
 
           <button className="enter-button" onClick={handleLogin}>➡</button>

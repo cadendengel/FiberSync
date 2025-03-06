@@ -82,34 +82,39 @@ function ChannelSidebar() {
       channels.map((channel) =>
         React.createElement(
           "li",
-          { key: channel.id, className: "channel-item" },
+          { key: channel.id, className: "channel-item" },  // ✅ Make the `li` the positioning anchor
           React.createElement("span", null, channel.name),
-          React.createElement(
-            "button",
-            {
-              onClick: () => setShowMenu(showMenu === channel.id ? null : channel.id),
-            },
-            "⋮"
-          ),
+        
           showMenu === channel.id
             ? React.createElement(
                 "div",
-                { className: "channel-menu" },
+                { className: "channel-menu" },  // ✅ Now correctly positions relative to the channel
                 React.createElement(
                   "button",
-                  { onClick: () => renameChannel(channel.id) },
+                  { onClick: () => renameChannel(channel.id), className: "channel-action-button" },
                   "Rename"
                 ),
                 React.createElement(
                   "button",
-                  { onClick: () => deleteChannel(channel.id) },
+                  { onClick: () => deleteChannel(channel.id), className: "channel-action-button" },
                   "Delete"
+                ),
+                React.createElement(
+                  "button",
+                  { onClick: () => setShowMenu(null), className: "channel-action-button close-button" },
+                  "Close"
                 )
               )
-            : null
+            : React.createElement(
+                "button",
+                {
+                  onClick: () => setShowMenu(channel.id),
+                  className: "channel-menu-button"
+                },
+                "⋮"
+              )
         )
       )
-    
     )
   );
 }

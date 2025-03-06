@@ -64,13 +64,13 @@ function ChatWindow({ messages }) {
   
   const saveEditedMessage = (messageId) => {
     if (editingText.trim()) {
-      onEditMessage(messageId, editingText);
+      //onEditMessage(messageId, editingText); // Uncomment this line when route is implemented
     }
     setEditingMessageId(null);
   };
   
   const deleteMessage = (messageId) => {
-    onDeleteMessage(messageId);
+    //onDeleteMessage(messageId); // Uncomment this line when route is implemented
   };
 
   return (

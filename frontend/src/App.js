@@ -32,7 +32,8 @@ function App() {
 
   const handleLogin = () => {
     // Implement cookie handling
-    if (document.cookie === "username=" || document.cookie === "") document.cookie = `username=${username}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+    if (document.cookie !==  'username=${username};')
+      document.cookie = `username=${username}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
 
     alert(document.cookie); // Debugging alert
     if (isNewUser) {

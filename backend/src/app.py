@@ -3,8 +3,8 @@ from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
-from UserDB import userDB
-from MessageDB import msgDB
+from src.UserDB import userDB
+from src.MessageDB import msgDB
 
 
 # Initialize Flask app

@@ -17,7 +17,7 @@ function App() {
   const [messages, setMessages] = useState([]);
   useEffect(() => {
     if (enteredChat) {
-      axios.get("http://127.0.0.1:5000/api/messages/all")
+      axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`)
         .then((response) => setMessages(response.data)) // Set messages to the response data
         .catch((error) => console.error("Error fetching messages:", error));
     }
@@ -25,7 +25,7 @@ function App() {
 
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
-    axios.delete("http://127.0.0.1:5000/api/users")
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
     .then((response) => console.log("Database cleared:", response.data)) // Debugging log
     .catch((error) => console.error("Error clearing database:", error));
   }
@@ -33,7 +33,7 @@ function App() {
 
   const handleLogin = () => {
     if (isNewUser) {
-      axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/create`, { username, password })
       .then((response) => {
         console.log("User created:", response.data); // Debugging log
         setEnteredChat(true); // Enter the chat
@@ -43,7 +43,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
         setEnteredChat(true);
@@ -57,7 +57,7 @@ function App() {
 
   // Send message to the backend
   const handleSendMessage = (chatEvent) => {
-    axios.post("http://127.0.0.1:5000/api/messages/create", new ChatMessage(username, chatEvent))
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/create`, new ChatMessage(username, chatEvent))
     .then((response) => {
       console.log("Message sent to backend", response.data); // debug log
       setMessages((prevMessages) => [...prevMessages, response.data]); // Append new message
@@ -67,7 +67,7 @@ function App() {
 
   // Delete message by ID (Button NYI)
   const handleDeleteMessage = (messageId) => {
-    axios.delete("http://127.0.0.1:5000/api/messages/id", messageId)
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, messageId)
     .then((response) => {
       console.log("Message deleted:", response.data); // Debugging log
       setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
@@ -77,7 +77,7 @@ function App() {
 
   // Edit message by ID (Button NYI)
   const handleEditMessage = (messageId, newText) => {
-    axios.put("http://127.0.0.1:5000/api/messages/id", { id: messageId, text: newText })
+    axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, { id: messageId, text: newText })
     .then((response) => {
       console.log("Message edited:", response.data); // Debugging log
       setMessages((prevMessages) => prevMessages.map(message => message.id === messageId ? { ...message, text: newText } : message)); // Update message

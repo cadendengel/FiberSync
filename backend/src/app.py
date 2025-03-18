@@ -8,13 +8,13 @@ from src.MessageDB import msgDB
 
 
 # Initialize Flask app
-app = Flask(__name__, static_folder="../../frontend/build", static_url_path="")  
+app = Flask(__name__)
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
 
 # Serve React App (Production)
 @app.route('/')
-def serve():
-    return send_from_directory(app.static_folder, 'index.html')
+def home():
+    return "FiberSync Backend is Running!"
 
 
 
@@ -224,4 +224,4 @@ def update_user_status():
 # ===== Run Flask Server ===== (For Development)
 # This starts the Flask server.
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

@@ -52,11 +52,7 @@ def user_login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
-    cookie = data.get('cookie')
 
-    if cookie:
-        if userDB.is_cookie_authenticated(cookie):
-            return jsonify({"message": "User logged in successfully via cookie"}), 200
 
     # Prevent empty fields (for debugging)
     if not data or not username or not password:
@@ -65,7 +61,6 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
-            if cookie: userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
         else:
             return jsonify({"error": "Invalid username or password"}), 401
@@ -111,7 +106,7 @@ def is_cookie_authenticated():
     cookies = data.get('cookies')
 
     if userDB.is_cookie_authenticated(cookies):
-        return jsonify({"authenticated": True}), 200
+        return jsonify({"authenticated": True, "username": userDB.get_username_by_cookies(cookies)}), 200
     return jsonify({"authenticated": False}), 401
 
 

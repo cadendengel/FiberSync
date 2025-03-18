@@ -45,8 +45,8 @@ def add_user(username, password, cookies):
     db.users.insert_one({"username": username, "password": password, "cookies": cookies})
 
 def update_user_cookies(username, cookies):
-    db.users.update_one({"username": username}, {"$set": {"cookies": cookies}})
-
+    db.users.update_one({"username": username}, {"$push": {"cookies": [cookies]}})
+    
 def is_cookie_authenticated(cookies):
     for user in db.users.find():
         if user["cookies"] == cookies:

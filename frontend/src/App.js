@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
 import './App.css';
 import logo from './resources/FiberSyncLogo.png';
 import ChannelSidebar from './components/ChannelSidebar';
@@ -32,8 +33,20 @@ function App() {
 
   const handleLogin = () => {
     // Implement cookie handling
-    if (document.cookie !==  'username=${username};')
-      document.cookie = `username=${username}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+    alert(document.cookie); // Debugging alert
+    // Check if the current sessionID in document.cookie is valid
+    axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
+    .then((response) => {
+      console.log("User authenticated via cookies:", response.data); // Debugging log
+      username = response.data.username;
+      setEnteredChat(true); // Enter the chat 
+      return;
+    })
+    .catch((error) => {
+      console.error("Cookies are invalid:", error);
+      document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+    })
+
 
     // alert(document.cookie); // Debugging alert
     if (isNewUser) {
@@ -47,7 +60,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      axios.post("http://127.0.0.1:5000/api/users/login", { username, password, cookie: document.cookie })
+      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
         setEnteredChat(true);

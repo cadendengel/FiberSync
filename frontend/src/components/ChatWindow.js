@@ -81,7 +81,15 @@ function ChatWindow({ messages }) {
           <div
             key={msg.messageid}
             className="message-container"
-            style={{ position: "relative", padding: "8px", borderBottom: "1px solid #ddd" }}
+            style={{
+              position: "relative",
+              padding: "12px",
+              borderBottom: "1px solid #ddd",
+              borderRadius: "12px", // Rounded corners for message bubbles
+              backgroundColor: "#333", // Dark background for the message box
+              color: "white", // White text inside
+              marginBottom: "8px", // Space between messages
+            }}
           >
             {editingMessageId === msg.messageid ? (
               <input
@@ -107,7 +115,7 @@ function ChatWindow({ messages }) {
                     onClick={() => toggleReaction(msg.messageid, emoji)}
                     style={{
                       padding: "4px",
-                      background: "#eee",
+                      background: "#555", // Darker background for reaction
                       borderRadius: "8px",
                       cursor: "pointer",
                     }}
@@ -116,11 +124,20 @@ function ChatWindow({ messages }) {
                   </span>
                 ))}
             </div>
+<<<<<<< HEAD
   
             {/* Reaction Picker, Edit, and Delete Buttons */}
             <div className="message-options" style={{ position: "absolute", right: "10px", top: "10px", display: "flex", gap: "5px" }}>
               {/* Add Reaction Button */}
               <span onClick={() => togglePicker(msg.messageid)} style={{ cursor: "pointer", fontWeight: "bold" }}>
+=======
+
+            <div className="reaction-picker" style={{ position: "absolute", right: "10px", top: "10px", cursor: "pointer" }}>
+              <span 
+                onClick={() => togglePicker(msg.messageid)}
+                style={{ color: "#fff", fontWeight: "bold" }} 
+              >
+>>>>>>> 35c2db2 (SCRUM-78 added styling changes to messages.)
                 ➕
               </span>
               {openPicker === msg.messageid && (
@@ -131,9 +148,9 @@ function ChatWindow({ messages }) {
                     position: "absolute",
                     right: "10px",
                     top: "100%",
-                    background: "#fff",
+                    background: "#444", // Dark background for picker
                     padding: "5px",
-                    borderRadius: "5px",
+                    borderRadius: "8px", 
                     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                     display: "flex",
                     gap: "5px",
@@ -152,6 +169,8 @@ function ChatWindow({ messages }) {
                         cursor: "pointer",
                         lineHeight: "1",
                         fontSize: "1.2em",
+                        borderRadius: "8px", 
+                        color: "white", // White text inside picker
                       }}
                     >
                       {emoji}

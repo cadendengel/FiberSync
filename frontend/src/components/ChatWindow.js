@@ -73,9 +73,21 @@ function ChatWindow({ messages }) {
               marginBottom: "8px", // Space between messages
             }}
           >
-            <p>
-              <strong>{msg.user}:</strong> {msg.text}
-            </p>
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+              <img
+                src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`} // Dynamic user-based default avatar
+                alt={`${msg.user}'s avatar`}
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  marginRight: "8px", // Space between avatar and message
+                }}
+              />
+              <strong>{msg.user}:</strong>
+            </div>
+            <p>{msg.text}</p>
 
             <div className="reactions" style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
               {messageReactions[msg.messageid] &&
@@ -85,7 +97,7 @@ function ChatWindow({ messages }) {
                     onClick={() => toggleReaction(msg.messageid, emoji)}
                     style={{
                       padding: "4px",
-                      background: "#555", // Darker background for reaction
+                      background: "#555", 
                       borderRadius: "8px",
                       cursor: "pointer",
                     }}
@@ -110,7 +122,7 @@ function ChatWindow({ messages }) {
                     position: "absolute",
                     right: "10px",
                     top: "100%",
-                    background: "#444", // Dark background for picker
+                    background: "#444",
                     padding: "5px",
                     borderRadius: "8px", 
                     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
@@ -132,7 +144,7 @@ function ChatWindow({ messages }) {
                         lineHeight: "1",
                         fontSize: "1.2em",
                         borderRadius: "8px", 
-                        color: "white", // White text inside picker
+                        color: "white", 
                       }}
                     >
                       {emoji}

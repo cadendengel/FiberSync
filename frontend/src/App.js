@@ -9,7 +9,6 @@ import ChatInput from './components/ChatInput';
 import ChatMessage from './components/ChatMessage';
 
 function App() {
-  //const [cookie] = useState(document.cookie); // Not sure about this yet
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [enteredChat, setEnteredChat] = useState(false);
@@ -32,8 +31,12 @@ function App() {
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
   const handleLogin = () => {
+    // Implement cookie handling
+    if (document.cookie === "username=" || document.cookie === "") document.cookie = `username=${username}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+
+    alert(document.cookie); // Debugging alert
     if (isNewUser) {
-      axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
+      axios.post("http://127.0.0.1:5000/api/users/create", { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User created:", response.data); // Debugging log
         setEnteredChat(true); // Enter the chat
@@ -43,7 +46,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
+      axios.post("http://127.0.0.1:5000/api/users/login", { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
         setEnteredChat(true);

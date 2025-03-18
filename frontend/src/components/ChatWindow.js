@@ -92,6 +92,7 @@ function ChatWindow({ messages }) {
             }}
           >
 <<<<<<< HEAD
+<<<<<<< HEAD
             {editingMessageId === msg.messageid ? (
               <input
                 type="text"
@@ -109,6 +110,8 @@ function ChatWindow({ messages }) {
             )}
   
 =======
+=======
+>>>>>>> origin/SCRUM-78-improve-chat-message-styling
             <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
               <img
                 src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`} // Dynamic user-based default avatar

@@ -56,19 +56,19 @@ function ChatWindow({ messages }) {
   const togglePicker = (messageId) => {
     setOpenPicker(openPicker === messageId ? null : messageId);
   };
-  
+
   const startEditing = (messageId, text) => {
     setEditingMessageId(messageId);
     setEditingText(text);
   };
-  
+
   const saveEditedMessage = (messageId) => {
     if (editingText.trim()) {
       //onEditMessage(messageId, editingText); // Uncomment this line when route is implemented
     }
     setEditingMessageId(null);
   };
-  
+
   const deleteMessage = (messageId) => {
     //onDeleteMessage(messageId); // Uncomment this line when route is implemented
   };
@@ -81,8 +81,30 @@ function ChatWindow({ messages }) {
           <div
             key={msg.messageid}
             className="message-container"
-            style={{ position: "relative", padding: "8px", borderBottom: "1px solid #ddd" }}
+            style={{
+              position: "relative",
+              padding: "12px",
+              borderBottom: "1px solid #ddd",
+              borderRadius: "12px", // Rounded corners for message bubbles
+              backgroundColor: "#333", // Dark background for the message box
+              color: "white", // White text inside
+              marginBottom: "8px", // Space between messages
+            }}
           >
+            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+              <img
+                src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`} // Dynamic user-based default avatar
+                alt={`${msg.user}'s avatar`}
+                style={{
+                  width: "30px",
+                  height: "30px",
+                  borderRadius: "50%",
+                  objectFit: "cover",
+                  marginRight: "8px", // Space between avatar and message
+                }}
+              />
+              <strong>{msg.user}:</strong>
+            </div>
             {editingMessageId === msg.messageid ? (
               <input
                 type="text"
@@ -94,11 +116,9 @@ function ChatWindow({ messages }) {
                 style={{ width: "100%", padding: "5px", fontSize: "1em" }}
               />
             ) : (
-              <p>
-                <strong>{msg.user}:</strong> {msg.text}
-              </p>
+              <p>{msg.text}</p>
             )}
-  
+
             <div className="reactions" style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
               {messageReactions[msg.messageid] &&
                 Object.entries(messageReactions[msg.messageid]).map(([emoji, count]) => (
@@ -107,7 +127,7 @@ function ChatWindow({ messages }) {
                     onClick={() => toggleReaction(msg.messageid, emoji)}
                     style={{
                       padding: "4px",
-                      background: "#eee",
+                      background: "#555",
                       borderRadius: "8px",
                       cursor: "pointer",
                     }}
@@ -116,11 +136,12 @@ function ChatWindow({ messages }) {
                   </span>
                 ))}
             </div>
-  
-            {/* Reaction Picker, Edit, and Delete Buttons */}
-            <div className="message-options" style={{ position: "absolute", right: "10px", top: "10px", display: "flex", gap: "5px" }}>
-              {/* Add Reaction Button */}
-              <span onClick={() => togglePicker(msg.messageid)} style={{ cursor: "pointer", fontWeight: "bold" }}>
+
+            <div className="reaction-picker" style={{ position: "absolute", right: "10px", top: "10px", cursor: "pointer" }}>
+              <span
+                onClick={() => togglePicker(msg.messageid)}
+                style={{ color: "#fff", fontWeight: "bold" }}
+              >
                 ➕
               </span>
               {openPicker === msg.messageid && (
@@ -131,9 +152,9 @@ function ChatWindow({ messages }) {
                     position: "absolute",
                     right: "10px",
                     top: "100%",
-                    background: "#fff",
+                    background: "#444",
                     padding: "5px",
-                    borderRadius: "5px",
+                    borderRadius: "8px",
                     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                     display: "flex",
                     gap: "5px",
@@ -152,6 +173,8 @@ function ChatWindow({ messages }) {
                         cursor: "pointer",
                         lineHeight: "1",
                         fontSize: "1.2em",
+                        borderRadius: "8px",
+                        color: "white",
                       }}
                     >
                       {emoji}
@@ -159,16 +182,14 @@ function ChatWindow({ messages }) {
                   ))}
                 </div>
               )}
-  
-              {/* Edit Button */}
+
               <span
                 onClick={() => startEditing(msg.messageid, msg.text)}
                 style={{ cursor: "pointer", marginLeft: "5px" }}
               >
                 ✏️
               </span>
-  
-              {/* Delete Button */}
+
               <span
                 onClick={() => deleteMessage(msg.messageid)}
                 style={{ cursor: "pointer", color: "red", marginLeft: "5px" }}

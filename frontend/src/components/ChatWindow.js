@@ -56,19 +56,19 @@ function ChatWindow({ messages }) {
   const togglePicker = (messageId) => {
     setOpenPicker(openPicker === messageId ? null : messageId);
   };
-  
+
   const startEditing = (messageId, text) => {
     setEditingMessageId(messageId);
     setEditingText(text);
   };
-  
+
   const saveEditedMessage = (messageId) => {
     if (editingText.trim()) {
       //onEditMessage(messageId, editingText); // Uncomment this line when route is implemented
     }
     setEditingMessageId(null);
   };
-  
+
   const deleteMessage = (messageId) => {
     //onDeleteMessage(messageId); // Uncomment this line when route is implemented
   };
@@ -91,27 +91,6 @@ function ChatWindow({ messages }) {
               marginBottom: "8px", // Space between messages
             }}
           >
-<<<<<<< HEAD
-<<<<<<< HEAD
-            {editingMessageId === msg.messageid ? (
-              <input
-                type="text"
-                value={editingText}
-                onChange={(e) => setEditingText(e.target.value)}
-                onBlur={() => saveEditedMessage(msg.messageid)}
-                onKeyDown={(e) => e.key === "Enter" && saveEditedMessage(msg.messageid)}
-                autoFocus
-                style={{ width: "100%", padding: "5px", fontSize: "1em" }}
-              />
-            ) : (
-              <p>
-                <strong>{msg.user}:</strong> {msg.text}
-              </p>
-            )}
-  
-=======
-=======
->>>>>>> origin/SCRUM-78-improve-chat-message-styling
             <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
               <img
                 src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`} // Dynamic user-based default avatar
@@ -126,9 +105,20 @@ function ChatWindow({ messages }) {
               />
               <strong>{msg.user}:</strong>
             </div>
-            <p>{msg.text}</p>
+            {editingMessageId === msg.messageid ? (
+              <input
+                type="text"
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+                onBlur={() => saveEditedMessage(msg.messageid)}
+                onKeyDown={(e) => e.key === "Enter" && saveEditedMessage(msg.messageid)}
+                autoFocus
+                style={{ width: "100%", padding: "5px", fontSize: "1em" }}
+              />
+            ) : (
+              <p>{msg.text}</p>
+            )}
 
->>>>>>> d5d0cce (SCRUM-78 Added dynamic profile pictures generated from the user's name and a unique color)
             <div className="reactions" style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
               {messageReactions[msg.messageid] &&
                 Object.entries(messageReactions[msg.messageid]).map(([emoji, count]) => (
@@ -137,7 +127,7 @@ function ChatWindow({ messages }) {
                     onClick={() => toggleReaction(msg.messageid, emoji)}
                     style={{
                       padding: "4px",
-                      background: "#555", 
+                      background: "#555",
                       borderRadius: "8px",
                       cursor: "pointer",
                     }}
@@ -146,20 +136,12 @@ function ChatWindow({ messages }) {
                   </span>
                 ))}
             </div>
-<<<<<<< HEAD
-  
-            {/* Reaction Picker, Edit, and Delete Buttons */}
-            <div className="message-options" style={{ position: "absolute", right: "10px", top: "10px", display: "flex", gap: "5px" }}>
-              {/* Add Reaction Button */}
-              <span onClick={() => togglePicker(msg.messageid)} style={{ cursor: "pointer", fontWeight: "bold" }}>
-=======
 
             <div className="reaction-picker" style={{ position: "absolute", right: "10px", top: "10px", cursor: "pointer" }}>
-              <span 
+              <span
                 onClick={() => togglePicker(msg.messageid)}
-                style={{ color: "#fff", fontWeight: "bold" }} 
+                style={{ color: "#fff", fontWeight: "bold" }}
               >
->>>>>>> 35c2db2 (SCRUM-78 added styling changes to messages.)
                 ➕
               </span>
               {openPicker === msg.messageid && (
@@ -172,7 +154,7 @@ function ChatWindow({ messages }) {
                     top: "100%",
                     background: "#444",
                     padding: "5px",
-                    borderRadius: "8px", 
+                    borderRadius: "8px",
                     boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
                     display: "flex",
                     gap: "5px",
@@ -191,8 +173,8 @@ function ChatWindow({ messages }) {
                         cursor: "pointer",
                         lineHeight: "1",
                         fontSize: "1.2em",
-                        borderRadius: "8px", 
-                        color: "white", 
+                        borderRadius: "8px",
+                        color: "white",
                       }}
                     >
                       {emoji}
@@ -200,16 +182,14 @@ function ChatWindow({ messages }) {
                   ))}
                 </div>
               )}
-  
-              {/* Edit Button */}
+
               <span
                 onClick={() => startEditing(msg.messageid, msg.text)}
                 style={{ cursor: "pointer", marginLeft: "5px" }}
               >
                 ✏️
               </span>
-  
-              {/* Delete Button */}
+
               <span
                 onClick={() => deleteMessage(msg.messageid)}
                 style={{ cursor: "pointer", color: "red", marginLeft: "5px" }}

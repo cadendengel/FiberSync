@@ -21,6 +21,25 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 def home():
     return "FiberSync Backend is Running!"
 
+@app.route('/api/test-mongo', methods=['GET'])
+def test_mongo():
+    from pymongo import MongoClient
+    import os
+
+    try:
+        mongo_uri = os.getenv('MONGODB_LOGIN')
+
+        # Append `directConnection=True` to force a direct connection
+        if "?" in mongo_uri:
+            mongo_uri += "&directConnection=true"
+        else:
+            mongo_uri += "?directConnection=true"
+
+        client = MongoClient(mongo_uri)
+        db_names = client.list_database_names()  # Fetch all database names
+        return jsonify({"databases": db_names}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
 ##############################

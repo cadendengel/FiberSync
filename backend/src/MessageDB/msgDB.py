@@ -24,7 +24,13 @@ def add_message(messageid, timestamp, user, text):
     })
 
 def get_all_messages():
-    return db.messages.find()
+    messages = db.messages.find()
+    result = []
+    for message in messages:
+        message["_id"] = str(message["_id"])  # Convert ObjectId to string
+        result.append(message)
+
+    return result
 
 def get_message_by_id(message_id):
     return db.messages.find_one({"messageid": message_id})

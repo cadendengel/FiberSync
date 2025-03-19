@@ -1,17 +1,22 @@
-# This was previously server.py, it's now correctly located here.
+print("Starting Flask App...") # This is debug text. We can remove it if anyone wants.
+
+import eventlet
+import eventlet.wsgi
+eventlet.monkey_patch()  # Enable async support
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
 from src.UserDB import userDB
 from src.MessageDB import msgDB
-
+from flask_socketio import SocketIO, emit
 
 # Initialize Flask app
 app = Flask(__name__)
-CORS(app)  # Enable CORS to allow frontend to communicate with backend
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
-# Serve React App (Production)
 @app.route('/')
 def home():
     return "FiberSync Backend is Running!"
@@ -109,8 +114,42 @@ def is_cookie_authenticated():
 
 
 ####################################
-# ===== Chat Message Handling =====# (Chris)
+# ===== Chat Message Handling =====#
 ####################################
+
+
+# WebSocket Event: Handling messages in real-time
+#    - Listens for "send_message" events from clients
+#    - Saves the message in the database
+#    - Broadcasts it to all connected clients instantly
+
+@socketio.on("send_message")
+def handle_message(data):
+    print(f"Received message: {data}")
+
+    if "user" not in data or "text" not in data:
+        return
+
+    # Generate message ID and timestamp
+    from datetime import datetime
+    from bson.objectid import ObjectId
+
+    message_id = str(ObjectId())  # Generate a unique message ID
+    timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
+
+    # Save message to the database
+    msgDB.add_message(message_id, timestamp, data["user"], data["text"])
+
+    # Broadcast the message to all connected clients
+    emit("receive_message", {
+        "messageid": message_id,
+        "timestamp": timestamp,
+        "user": data["user"],
+        "text": data["text"]
+    }, broadcast=True)
+
+
+# This is the previous HTTP method, still good to keep. Currently the above will fallback to this if it can't real time send and emit
 
 # Post message to database
 @app.route('/api/messages/create', methods=['POST'])
@@ -202,9 +241,22 @@ def delete_message():
     return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
 
 #########################################
-# ===== User Online/Offline Status =====# (Ricky)
+# ===== User Online/Offline Status =====#
 #########################################
-# This section will track when a user is connected or not. Ricky can implement logic to update user status in the database.
+# This section will track when a user is connected or not.
+
+# User Connection Tracking:
+#    - Logs when a user connects/disconnects on the backend
+#    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
+#            your user status tracking Ricky
+
+@socketio.on("connect")
+def handle_connect():
+    print(f"+ Client connected: {request.sid}")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print(f"- Client disconnected: {request.sid}")
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
@@ -218,10 +270,13 @@ def update_user_status():
 
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
-
-
+# Running Flask + WebSocket Server:
+#    - Uses socketio.run() instead of app.run() to support WebSockets
+#    - log_output=True ensures we can debug connection issu
 
 # ===== Run Flask Server ===== (For Development)
 # This starts the Flask server.
 if __name__ == "__main__":
-    app.run()
+    print("Running Flask App...")             # Debug Statement, can remove if anyone else wants
+    print("Flask App is running in the background at 127.0.0.1:5000")
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

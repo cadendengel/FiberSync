@@ -195,7 +195,7 @@ def create_channel():
         return jsonify({"error": "Channel name required"}), 400
 
     if msgDB.add_channel(channel_name):
-        return jsonify({"message": "Channel created successfully"}), 201
+        return jsonify({"name": channel_name}), 201
     else:
         return jsonify({"error": "Channel limit reached (5 max)"}), 400
 

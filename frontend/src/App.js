@@ -37,13 +37,14 @@ function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [activeChannel, setActiveChannel] = useState("Primary Channel"); // Default channel
+  const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
   useEffect(() => {
     if (enteredChat) {
       console.log("Switching to Channel:", activeChannel); // Debugging log
       fetchMessages(activeChannel);
+      socket.emit("join_channel", { channel: activeChannel }); // Ensure WebSocket updates
     }
-  }, [enteredChat, activeChannel]); // Fetch messages when the user enters or switches channels
+  }, [enteredChat, activeChannel]);
 
   // Fetch messages for the selected channel
   const fetchMessages = async (channel) => {
@@ -63,8 +64,6 @@ function App() {
     }
   }, [activeChannel]);
 
-
-
   /* WebSocket Message Handling:
    *   - Listens for new messages from the backend and updates the chat in real-time, no need to manually refresh
    *   - Ensures messages persist correctly and don't duplicate
@@ -72,7 +71,8 @@ function App() {
   useEffect(() => {
     const handleNewMessage = (message) => {
       if (message.channel === activeChannel) {  // Only add messages for the active channel
-        setMessages((prevMessages) => [...prevMessages, message]);
+        setMessages((prevMessages) => [...prevMessages, message]); 
+        fetchMessages(activeChannel);  // Fetch the latest messages instantly
       }
     };
   

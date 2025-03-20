@@ -37,8 +37,12 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     if (!newChannelName.trim()) return;
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName });
-      setChannels([...channels, response.data]);  // Add new channel to list
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName.trim() });
+
+      // FIX: Instead of using response.data, fetch channels from backend after creation
+      const updatedChannels = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);
+      setChannels(updatedChannels.data);  // Update state with the correct names
+
       setNewChannelName("");
       setShowInput(false);
     } catch (error) {

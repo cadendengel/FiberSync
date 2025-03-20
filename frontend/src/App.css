@@ -596,3 +596,76 @@ input:checked + .slider:before {
   box-shadow: 0 0 10px rgba(74, 144, 226, 0.6);
   font-weight: bold;
 }
+
+/* Mobile Adjustments */
+@media screen and (max-width: 768px) {
+  body {
+    display: block;
+    height: auto;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .container {
+    flex-direction: column;
+    height: auto;
+    width: 100%;
+  }
+
+  .login-form, .entry-box, .chat-container, .chat-layout {
+    width: 100%;
+    max-width: 100%;
+    padding: 30px;
+  }
+
+  .chat-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .chat-sidebar, .user-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .chat-main {
+    width: 100%;
+    padding: 15px;
+  }
+
+  .chat-messages {
+    height: 50vh;
+    padding: 10px;
+  }
+
+  .chatbox {
+    flex-direction: column;
+    padding: 10px;
+  }
+
+  .chat-input {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .send-button {
+    width: 100%;
+  }
+
+  .channel-list li, .user-list li {
+    font-size: 0.9rem;
+    padding: 6px 10px;
+  }
+
+  .username-input, .password-input {
+    width: 100%;
+  }
+
+  .switch-container {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-left: 0;
+  }
+}

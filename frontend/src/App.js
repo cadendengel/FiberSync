@@ -40,9 +40,14 @@ function App() {
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
   useEffect(() => {
     if (enteredChat) {
-      console.log("Switching to Channel:", activeChannel); // Debugging log
-      fetchMessages(activeChannel);
-      socket.emit("join_channel", { channel: activeChannel }); // Ensure WebSocket updates
+        console.log(`Switching to Channel: ${activeChannel}`); // Debugging log
+        fetchMessages(activeChannel);
+
+        // Leave any previous channel before joining the new one
+        socket.emit("leave_channel");
+        
+        // Join the new channel
+        socket.emit("join_channel", { channel: activeChannel });
     }
   }, [enteredChat, activeChannel]);
 
@@ -57,31 +62,26 @@ function App() {
     }
   };
 
-  useEffect(() => {
-    if (enteredChat) {
-        fetchMessages(activeChannel);
-        socket.emit("join_channel", { channel: activeChannel });
-    }
-  }, [activeChannel]);
-
   /* WebSocket Message Handling:
    *   - Listens for new messages from the backend and updates the chat in real-time, no need to manually refresh
    *   - Ensures messages persist correctly and don't duplicate
    */
   useEffect(() => {
     const handleNewMessage = (message) => {
-      if (message.channel === activeChannel) {  // Only add messages for the active channel
-        setMessages((prevMessages) => [...prevMessages, message]); 
-        fetchMessages(activeChannel);  // Fetch the latest messages instantly
-      }
+        console.log(`New message received in ${message.channel}:`, message);
+      
+        if (message.channel === activeChannel) {  
+            setMessages((prevMessages) => [...prevMessages, message]); 
+        }
     };
-  
+
     socket.on("receive_message", handleNewMessage);
-  
+
     return () => {
       socket.off("receive_message", handleNewMessage);
     };
   }, [activeChannel]);
+
 
   const handleSendMessage = (chatEvent) => {
     const newMessage = { user: username, text: chatEvent, channel: activeChannel };

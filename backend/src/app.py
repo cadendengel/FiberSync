@@ -10,7 +10,7 @@ import os
 from datetime import datetime, timezone
 from src.UserDB import userDB
 from src.MessageDB import msgDB
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -154,9 +154,17 @@ def join_channel(data):
     if not channel:
         return
 
-    socketio.leave_room(request.sid)  # Leave previous room
-    socketio.join_room(channel)  # Join new room
-    print(f"User {request.sid} joined channel: {channel}")
+    sid = request.sid  # Get socket session ID
+    print(f"User {sid} attempting to join channel: {channel}")
+
+    # Leave any existing rooms
+    leave_room(channel)
+    
+    # Join the new channel
+    join_room(channel)
+    print(f"User {sid} joined channel: {channel}")
+
+
 
 @socketio.on("send_message")
 def handle_message(data):
@@ -174,6 +182,8 @@ def handle_message(data):
 
     # Save message to the database
     msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])
+
+    print(f"Broadcasting message to channel: {data['channel']}")
 
     # Broadcast the message to all connected clients
     emit("receive_message", {

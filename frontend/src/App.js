@@ -62,7 +62,7 @@ function App() {
    */
   useEffect(() => {
     const handleNewMessage = (message) => {
-      if (message.channel === activeChannel) {
+      if (message.channel === activeChannel) {  // Only add messages for the active channel
         setMessages((prevMessages) => [...prevMessages, message]);
       }
     };

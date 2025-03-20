@@ -15,13 +15,23 @@ def init_db_for_testing():
     global db
     db = client['__test_messagedb__']
 
-def add_message(messageid, timestamp, user, text):
+def add_message(messageid, timestamp, user, text, channel):
     db.messages.insert_one({
         "messageid": messageid,
         "timestamp": timestamp,
         "user": user,
-        "text": text
+        "text": text,
+        "channel": channel          # Working with adding a channel tag over having channel specific collections
     })
+
+def get_messages_by_channel(channel_name):
+    messages = db.messages.find({"channel": channel_name})
+    result = []
+    for message in messages:
+        message["_id"] = str(message["_id"])  # Convert ObjectId to string
+        result.append(message)
+
+    return result
 
 def get_all_messages():
     messages = db.messages.find()

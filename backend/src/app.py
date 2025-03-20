@@ -146,7 +146,7 @@ def is_cookie_authenticated():
 def handle_message(data):
     print(f"Received message: {data}")
 
-    if "user" not in data or "text" not in data:
+    if "user" not in data or "text" not in data or "channel" not in data:
         return
 
     # Generate message ID and timestamp
@@ -157,15 +157,16 @@ def handle_message(data):
     timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
 
     # Save message to the database
-    msgDB.add_message(message_id, timestamp, data["user"], data["text"])
+    msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])
 
     # Broadcast the message to all connected clients
     emit("receive_message", {
         "messageid": message_id,
         "timestamp": timestamp,
         "user": data["user"],
-        "text": data["text"]
-    }, broadcast=True)
+        "text": data["text"],
+        "channel": data["channel"]
+    }, broadcast=True)  # Broadcast to all users
 
 
 # This is the previous HTTP method, still good to keep. Currently the above will fallback to this if it can't real time send and emit
@@ -192,7 +193,7 @@ def send_message():
     return jsonify(chat_event), 201
 
 # Get all messages (Later, change to get all in channel only)
-@app.route('/api/messages/all', methods=['GET'])
+"""@app.route('/api/messages/all', methods=['GET'])
 def get_messages():
     messages = msgDB.get_all_messages()
     result = []
@@ -207,7 +208,17 @@ def get_messages():
     if not result:
         return jsonify({"error": "No messages found"}), 404
     
-    return result, 200
+    return result, 200"""
+
+@app.route('/api/messages/<channel>', methods=['GET'])
+def get_messages(channel):
+    messages = msgDB.get_messages_by_channel(channel)
+    
+    if not messages:
+        return jsonify({"error": "No messages found"}), 404
+
+    return jsonify(messages), 200
+
 
 # Get message by ID
 @app.route('/api/messages/id', methods=['GET'])

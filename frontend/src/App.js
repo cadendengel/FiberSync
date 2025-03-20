@@ -37,13 +37,22 @@ function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [activeChannel, setActiveChannel] = useState("Primary Channel"); // Default channel
   useEffect(() => {
     if (enteredChat) {
-      axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`)
-        .then((response) => setMessages(response.data)) // Set messages to the response data
-        .catch((error) => console.error("Error fetching messages:", error));
+      fetchMessages(activeChannel);
     }
-  }, [enteredChat]);
+  }, [enteredChat, activeChannel]); // Fetch messages when the user enters or switches channels
+
+  // Fetch messages for the selected channel
+  const fetchMessages = async (channel) => {
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${channel}`);
+      setMessages(response.data);
+    } catch (error) {
+      console.error("Error fetching messages:", error);
+    }
+  };
 
 
   /* WebSocket Message Handling:
@@ -52,16 +61,22 @@ function App() {
    */
   useEffect(() => {
     const handleNewMessage = (message) => {
-      console.log("New message received:", message);
-      setMessages((prevMessages) => [...prevMessages, message]); // Append new message
+      if (message.channel === activeChannel) {
+        setMessages((prevMessages) => [...prevMessages, message]);
+      }
     };
   
     socket.on("receive_message", handleNewMessage);
   
     return () => {
-      socket.off("receive_message", handleNewMessage); // Clean up listener when component unmounts
+      socket.off("receive_message", handleNewMessage);
     };
-  }, []);
+  }, [activeChannel]);
+
+  const handleSendMessage = (chatEvent) => {
+    const newMessage = { user: username, text: chatEvent, channel: activeChannel };
+    socket.emit("send_message", newMessage);
+  };
 
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
@@ -97,12 +112,6 @@ function App() {
 
   // Message Sending Update: Now uses WebSockets instead of just HTTP requests
 
-  // Send message to the backend
-  const handleSendMessage = (chatEvent) => {
-    const newMessage = { user: username, text: chatEvent };
-    socket.emit("send_message", newMessage); // Send message via WebSocket
-  };
-
   // Delete message by ID (Button NYI)
   const handleDeleteMessage = (messageId) => {
     axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, messageId)
@@ -129,20 +138,12 @@ function App() {
         <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" />
           <h1>FiberSync</h1>
-          <div className="switch-container">
-            <label className="switch">
-              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
-              <span className="slider round"></span>
-            </label>
-            <p>{isNewUser ? "Create new user" : "Login"}</p>
-          </div>
           <input
             type="text"
             className="username-input"
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
           <input
             type="password"
@@ -150,16 +151,14 @@ function App() {
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
-
-          <button className="enter-button" onClick={handleLogin}>➡</button>
+          <button className="enter-button" onClick={() => setEnteredChat(true)}>➡</button>
         </div>
       ) : (
         <div className="chat-layout">
-          <ChannelSidebar />
+          <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
           <div className="chat-main">
-            <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
+            <ChatWindow messages={messages} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
           <UserSidebar username={username} />
@@ -167,6 +166,6 @@ function App() {
       )}
     </div>
   );
-  }
+}
 
   export default App;

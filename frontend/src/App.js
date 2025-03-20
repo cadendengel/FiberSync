@@ -40,6 +40,7 @@ function App() {
   const [activeChannel, setActiveChannel] = useState("Primary Channel"); // Default channel
   useEffect(() => {
     if (enteredChat) {
+      console.log("Switching to Channel:", activeChannel); // Debugging log
       fetchMessages(activeChannel);
     }
   }, [enteredChat, activeChannel]); // Fetch messages when the user enters or switches channels

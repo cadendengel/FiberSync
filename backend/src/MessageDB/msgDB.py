@@ -56,3 +56,24 @@ def delete_all_messages():
 
 def delete_message(messageid):
     db.messages.delete_one({"messageid": messageid})
+
+
+# Highjacking msgDB.py to test channel collection stuff
+
+def add_channel(channel_name):
+    if db.channels.count_documents({"name": channel_name}) >= 5:
+        return False  # Limit to 5 channels
+
+    db.channels.insert_one({"name": channel_name})
+    return True
+
+def get_channels():
+    return list(db.channels.find({}, {"_id": 0, "name": 1}))  # Return only channel names
+
+def delete_channel(channel_name):
+    if channel_name == "Home":
+        return False  # Prevent deletion of "Home"
+
+    db.channels.delete_one({"name": channel_name})  # Remove channel from DB
+    db.messages.delete_many({"channel": channel_name})  # Remove all messages in that channel
+    return True

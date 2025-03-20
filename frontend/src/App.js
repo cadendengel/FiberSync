@@ -48,12 +48,21 @@ function App() {
   // Fetch messages for the selected channel
   const fetchMessages = async (channel) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${channel}`);
-      setMessages(response.data);
+        setMessages([]);  
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${encodeURIComponent(channel)}`);
+        setMessages(response.data);
     } catch (error) {
-      console.error("Error fetching messages:", error);
+        console.error("Error fetching messages:", error);
     }
   };
+
+  useEffect(() => {
+    if (enteredChat) {
+        fetchMessages(activeChannel);
+        socket.emit("join_channel", { channel: activeChannel });
+    }
+  }, [activeChannel]);
+
 
 
   /* WebSocket Message Handling:

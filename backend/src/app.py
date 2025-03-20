@@ -142,6 +142,22 @@ def is_cookie_authenticated():
 #    - Saves the message in the database
 #    - Broadcasts it to all connected clients instantly
 
+if msgDB.get_channels() == []:  # If there are no channels in the database
+    print("No channels found. Creating 'Home' channel...")
+    msgDB.add_channel("Home")
+else:
+    print("Channels already exist, skipping default creation.")
+
+@socketio.on("join_channel")
+def join_channel(data):
+    channel = data.get("channel")
+    if not channel:
+        return
+
+    socketio.leave_room(request.sid)  # Leave previous room
+    socketio.join_room(channel)  # Join new room
+    print(f"User {request.sid} joined channel: {channel}")
+
 @socketio.on("send_message")
 def handle_message(data):
     print(f"Received message: {data}")
@@ -166,8 +182,39 @@ def handle_message(data):
         "user": data["user"],
         "text": data["text"],
         "channel": data["channel"]
-    }, broadcast=True)  # Broadcast to all users
+    }, room=data["channel"])
 
+
+# Testing Channel stuff:
+@app.route('/api/channels/create', methods=['POST'])
+def create_channel():
+    data = request.json
+    channel_name = data.get("name")
+
+    if not channel_name:
+        return jsonify({"error": "Channel name required"}), 400
+
+    if msgDB.add_channel(channel_name):
+        return jsonify({"message": "Channel created successfully"}), 201
+    else:
+        return jsonify({"error": "Channel limit reached (5 max)"}), 400
+
+@app.route('/api/channels', methods=['GET'])
+def get_channels():
+    channels = msgDB.get_channels()
+    return jsonify(channels), 200
+
+
+@app.route('/api/channels/delete', methods=['DELETE'])
+def delete_channel():
+    data = request.json
+    channel_name = data.get("name")
+
+    if not channel_name:
+        return jsonify({"error": "Missing channel name"}), 400
+
+    msgDB.delete_channel(channel_name)
+    return jsonify({"message": f"Channel '{channel_name}' and its messages deleted"}), 200
 
 # This is the previous HTTP method, still good to keep. Currently the above will fallback to this if it can't real time send and emit
 

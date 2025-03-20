@@ -7,6 +7,7 @@ from UserDB import userDB
 from MessageDB import msgDB
 
 
+
 # Initialize Flask app
 app = Flask(__name__, static_folder="../../frontend/build", static_url_path="")  
 CORS(app)  # Enable CORS to allow frontend to communicate with backend
@@ -217,6 +218,22 @@ def update_user_status():
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+
+
+#########################################
+# ===== User reactions =====# (Ricky)
+#########################################
+@app.route('/api/user-reactions', methods=['POST'])
+def update_user_status():
+    data = request.json
+    username = data.get('username')  # The user whose status is updating
+    status = data.get('status')  # Expected values: "online" or "offline"
+
+    if not username or status not in ["online", "offline"]:
+        return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
+
+    return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+
 
 
 

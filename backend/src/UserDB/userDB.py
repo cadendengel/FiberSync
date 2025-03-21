@@ -7,13 +7,6 @@ load_dotenv()
 client = MongoClient(os.getenv('MONGODB_LOGIN'))
 db = client['userdb']
 
-# TODO: RESTRUCTURE DATABASE TO USE A UUID SYSTEM
-#
-#       This will allow for more secure and unique user identification
-#       as well as allow for more secure cookie storage and authentication
-#       via password. We can then have a TRUE username persistence system
-#       that will not permit duplicate usernames on different accounts.
-
 
 ######################
 # database functions #
@@ -39,13 +32,14 @@ def temp_get_random_user():
     return db.users.aggregate([{ "$sample": { "size": 1 } }]).next()["username"]
 
 def get_user_by_cookies(cookies):
-    return db.users.find_one({"cookies": cookies})
+    user = db.users.find_one({"cookies": cookies})
+    return user["username"] if user else None
 
 def add_user(username, password, cookies):
     db.users.insert_one({"username": username, "password": password, "cookies": cookies})
 
 def update_user_cookies(username, cookies):
-    db.users.update_one({"username": username}, {"$push": {"cookies": [cookies]}})
+    db.users.update_one({"username": username}, {"$push": {"cookies": cookies}}) #BUG: cookies is a string; it should be an "array" according to mongodb. I currently have absolutely no idea how to fix this, as I have tried literally everything.
     
 def is_cookie_authenticated(cookies):
     for user in db.users.find():

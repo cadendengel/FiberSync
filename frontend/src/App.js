@@ -31,14 +31,12 @@ function App() {
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
-  const handleLogin = () => {
-    // Implement cookie handling
-    alert(document.cookie); // Debugging alert
+  const cookieCheck = () => {
     // Check if the current sessionID in document.cookie is valid
     axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
     .then((response) => {
       console.log("User authenticated via cookies:", response.data); // Debugging log
-      username = response.data.username;
+      setUsername(response.data.username);
       setEnteredChat(true); // Enter the chat 
       return;
     })
@@ -46,9 +44,9 @@ function App() {
       console.error("Cookies are invalid:", error);
       document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
     })
+  }
 
-
-    // alert(document.cookie); // Debugging alert
+  const handleLogin = () => {
     if (isNewUser) {
       axios.post("http://127.0.0.1:5000/api/users/create", { username, password, cookie: document.cookie })
       .then((response) => {
@@ -60,7 +58,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      axios.post("http://127.0.0.1:5000/api/users/login", { username, password })
+      axios.post("http://127.0.0.1:5000/api/users/login", { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
         setEnteredChat(true);
@@ -96,7 +94,7 @@ function App() {
     <div className="container">
       {!enteredChat ? (
         <div className="entry-box">
-          <img src={logo} alt="FiberSync Logo" className="logo" />
+          <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieCheck}/>
           <h1>FiberSync</h1>
           <div className="switch-container">
             <label className="switch">

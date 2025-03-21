@@ -48,6 +48,7 @@ function App() {
 
   const handleLogin = () => {
     if (isNewUser) {
+      document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
       axios.post("http://127.0.0.1:5000/api/users/create", { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User created:", response.data); // Debugging log

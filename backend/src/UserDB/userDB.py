@@ -36,14 +36,17 @@ def get_user_by_cookies(cookies):
     return user["username"] if user else None
 
 def add_user(username, password, cookies):
-    db.users.insert_one({"username": username, "password": password, "cookies": cookies})
+    cookies = [cookies] if cookies else []
+    db.users.insert_one({"username": username, "password": password, "cookies": cookies}) # need cookies to be an array here
 
 def update_user_cookies(username, cookies):
-    db.users.update_one({"username": username}, {"$push": {"cookies": cookies}}) #BUG: cookies is a string; it should be an "array" according to mongodb. I currently have absolutely no idea how to fix this, as I have tried literally everything.
+    db.users.update_one({"username": username}, {"$push": {"cookies": cookies}})
+
+
     
 def is_cookie_authenticated(cookies):
     for user in db.users.find():
-        if user["cookies"] == cookies:
+        if cookies in user["cookies"]:
             return True
     return False
 

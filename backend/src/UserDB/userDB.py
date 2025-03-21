@@ -40,7 +40,8 @@ def add_user(username, password, cookies):
     db.users.insert_one({"username": username, "password": password, "cookies": cookies}) # need cookies to be an array here
 
 def update_user_cookies(username, cookies):
-    db.users.update_one({"username": username}, {"$push": {"cookies": cookies}})
+    if db.users.find_one({"username": username})["cookies"] == cookies:
+        db.users.update_one({"username": username}, {"$push": {"cookies": cookies}})
 
 
     

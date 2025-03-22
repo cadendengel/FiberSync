@@ -16,6 +16,7 @@ function App() {
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
+  const [hasUpdatedStatus, setHasUpdatedStatus] = useState(false);
 
   useEffect(() => {
     if (enteredChat) {
@@ -33,12 +34,20 @@ function App() {
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
-  // Handle closing of the window
-  window.addEventListener("beforeunload", (ev) => {  
-        axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "offline" })
+  // Handle closing of the window and final update of user status to offline
+  window.addEventListener("beforeunload", (ev) => {
+    if (hasUpdatedStatus) return; // Skip if status has already been updated
+    setHasUpdatedStatus(true); // Set flag to prevent multiple updates
+
+    // Update user status
+    if (enteredChat) {
+      axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "offline" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
-    });
+        // pause web page close
+        ev.preventDefault();
+    }
+  });
 
   const handleLogin = () => {
     if (isNewUser) {

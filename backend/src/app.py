@@ -216,7 +216,7 @@ def delete_message():
 def update_user_status():
     data = request.json
     username = data.get('username')  # The user whose status is updating
-    status = "online"#data.get('status')  # Expected values: "online" or "offline"
+    status = data.get('status')  # Expected values: "online" or "offline"
 
     if not username or status not in ["online", "offline"]:
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data

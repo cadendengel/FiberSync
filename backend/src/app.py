@@ -47,7 +47,6 @@ def delete_all_users():
     return jsonify({"message": "All users deleted"}), 200
 
 # Login OR Register user
-# Will be adding a Login/Register feature in SCRUM-69
 @app.route('/api/users/login', methods=['POST'])
 def user_login():
     data = request.json
@@ -86,7 +85,7 @@ def user_create():
         return jsonify({"message": "User created successfully"}), 200
     
 
-# ROUTE LIKELY NOT NEEDED
+# ROUTE MAYBE NOT NEEDED
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
 def is_user_authenticated():
@@ -210,6 +209,11 @@ def delete_message():
 
 
 # Caden: I don't think this is functional
+# Caden: I went ahead and reworked the entire user_status backend
+# Caden: Now, the user_status is stored in the userDB, and the same
+# Caden: function is used to update the status as is used to update
+# Caden: other user information.
+# Caden: In other words, we can just call update_status() here.
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])

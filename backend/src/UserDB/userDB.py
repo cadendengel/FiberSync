@@ -57,9 +57,9 @@ def delete_all_users():
     db.users.delete_many({})
 
 
-############################
-# user status functions    #
-############################
+#########################
+# user status functions #
+#########################
 
 def update_status(username, status):
     db.users.update_one({"username": username}, {"$set": {"status": status}})

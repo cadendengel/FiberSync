@@ -26,6 +26,7 @@ function App() {
     }
   }, [enteredChat]);
 
+
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
     axios.delete("http://127.0.0.1:5000/api/users")
@@ -49,6 +50,7 @@ function App() {
     }
   });
 
+  // Main login function
   const handleLogin = () => {
     if (isNewUser) {
       axios.post("http://127.0.0.1:5000/api/users/create", { username, password })
@@ -72,7 +74,9 @@ function App() {
       })
     }
 
-    // Prime user sidebar
+    // Pre-login priming of user sidebar info
+    // This is the best place I could put it,
+    // even though it doesn't really belong here
     axios.get('http://127.0.0.1:5000/api/users')
       .then((response) => {
         const data = response.data

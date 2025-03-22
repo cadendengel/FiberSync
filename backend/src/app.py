@@ -12,24 +12,26 @@ from src.UserDB import userDB
 from src.MessageDB import msgDB
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
-# Initialize Flask app
+# ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
+
+# ===== Root Route to Verify Backend Status ===== #
+# Changes: No longer serves React App to Browser
 @app.route('/')
 def home():
     return "FiberSync Backend is Running!"
 
+
+# ===== Database Connection Test ===== #
 @app.route('/api/test-mongo', methods=['GET'])
 def test_mongo():
     from pymongo import MongoClient
-    import os
 
     try:
         mongo_uri = os.getenv('MONGODB_LOGIN')
-
-        # Append `directConnection=True` to force a direct connection
         if "?" in mongo_uri:
             mongo_uri += "&directConnection=true"
         else:
@@ -42,9 +44,9 @@ def test_mongo():
         return jsonify({"error": str(e)}), 500
 
 
-##############################
-# ===== User Management =====# (Caden)
-##############################
+# ======================================= #
+#             User Management             # 
+# ======================================= #
 # This section is responsible for username storage. Later, it will be extended to include password authentication.
 # For now, it only stores a username when a user enters the app.
 
@@ -57,17 +59,20 @@ def get_all_users():
         user_data.append(user['username'])
     return jsonify(user_data), 200
 
+
 # Get user count
 @app.route('/api/users/count', methods=['GET'])
 def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
 
+
 # Delete all users
 @app.route('/api/users', methods=['DELETE'])
 def delete_all_users():
     userDB.delete_all_users()
     return jsonify({"message": "All users deleted"}), 200
+
 
 # Login OR Register user
 # Will be adding a Login/Register feature in SCRUM-69
@@ -89,7 +94,9 @@ def user_login():
             return jsonify({"error": "Invalid username or password"}), 401
     else:
         return jsonify({"error": "User not found"}), 404
-    
+
+
+# Create a new user
 @app.route('/api/users/create', methods=['POST'])
 def user_create():
     data = request.json
@@ -120,6 +127,7 @@ def is_user_authenticated():
         return jsonify({"authenticated": True}), 200
     return jsonify({"authenticated": False}), 401
 
+
 # Verify user credentials (cookies)
 @app.route('/api/users/authentication/cookies', methods=['POST'])
 def is_cookie_authenticated():
@@ -132,22 +140,22 @@ def is_cookie_authenticated():
 
 
 
-####################################
-# ===== Chat Message Handling =====#
-####################################
-
-
+# ======================================= #
+#      Real-Time Chat Functionality       # 
+# ======================================= #
 # WebSocket Event: Handling messages in real-time
 #    - Listens for "send_message" events from clients
 #    - Saves the message in the database
 #    - Broadcasts it to all connected clients instantly
 
+# Ensure Home Channel (atleast one) exists
 if msgDB.get_channels() == []:  # If there are no channels in the database
     print("No channels found. Creating 'Home' channel...")
     msgDB.add_channel("Home")
 else:
     print("Channels already exist, skipping default creation.")
 
+# WebSocket Event: Handles users joining channels
 @socketio.on("join_channel")
 def join_channel(data):
     channel = data.get("channel")
@@ -165,7 +173,7 @@ def join_channel(data):
     print(f"User {sid} joined channel: {channel}")
 
 
-
+# WebSocket Event: Handles real-time message sending 
 @socketio.on("send_message")
 def handle_message(data):
     print(f"Received message: {data}")
@@ -195,7 +203,10 @@ def handle_message(data):
     }, room=data["channel"])
 
 
-# Testing Channel stuff:
+# ======================================= #
+#           Channel Management            # 
+# ======================================= #
+# Create a new Channel
 @app.route('/api/channels/create', methods=['POST'])
 def create_channel():
     data = request.json
@@ -209,12 +220,15 @@ def create_channel():
     else:
         return jsonify({"error": "Channel limit reached (5 max)"}), 400
 
+
+# Fetches all available channels
 @app.route('/api/channels', methods=['GET'])
 def get_channels():
     channels = msgDB.get_channels()
     return jsonify(channels), 200
 
 
+# Delete a Channel
 @app.route('/api/channels/delete', methods=['DELETE'])
 def delete_channel():
     data = request.json
@@ -226,8 +240,10 @@ def delete_channel():
     msgDB.delete_channel(channel_name)
     return jsonify({"message": f"Channel '{channel_name}' and its messages deleted"}), 200
 
-# This is the previous HTTP method, still good to keep. Currently the above will fallback to this if it can't real time send and emit
 
+# ======================================= #
+#            Message Handling             # 
+# ======================================= #
 # Post message to database
 @app.route('/api/messages/create', methods=['POST'])
 def send_message():
@@ -327,9 +343,9 @@ def delete_message():
         return jsonify({"error": "Message with that ID not found"}), 404
     return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
 
-#########################################
-# ===== User Online/Offline Status =====#
-#########################################
+# ======================================= #
+#               User Status               # 
+# ======================================= #
 # This section will track when a user is connected or not.
 
 # User Connection Tracking:
@@ -357,13 +373,15 @@ def update_user_status():
 
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
+
+
+# ================================================== #
+#            STARTING FLASK SERVER                   #
+# ================================================== #
 # Running Flask + WebSocket Server:
 #    - Uses socketio.run() instead of app.run() to support WebSockets
-#    - log_output=True ensures we can debug connection issu
-
-# ===== Run Flask Server ===== (For Development)
-# This starts the Flask server.
+#    - log_output=True ensures we can debug connection problems
 if __name__ == "__main__":
-    print("Running Flask App...")             # Debug Statement, can remove if anyone else wants
-    print("Flask App is running in the background at 127.0.0.1:5000")
+    print("Running Flask App...")          # Debug Statement to confirm everything started, can remove if anyone else wants
+    print("Flask App is running in the background at 127.0.0.1:5000")   # Kind of a reminder for local development
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

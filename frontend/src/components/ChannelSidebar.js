@@ -8,8 +8,14 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
   const [channels, setChannels] = useState([]);
   const [newChannelName, setNewChannelName] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null); // Track which channel menu is open
+  const [editingChannel, setEditingChannel] = useState(null);
+  const [editedChannelName, setEditedChannelName] = useState("");
 
-  // Load channels from the backend when component mounts
+  /* Channel Fetching
+   * Gets the channels from the backend when the component mounts then
+   * ensures that the list of channels is up-to-date.
+   */
   useEffect(() => {
     async function fetchChannels() {
       try {
@@ -22,13 +28,24 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     fetchChannels();
   }, []);
 
-  // Switch active channel and notify WebSockets
+
+
+  /* Channel Switching
+   * Handles switching between channels and updates the active channel in state.
+   * Also notifies the WebSocket server that the user has switched channels.
+   */
   const handleChannelSwitch = (channelName) => {
     setActiveChannel(channelName);
     socket.emit("join_channel", { channel: channelName });
   };
 
-  // Create a new channel (Limit: 5)
+
+
+  /* Create a Channel
+   * Sends a request to the backend to create a new channel. It updates the
+   * local state after succesfully creating a channel.
+   * Currently limits the total number of channels to 5, we can change this.
+   */
   const createChannel = async () => {
     if (channels.length >= 5) {
       alert("Channel limit reached!");
@@ -39,10 +56,11 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName.trim() });
 
-      // FIX: Instead of using response.data, fetch channels from backend after creation
+      // Fetch the updated list of channels after creating a new one
       const updatedChannels = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);
       setChannels(updatedChannels.data);  // Update state with the correct names
 
+      // Clear input field and hide the input box
       setNewChannelName("");
       setShowInput(false);
     } catch (error) {
@@ -50,15 +68,22 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     }
   };
 
-  // Delete a channel
+
+
+  /* Delete a Channel
+   * Currently prevents deletion of the default "Home" channel for consistency.
+   * 
+   * Removes the other channels from the backend and updates the local state.
+   * If the user is in the deleted channel, switches them to "Home".
+   */
   const deleteChannel = async (channelName) => {
     try {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/channels/delete`, {
         data: { name: channelName }
       });
       setChannels(channels.filter(channel => channel.name !== channelName));
-
-      // If deleting active channel, switch to another available channel
+  
+      // If deleting active channel, switch to Home
       if (activeChannel === channelName) {
         setActiveChannel(channels.length > 1 ? channels[0].name : "Home");
       }
@@ -66,6 +91,39 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
       console.error("Error deleting channel:", error);
     }
   };
+  
+  // Open the menu for a specific channel
+  const toggleMenu = (channelName) => {
+    setMenuOpen(menuOpen === channelName ? null : channelName);
+  };
+  
+  // Start editing a channel
+  const startEditing = (channelName) => {
+    setEditingChannel(channelName);
+    setEditedChannelName(channelName);
+    setMenuOpen(null);
+  };
+  
+  // Save the edited channel name
+  const saveChannelEdit = async () => {
+    if (!editedChannelName.trim()) return;
+  
+    try {
+      // Perform API update here (Future implementation)
+      console.log(`Channel renamed from ${editingChannel} to ${editedChannelName}`);
+        
+      // Update local state for now
+      setChannels(channels.map(channel =>
+        channel.name === editingChannel ? { ...channel, name: editedChannelName } : channel
+      ));
+        
+      setEditingChannel(null);
+    } catch (error) {
+      console.error("Error renaming channel:", error);
+    }
+  };
+
+
 
   return (
     <div className="channel-sidebar">
@@ -94,11 +152,33 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
       <ul className="channel-list">
         {channels.map((channel) => (
           <li key={channel.name} className={activeChannel === channel.name ? "selected" : ""}>
-            <span onClick={() => handleChannelSwitch(channel.name)}>{channel.name}</span>
+            {editingChannel === channel.name ? (
+              <input
+                type="text"
+                className="edit-channel-input"
+                value={editedChannelName}
+                onChange={(e) => setEditedChannelName(e.target.value)}
+                onBlur={saveChannelEdit}
+                onKeyDown={(e) => e.key === "Enter" && saveChannelEdit()}
+                autoFocus
+              />
+            ) : (
+              <span onClick={() => handleChannelSwitch(channel.name)}>{channel.name}</span>
+            )}
 
-            {/* Delete Button (Only if it's NOT the default channel) */}
+            {/* Context Menu (Three Dots ⋮) */}
             {channel.name !== "Home" && (
-              <button onClick={() => deleteChannel(channel.name)} className="delete-channel-button">❌</button>
+              <div className="channel-options">
+                <button className="menu-button" onClick={() => toggleMenu(channel.name)}>⋮</button>
+
+                {/* Dropdown Menu */}
+                {menuOpen === channel.name && (
+                  <div className="menu-dropdown">
+                    <button onClick={() => startEditing(channel.name)}>Edit Channel</button>
+                    <button onClick={() => deleteChannel(channel.name)}>Delete Channel</button>
+                  </div>
+                )}
+              </div>
             )}
           </li>
         ))}

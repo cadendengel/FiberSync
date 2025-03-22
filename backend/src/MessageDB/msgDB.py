@@ -58,6 +58,9 @@ def delete_message(messageid):
     db.messages.delete_one({"messageid": messageid})
 
 
+##########################
+#   channel functions    #
+##########################
 # Highjacking msgDB.py to test channel collection stuff
 
 def add_channel(channel_name):

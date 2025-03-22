@@ -207,6 +207,9 @@ def delete_message():
 #########################################
 # This section will track when a user is connected or not. Ricky can implement logic to update user status in the database.
 
+
+# Caden: I don't think this is functional
+
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
 def update_user_status():
@@ -218,6 +221,21 @@ def update_user_status():
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+
+# Caden: I needed this
+@app.route('api/user-status', methods=['GET'])
+def get_user_status():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    user = userDB.get_user_by_username(username)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"status": user["status"]}), 200
 
 
 

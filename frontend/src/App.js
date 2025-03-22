@@ -33,6 +33,7 @@ function App() {
         console.log("Users fetched:", users);
         for (const user of users) {
           console.log("User:", user.username, "Status:", user.status);
+          
         }
         setUsers(users);
       })

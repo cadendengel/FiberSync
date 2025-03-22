@@ -221,6 +221,7 @@ def update_user_status():
     if not username or status not in ["online", "offline"]:
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
+    userDB.update_status(username, status)  # Update user status in the database
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
 # Caden: I needed to add this

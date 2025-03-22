@@ -51,11 +51,19 @@ function UserSidebar() {
     });
   };
 
+ /* User Selection for future "Direct Message" feature. 
+  * Currently only planning to do for this is set up the groundwork for a future feature. 
+  * What I am doing is setting up a chat window when you select a User (One of our filler Users)
+  * You can send a message to that user and a small chat window will show up.
+  * I'll have the Filler User respond with "I recieved your message!"
+  * A small bubble should show up by their name showing you recieved a message 
+  */
+
   return (
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        <li>👤 User1 - <span className="status-indicator online"></span> Online</li>
+        <li>👤 User1 - <span className="status-indicator online"></span> Online</li> 
         <li>👤 User2 - <span className="status-indicator online"></span> Online</li>
         <li>
           👤 User (You) - 

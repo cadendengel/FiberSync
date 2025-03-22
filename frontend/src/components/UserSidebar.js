@@ -64,7 +64,7 @@ function UserSidebar({ users }) {
       <h2>Users</h2>
       <ul className="user-list">
         <li>
-          👤 User (You) - 
+          👤 You - 
           <span 
             className={`status-indicator ${status}`} 
             onClick={toggleStatus} 

@@ -25,23 +25,6 @@ function App() {
     }
   }, [enteredChat]);
 
-  // Fetch users from the backend
-  useEffect(() => {
-    axios.get('http://127.0.0.1:5000/api/users')
-      .then((response) => {
-        const data = response.data
-        const users = [];
-      for (let i = 0; i < data.length; i += 2) {
-        if (data[i] !== username)
-          users.push({ username: data[i], status: data[i + 1] });
-      }
-      setUsers(users);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-      });
-  }, []);
-
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
     axios.delete("http://127.0.0.1:5000/api/users")
@@ -49,6 +32,13 @@ function App() {
     .catch((error) => console.error("Error clearing database:", error));
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
+
+  // Handle closing of the window
+  window.addEventListener("beforeunload", (ev) => {  
+        axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "offline" })
+        .then((response) => console.log("User status updated:", response.data)) // Debugging log
+        .catch((error) => console.error("Error updating user status:", error));
+    });
 
   const handleLogin = () => {
     if (isNewUser) {
@@ -72,6 +62,22 @@ function App() {
         alert("Invalid username or password."); // Alert the user of the error
       })
     }
+
+    // Prime user sidebar
+    axios.get('http://127.0.0.1:5000/api/users')
+      .then((response) => {
+        const data = response.data
+        const users = [];
+      for (let i = 0; i < data.length; i += 2) {
+        console.log(data[i], data[i + 1]);
+        if (data[i] !== username)
+          users.push({ username: data[i], status: data[i + 1] });
+      }
+      setUsers(users);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
   };
 
   // Send message to the backend

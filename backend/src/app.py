@@ -31,6 +31,7 @@ def get_all_users():
     user_data = []
     for user in users:
         user_data.append(user['username'])
+        user_data.append(user['status'])
     return jsonify(user_data), 200
 
 # Get user count

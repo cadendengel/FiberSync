@@ -15,6 +15,8 @@ function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+
   useEffect(() => {
     if (enteredChat) {
       axios.get("http://127.0.0.1:5000/api/messages/all")
@@ -22,6 +24,22 @@ function App() {
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
+
+  // Fetch users from the backend
+  useEffect(() => {
+    axios.get('http://127.0.0.1:5000/api/users')
+      .then((response) => {
+        const users = response.data.filter(user => user.username !== username); // Filter out the current user
+        console.log("Users fetched:", users);
+        for (const user of users) {
+          console.log("User:", user.username, "Status:", user.status);
+        }
+        setUsers(users);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
+  }, []);
 
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
@@ -124,7 +142,7 @@ function App() {
             <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
-          <UserSidebar username={username} />
+          <UserSidebar users={users} />
         </div>
       )}
     </div>

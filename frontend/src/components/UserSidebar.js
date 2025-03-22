@@ -1,8 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function UserSidebar() {
+function UserSidebar({ users }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
+
+  useEffect(() => {
+    for (const user of users) {
+      //console.log(users);
+      //console.log("User:", user.username, "Status:", user.status);
+    }
+  }, [users]);
+
 
   // Function to switch to "away" if inactive
   const startInactivityTimer = () => {
@@ -55,8 +63,6 @@ function UserSidebar() {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        <li>👤 User1 - <span className="status-indicator online"></span> Online</li>
-        <li>👤 User2 - <span className="status-indicator online"></span> Online</li>
         <li>
           👤 User (You) - 
           <span 
@@ -71,6 +77,14 @@ function UserSidebar() {
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         </li>
+        {users.map(user => (
+          user && user.status && user.username  ? (
+            <li key={user.status + user.username}>
+              {user.username} - 
+              <span className={`status-indicator ${user.status}`} ></span>
+            </li>
+          ) : null
+        ))}
       </ul>
     </div>
   );

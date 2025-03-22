@@ -31,7 +31,7 @@ def get_all_users():
     user_data = []
     for user in users:
         user_data.append(user['username'])
-        user_data.append(user['status'])
+        user_data.append(userDB.get_user_status(user['username']))
     return jsonify(user_data), 200
 
 # Get user count
@@ -67,6 +67,7 @@ def user_login():
     else:
         return jsonify({"error": "User not found"}), 404
     
+# Create user
 @app.route('/api/users/create', methods=['POST'])
 def user_create():
     data = request.json
@@ -215,15 +216,15 @@ def delete_message():
 def update_user_status():
     data = request.json
     username = data.get('username')  # The user whose status is updating
-    status = data.get('status')  # Expected values: "online" or "offline"
+    status = "online"#data.get('status')  # Expected values: "online" or "offline"
 
     if not username or status not in ["online", "offline"]:
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
-# Caden: I needed this
-@app.route('api/user-status', methods=['GET'])
+# Caden: I needed to add this
+@app.route('/api/user-status', methods=['GET'])
 def get_user_status():
     data = request.json
     username = data.get('username')
@@ -236,7 +237,6 @@ def get_user_status():
         return jsonify({"error": "User not found"}), 404
 
     return jsonify({"status": user["status"]}), 200
-
 
 
 

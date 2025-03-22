@@ -29,13 +29,13 @@ function App() {
   useEffect(() => {
     axios.get('http://127.0.0.1:5000/api/users')
       .then((response) => {
-        const users = response.data.filter(user => user.username !== username); // Filter out the current user
-        console.log("Users fetched:", users);
-        for (const user of users) {
-          console.log("User:", user.username, "Status:", user.status);
-          
-        }
-        setUsers(users);
+        const data = response.data
+        const users = [];
+      for (let i = 0; i < data.length; i += 2) {
+        if (data[i] !== username)
+          users.push({ username: data[i], status: data[i + 1] });
+      }
+      setUsers(users);
       })
       .catch((error) => {
         console.error("Error fetching users:", error);

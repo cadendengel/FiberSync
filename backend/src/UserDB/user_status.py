@@ -1,3 +1,4 @@
+'''
 from datetime import datetime, timedelta  # Import modules for handling timestamps
 from pymongo import MongoClient  # Import MongoDB client for database operations
 from dotenv import load_dotenv  # Import dotenv to load environment variables
@@ -5,6 +6,16 @@ import os  # Import os to access environment variables
 
 # Load environment variables from a .env file
 load_dotenv()
+'''
+
+
+# Caden: I am reworking this section
+#
+# Caden: this code is not consistent with the rest of the database code 
+# Caden: It's going to be moved/reworked into the UserDB module
+
+
+'''
 
 class UserStatusManager:
     def __init__(self, db_uri=os.getenv('MONGODB_LOGIN'), db_name="fibersync"):
@@ -85,3 +96,5 @@ if __name__ == "__main__":
 
     # Example: Mark inactive users as offline
     manager.mark_inactive_users()
+
+'''

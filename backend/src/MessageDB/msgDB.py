@@ -21,8 +21,17 @@ def add_message(messageid, timestamp, user, text, channel):
         "timestamp": timestamp,
         "user": user,
         "text": text,
-        "channel": channel          # Working with adding a channel tag over having channel specific collections
+        "channel": channel,    # Working with adding a channel tag over having channel specific collections
+        "reactions": {}
     })
+
+def add_reaction_to_message(messageid, emoji):
+    db.messages.update_one({"messageid": messageid}, {"$inc": {f"reactions.{emoji}": 1}})
+
+
+def remove_reaction_from_message(messageid, emoji):
+    db.messages.update_one({"messageid": messageid}, {"$inc": {f"reactions.{emoji}": -1}})
+
 
 def get_messages_by_channel(channel_name):
     messages = db.messages.find({"channel": channel_name})
@@ -86,3 +95,4 @@ def delete_channel(channel_name):
     db.channels.delete_one({"name": channel_name})  # Remove channel from DB
     db.messages.delete_many({"channel": channel_name})  # Remove all messages in that channel
     return True
+    

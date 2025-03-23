@@ -1,5 +1,6 @@
 import unittest
 from backend.src.UserDB import userDB
+import hashlib
 
 # Run all tests:
 # python -m unittest discover -s ./backend/__tests__ -p *_test.py
@@ -22,18 +23,18 @@ class TestUserDB(unittest.IsolatedAsyncioTestCase):
 
 
     def test_add_user_and_get_user_count(self):
-        userDB.add_user("testuser", "testpassword", [])
+        userDB.add_user("testuser", "testpassword", "session1")
         self.assertEqual(userDB.get_user_count(), 1)
-        userDB.add_user("testuser", "testpassword", [])
+        userDB.add_user("testuser", "testpassword", "session2")
         self.assertEqual(userDB.get_user_count(), 2)
-        userDB.add_user("testuser2", "testpassword2", [])
-        userDB.add_user("testuser3", "testpassword3", [])
+        userDB.add_user("testuser2", "testpassword2", "session2")
+        userDB.add_user("testuser3", "testpassword3", "session3")
         self.assertEqual(userDB.get_user_count(), 4)
     
     
     def test_get_user_by_username(self):
-        userDB.add_user("testuser", "testpassword", [])
+        userDB.add_user("testuser", "testpassword", "session1")
         user = userDB.get_user_by_username("testuser")
         self.assertEqual(user["username"], "testuser")
-        self.assertEqual(user["password"], "testpassword")
-        self.assertEqual(user["cookies"], [])
+        self.assertEqual(user["hashed_password"], hashlib.pbkdf2_hmac('sha256', "testpassword".encode('utf-8'), user["salt"], 10000))
+        self.assertEqual(user["cookies"], ["session1"])

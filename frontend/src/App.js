@@ -37,7 +37,6 @@ function App() {
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-  const [hasUpdatedStatus, setHasUpdatedStatus] = useState(false);
 
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
   useEffect(() => {
@@ -126,19 +125,25 @@ function App() {
   window.clearMessagesFromChannel = clearMessagesFromChannel; // Expose the function to the window object
 
   // Handle closing of the window and final update of user status to offline
-  window.addEventListener("beforeunload", (ev) => {
-    if (hasUpdatedStatus) return; // Skip if status has already been updated
-    setHasUpdatedStatus(true); // Set flag to prevent multiple updates
-
-    // Update user status
-    if (enteredChat) {
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
-        .then((response) => console.log("User status updated:", response.data)) // Debugging log
-        .catch((error) => console.error("Error updating user status:", error));
-        // pause web page close
-        ev.preventDefault();
+  useEffect(() => {
+    const handleWindowClose = (ev) => {
+      if (enteredChat) {
+        // Update user status to offline
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
+          .then((response) => console.log("User status updated:", response.data)) // Debugging log
+          .catch((error) => console.error("Error updating user status:", error));
+      }
+      // Disconnect the WebSocket, prevent errors
+      socket.disconnect();
     }
-  });
+
+    window.addEventListener("beforeunload", handleWindowClose);
+
+    // Prevent this effect from running more than once
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+    }
+  })
 
   // Fetch the user list for the sidebar
   const fetchSidebar = () => {

@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function UserSidebar() {
+function UserSidebar({ users }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState({}); // Placeholder for Direct Messaging
   const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
-
-  const users = ["Fiber"]; // Placeholder user, future feature idea, Fiber has AI integration to allow
-                           // real time communication with our Fiber Guy AI!
 
 
   // Function to switch to "away" if inactive
@@ -114,19 +111,20 @@ function UserSidebar() {
         ))}
 
         <li>
-          👤 User (You) - 
+          👤 You - 
           <span 
-            className={`status-indicator ${status}`} 
-            onClick={toggleStatus} 
+            className={`status-indicator ${"online"}`} 
             style={{ cursor: 'pointer', marginLeft: '8px' }}
           ></span>
-          <span 
-            onClick={toggleStatus} 
-            style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px' }}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
         </li>
+        {users.map(user => (
+          user && user.status && user.username  ? (
+            <li key={user.status + user.username}>
+              {user.username} - 
+              <span className={`status-indicator ${user.status}`} ></span>
+            </li>
+          ) : null
+        ))}
       </ul>
 
       {/* Direct Message Box (Appears if a User is Selected) */}

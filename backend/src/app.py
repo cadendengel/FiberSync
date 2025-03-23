@@ -57,6 +57,7 @@ def get_all_users():
     user_data = []
     for user in users:
         user_data.append(user['username'])
+        user_data.append(userDB.get_user_status(user['username']))
     return jsonify(user_data), 200
 
 
@@ -75,12 +76,14 @@ def delete_all_users():
 
 
 # Login OR Register user
-# Will be adding a Login/Register feature in SCRUM-69
 @app.route('/api/users/login', methods=['POST'])
 def user_login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
+    cookie = data.get('cookie')
+  
+
 
     # Prevent empty fields (for debugging)
     if not data or not username or not password:
@@ -89,33 +92,35 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
-            return jsonify({"message": "User logged in successfully"}), 200
+            if cookie: userDB.update_user_cookies(username, cookie)
+            return jsonify({"message": "User logged in successfully via username and password"}), 200
         else:
             return jsonify({"error": "Invalid username or password"}), 401
     else:
         return jsonify({"error": "User not found"}), 404
-
-
-# Create a new user
+    
+# Create user
 @app.route('/api/users/create', methods=['POST'])
 def user_create():
     data = request.json
     username = data.get('username')
     password = data.get('password')
+    cookie = data.get('cookie')
 
     # Prevent empty fields (for debugging)
     if not data or not username or not password:
         return jsonify({"error": "Missing data"}), 404
     
     # Check if user is in the database
-    if userDB.get_user_by_username(username):     
+    if userDB.get_user_by_username(username):   
         return jsonify({"error": "User already exists"}), 409
     else:
-        userDB.add_user(username, password, [])
+        if cookie: userDB.add_user(username, password, cookie)
+        else: userDB.add_user(username, password, [])
         return jsonify({"message": "User created successfully"}), 200
     
 
-# ROUTE LIKELY NOT NEEDED
+# ROUTE MAYBE NOT NEEDED
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
 def is_user_authenticated():
@@ -135,7 +140,7 @@ def is_cookie_authenticated():
     cookies = data.get('cookies')
 
     if userDB.is_cookie_authenticated(cookies):
-        return jsonify({"authenticated": True}), 200
+        return jsonify({"authenticated": True, "username": userDB.get_user_by_cookies(cookies)}), 200
     return jsonify({"authenticated": False}), 401
 
 
@@ -361,6 +366,14 @@ def handle_connect():
 def handle_disconnect():
     print(f"- Client disconnected: {request.sid}")
 
+
+# Caden: I don't think this is functional
+# Caden: I went ahead and reworked the entire user_status backend
+# Caden: Now, the user_status is stored in the userDB, and the same
+# Caden: function is used to update the status as is used to update
+# Caden: other user information.
+# Caden: In other words, we can just call update_status() here.
+
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
 def update_user_status():
@@ -371,7 +384,23 @@ def update_user_status():
     if not username or status not in ["online", "offline"]:
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
+    userDB.update_status(username, status)  # Update user status in the database
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+
+# Caden: I needed to add this
+@app.route('/api/user-status', methods=['GET'])
+def get_user_status():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    user = userDB.get_user_by_username(username)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"status": user["status"]}), 200
 
 
 

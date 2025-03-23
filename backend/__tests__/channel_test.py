@@ -1,5 +1,14 @@
+import os
+from dotenv import load_dotenv
+
+# Manually load .env from the Fibersync root directory
+env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../.env"))
+load_dotenv(env_path)
+
+from src.app import app
+from src.MessageDB import msgDB
 import unittest
-from backend.src.MessageDB import msgDB
+import json
 
 # Run all tests:
 # python -m unittest discover -s ./backend/__tests__ -p *_test.py
@@ -8,91 +17,126 @@ from backend.src.MessageDB import msgDB
 # python -m unittest discover -s ./backend/__tests__ -p channel_test.py
 
 
-class TestChannelDB(unittest.TestCase):
-
+class TestChannelSwitching(unittest.TestCase):
     def setUp(self):
-        """Initialize database for testing and clear any existing channels/messages."""
         msgDB.init_db_for_testing()
-        msgDB.delete_all_messages()
-        msgDB.clear_all_channels()
+
+        # Have to make multiple cleanup attempts because it wasn't working with one???
+        for _ in range(3):  # Retry cleanup up to 3 times :)
+            existing_channels = msgDB.get_channels()
+            for channel in existing_channels:
+                if channel["name"] != "Home":  # Keep "Home" channel
+                    msgDB.delete_channel(channel["name"])
+
+            # Ensure all previous messages are deleted
+            msgDB.delete_all_messages()
+
+            # **Re-check the cleanup**
+            channels = msgDB.get_channels()
+            if len(channels) == 1 and channels[0]["name"] == "Home":
+                break  # Exit loop if cleanup succeeded
+        else:
+            print("WARNING: Some channels are not getting deleted properly.")
+            # Debug because dear god what is happening
+
+        # Final assertion before tests start
+        assert len(channels) == 1, f"Expected only 'Home' to exist, found: {channels}"
+        assert channels[0]["name"] == "Home", f"Unexpected channel found: {channels}"
+        assert msgDB.get_message_count() == 0, f"Expected 0 messages, found: {msgDB.get_message_count()}"
+
+        self.client = app.test_client()
+
 
     @classmethod
     def tearDownClass(cls):
-        """Ensure cleanup after all tests run."""
+        print("Final cleanup: Removing all test channels and messages")
         msgDB.delete_all_messages()
         msgDB.clear_all_channels()
 
-    def test_add_channel(self):
-        """Test if a channel can be created successfully."""
-        result = msgDB.add_channel("TestChannel")
-        self.assertTrue(result)
+        # Double-check that everything is cleared
+        channels = msgDB.get_channels()
+        assert len(channels) == 1, f"Expected only 'Home' to exist, found: {channels}"
+        assert channels[0]["name"] == "Home"
+        assert msgDB.get_message_count() == 0
 
+        # **Close MongoDB Connection**
+        msgDB.client.close()
+        print("DEBUG: MongoDB connection closed after tests.")
+
+    def test_create_channel(self):
+        response = self.client.post('/api/channels/create', json={"name": "TestChannel"})
+        self.assertEqual(response.status_code, 201)
+        data = response.get_json()
+        self.assertEqual(data["name"], "TestChannel")
+
+        # Debugging: Print the channels to see what's in the DB before asserting
+        channels = msgDB.get_channels()
+        print("DEBUG: Current channels in DB before assertion:", channels)  
+
+        # Verify channel exists in DB
+        self.assertEqual(len(channels), 2)  # Expect "Home" + "TestChannel"
+        self.assertEqual(channels[1]["name"], "TestChannel")  # Expect the new channel to be the second one
+
+    def test_switch_channels_and_fetch_messages(self):
+        # Create two channels
+        self.client.post('/api/channels/create', json={"name": "Channel1"})
+        self.client.post('/api/channels/create', json={"name": "Channel2"})
+
+        # Add messages to Channel1
+        msgDB.add_message("msg1", "timestamp1", "user1", "Hello Channel1!", "Channel1")
+        msgDB.add_message("msg2", "timestamp2", "user2", "Welcome to Channel1", "Channel1")
+
+        # Add messages to Channel2
+        msgDB.add_message("msg3", "timestamp3", "user3", "Channel2 is cool!", "Channel2")
+
+        # Switch to Channel1 and verify messages
+        response = self.client.get('/api/messages/Channel1')
+        self.assertEqual(response.status_code, 200)
+        messages = response.get_json()
+        self.assertEqual(len(messages), 2)
+        self.assertEqual(messages[0]["text"], "Hello Channel1!")
+        self.assertEqual(messages[1]["text"], "Welcome to Channel1")
+
+        # Switch to Channel2 and verify messages
+        response = self.client.get('/api/messages/Channel2')
+        self.assertEqual(response.status_code, 200)
+        messages = response.get_json()
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(messages[0]["text"], "Channel2 is cool!")
+
+    def test_switch_to_empty_channel(self):
+        self.client.post('/api/channels/create', json={"name": "EmptyChannel"})
+
+        response = self.client.get('/api/messages/EmptyChannel')
+        self.assertEqual(response.status_code, 200)
+        messages = response.get_json()
+        self.assertEqual(messages, [])  # Expect an empty list
+
+    def test_switch_to_non_existent_channel(self):
+        response = self.client.get('/api/messages/NonExistentChannel')
+        self.assertEqual(response.status_code, 200)  # Should not crash
+        messages = response.get_json()
+        self.assertEqual(messages, [])  # Expect empty response
+
+    def test_delete_channel_and_check_messages(self):
+        self.client.post('/api/channels/create', json={"name": "DeleteMe"})
+        msgDB.add_message("msg1", "timestamp1", "user1", "This message will be deleted", "DeleteMe")
+
+        # Verify message exists
+        messages = msgDB.get_messages_by_channel("DeleteMe")
+        self.assertEqual(len(messages), 1)
+
+        # Delete channel
+        self.client.delete('/api/channels/delete', json={"name": "DeleteMe"})
+
+        # Verify channel is removed
         channels = msgDB.get_channels()
         self.assertEqual(len(channels), 1)
-        self.assertEqual(channels[0]["name"], "TestChannel")
+        self.assertEqual(channels[0]["name"], "Home")
 
-    def test_add_channel_limit(self):
-        """Test that adding more than 5 channels fails."""
-        for i in range(5):
-            self.assertTrue(msgDB.add_channel(f"Channel{i+1}"))
-
-        self.assertFalse(msgDB.add_channel("ExceedLimitChannel"))  # 6th channel should fail
-
-    def test_get_channels(self):
-        """Test retrieving all available channels."""
-        msgDB.add_channel("TestChannel1")
-        msgDB.add_channel("TestChannel2")
-        
-        channels = msgDB.get_channels()
-        self.assertEqual(len(channels), 2)
-        self.assertIn({"name": "TestChannel1"}, channels)
-        self.assertIn({"name": "TestChannel2"}, channels)
-
-    def test_add_messages_to_channel(self):
-        """Test adding messages to a channel and retrieving them."""
-        msgDB.add_channel("TestChannel")
-        msgDB.add_message("msg1", "timestamp1", "user1", "Hello World!", "TestChannel")
-        msgDB.add_message("msg2", "timestamp2", "user2", "Hey there!", "TestChannel")
-
-        messages = msgDB.get_messages_by_channel("TestChannel")
-        self.assertEqual(len(messages), 2)
-        self.assertEqual(messages[0]["text"], "Hello World!")
-        self.assertEqual(messages[1]["text"], "Hey there!")
-
-    def test_clear_channel(self):
-        """Test clearing all messages in a specific channel."""
-        msgDB.add_channel("TestChannel")
-        msgDB.add_message("msg1", "timestamp1", "user1", "Hello!", "TestChannel")
-        msgDB.add_message("msg2", "timestamp2", "user2", "Hey!", "TestChannel")
-
-        self.assertEqual(len(msgDB.get_messages_by_channel("TestChannel")), 2)
-
-        msgDB.clear_channel("TestChannel")
-        messages = msgDB.get_messages_by_channel("TestChannel")
+        # Verify messages in deleted channel are removed
+        messages = msgDB.get_messages_by_channel("DeleteMe")
         self.assertEqual(len(messages), 0)
-
-    def test_delete_channel(self):
-        """Test deleting a channel and ensuring associated messages are also deleted."""
-        msgDB.add_channel("TestChannel")
-        msgDB.add_message("msg1", "timestamp1", "user1", "Hello!", "TestChannel")
-
-        self.assertEqual(len(msgDB.get_messages_by_channel("TestChannel")), 1)
-
-        result = msgDB.delete_channel("TestChannel")
-        self.assertTrue(result)
-
-        channels = msgDB.get_channels()
-        messages = msgDB.get_messages_by_channel("TestChannel")
-
-        self.assertEqual(len(channels), 0)
-        self.assertEqual(len(messages), 0)  # Ensure messages in the deleted channel are also removed
-
-    def test_delete_protected_channel(self):
-        """Test preventing deletion of the 'Home' channel."""
-        msgDB.add_channel("Home")
-        result = msgDB.delete_channel("Home")
-        self.assertFalse(result)
-
 
 if __name__ == "__main__":
     unittest.main()

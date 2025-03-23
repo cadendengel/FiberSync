@@ -35,21 +35,6 @@ function App() {
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
 
-  const cookieCheck = () => {
-    // Check if the current sessionID in document.cookie is valid
-    axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
-    .then((response) => {
-      console.log("User authenticated via cookies:", response.data); // Debugging log
-      setUsername(response.data.username);
-      setEnteredChat(true); // Enter the chat 
-      return;
-    })
-    .catch((error) => {
-      console.error("Cookies are invalid:", error);
-      document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
-    })
-  }
-
   // Handle closing of the window and final update of user status to offline
   window.addEventListener("beforeunload", (ev) => {
     if (hasUpdatedStatus) return; // Skip if status has already been updated
@@ -64,6 +49,22 @@ function App() {
         ev.preventDefault();
     }
   });
+
+  // Check if the user has a valid session cookie
+  const cookieCheck = () => {
+    // Check if the current sessionID in document.cookie is valid
+    axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
+    .then((response) => {
+      console.log("User authenticated via cookies:", response.data); // Debugging log
+      setUsername(response.data.username);
+      setEnteredChat(true); // Enter the chat 
+      return;
+    })
+    .catch((error) => {
+      console.error("Cookies are invalid:", error);
+      document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+    })
+  }
 
   // Main login function
   const handleLogin = () => {

@@ -66,16 +66,9 @@ function UserSidebar({ users }) {
         <li>
           👤 You - 
           <span 
-            className={`status-indicator ${status}`} 
-            onClick={toggleStatus} 
+            className={`status-indicator ${"online"}`} 
             style={{ cursor: 'pointer', marginLeft: '8px' }}
           ></span>
-          <span 
-            onClick={toggleStatus} 
-            style={{ cursor: 'pointer', textDecoration: 'underline', marginLeft: '5px' }}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)}
-          </span>
         </li>
         {users.map(user => (
           user && user.status && user.username  ? (

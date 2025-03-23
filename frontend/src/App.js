@@ -23,6 +23,15 @@ function App() {
       axios.get("http://127.0.0.1:5000/api/messages/all")
         .then((response) => setMessages(response.data)) // Set messages to the response data
         .catch((error) => console.error("Error fetching messages:", error));
+
+      // Update user status to online
+      axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "online" })
+        .then((response) => console.log("User status updated:", response.data)) // Debugging log
+        .catch((error) => console.error("Error updating user status:", error));
+
+      // Fetch users for the sidebar
+      fetchSidebar();
+
     }
   }, [enteredChat]);
 
@@ -50,8 +59,25 @@ function App() {
     }
   });
 
+  const fetchSidebar = () => {
+    axios.get('http://127.0.0.1:5000/api/users')
+      .then((response) => {
+        const data = response.data
+        const users = [];
+      for (let i = 0; i < data.length; i += 2) {
+        console.log(data[i], data[i + 1]);
+        if (data[i] !== username)
+          users.push({ username: data[i], status: data[i + 1] });
+      }
+      setUsers(users);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
+    }
+
   // Check if the user has a valid session cookie
-  const cookieCheck = () => {
+  const cookieLogin = () => {
     // Check if the current sessionID in document.cookie is valid
     axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
     .then((response) => {
@@ -69,6 +95,7 @@ function App() {
   // Main login function
   const handleLogin = () => {
     if (isNewUser) {
+      // generate new sessionID
       document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
       axios.post("http://127.0.0.1:5000/api/users/create", { username, password, cookie: document.cookie })
       .then((response) => {
@@ -90,24 +117,6 @@ function App() {
         alert("Invalid username or password."); // Alert the user of the error
       })
     }
-
-    // Pre-login priming of user sidebar info
-    // This is the best place I could put it,
-    // even though it doesn't really belong here
-    axios.get('http://127.0.0.1:5000/api/users')
-      .then((response) => {
-        const data = response.data
-        const users = [];
-      for (let i = 0; i < data.length; i += 2) {
-        console.log(data[i], data[i + 1]);
-        if (data[i] !== username)
-          users.push({ username: data[i], status: data[i + 1] });
-      }
-      setUsers(users);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-      });
   };
 
   // Send message to the backend
@@ -144,7 +153,7 @@ function App() {
     <div className="container">
       {!enteredChat ? (
         <div className="entry-box">
-          <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieCheck}/>
+          <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin}/>
           <h1>FiberSync</h1>
           <div className="switch-container">
             <label className="switch">

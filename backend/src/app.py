@@ -417,22 +417,35 @@ def get_user_status():
 
     return jsonify({"status": user["status"]}), 200
 
+
 #########################################
 # ===== User reactions =====# (Ricky)
 #########################################
-#@app.route('/api/user-reactions', methods=['POST'])
-#def update_user_status():
-   # data = request.json
-  #  username = data.get('username')  # The user whose status is updating
-  #  status = data.get('status')  # Expected values: "online" or "offline"
-#
- #   if not username or status not in ["online", "offline"]:
- #       return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
-
- #   return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+@app.route('/api/messages/reactions', methods=['POST'])
+def update_reaction():
+    data = request.json
+    message_id = data.get('messageid')
+    emoji = data.get('emoji')
+    mode = data.get('mode')
 
 
+    if not message_id or not emoji or not mode:
+        return jsonify({"error": "missing data"}), 400
 
+    message = msgDB.get_message_by_id(message_id)
+    if not message:
+        return jsonify({"error": "Message not found"}), 404
+   
+    if mode == "inc":
+        msgDB.add_reaction_to_message(message_id)
+
+    elif mode == "dec":
+        msgDB.remove_reaction_from_message(message_id)
+    
+    else:
+        return jsonify({"error": "bad mode data"}), 400
+
+    return jsonify({"message": "reaction/s successfully added to message"}), 200
 
 
 # ================================================== #

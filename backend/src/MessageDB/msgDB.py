@@ -35,7 +35,6 @@ def remove_reaction_from_message(messageid, emoji):
 def get_reactions_by_messageid(messageid):
     db.messages.find_one({"messageid": messageid})["reactions"]
 
-
 def get_messages_by_channel(channel_name):
     messages = db.messages.find({"channel": channel_name})
     result = []

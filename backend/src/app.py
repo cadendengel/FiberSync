@@ -18,17 +18,8 @@ CORS(app)
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 
-<<<<<<< HEAD
 # ===== Root Route to Verify Backend Status ===== #
 # Changes: No longer serves React App to Browser
-=======
-
-# Initialize Flask app
-app = Flask(__name__, static_folder="../../frontend/build", static_url_path="")  
-CORS(app)  # Enable CORS to allow frontend to communicate with backend
-
-# Serve React App (Production)
->>>>>>> d0058d2 (SCRUM-98 created database file for reactions)
 @app.route('/')
 def home():
     return "FiberSync Backend is Running!"
@@ -429,16 +420,16 @@ def get_user_status():
 #########################################
 # ===== User reactions =====# (Ricky)
 #########################################
-@app.route('/api/user-reactions', methods=['POST'])
-def update_user_status():
-    data = request.json
-    username = data.get('username')  # The user whose status is updating
-    status = data.get('status')  # Expected values: "online" or "offline"
+#@app.route('/api/user-reactions', methods=['POST'])
+#def update_user_status():
+   # data = request.json
+  #  username = data.get('username')  # The user whose status is updating
+  #  status = data.get('status')  # Expected values: "online" or "offline"
+#
+ #   if not username or status not in ["online", "offline"]:
+ #       return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
-    if not username or status not in ["online", "offline"]:
-        return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
-
-    return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
+ #   return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
 
 

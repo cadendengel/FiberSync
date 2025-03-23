@@ -105,13 +105,25 @@ function App() {
       socket.emit("send_message", newMessage);
     };
 
-  // Clear the database, will be accessible from the inspect element console for now
+  // Clear the user database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
     axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
     .then((response) => console.log("Database cleared:", response.data)) // Debugging log
     .catch((error) => console.error("Error clearing database:", error));
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
+
+  // Clear the messages database, will be accessible from the inspect element console for now
+  const clearMessagesFromChannel = (channel) => {
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/channels/clear`, { data: { channel } })
+    .then((response) => {
+      console.log("Database cleared:", response.data) // Debugging log
+    })
+    .catch((error) => {
+      console.error("Error clearing database:", error)
+  });
+  }
+  window.clearMessagesFromChannel = clearMessagesFromChannel; // Expose the function to the window object
 
   // Handle closing of the window and final update of user status to offline
   window.addEventListener("beforeunload", (ev) => {

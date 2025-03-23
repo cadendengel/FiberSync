@@ -232,6 +232,21 @@ def get_channels():
     channels = msgDB.get_channels()
     return jsonify(channels), 200
 
+# Clear a channel
+@app.route('/api/channels/clear', methods=['DELETE'])
+def clear_channel():
+    channel = request.json.get("channel")
+    
+    if not channel:
+        return jsonify({"error": "Channel name required"}), 400
+    
+    if (channel == "all"):
+        msgDB.clear_all_channels()
+        return jsonify({"message": "All channels cleared"}), 200
+    else:
+        msgDB.clear_channel(channel)
+        return jsonify({"message": f"Channel '{channel}' cleared"}), 200
+
 
 # Delete a Channel
 @app.route('/api/channels/delete', methods=['DELETE'])

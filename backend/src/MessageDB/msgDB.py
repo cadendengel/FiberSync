@@ -73,6 +73,12 @@ def add_channel(channel_name):
 def get_channels():
     return list(db.channels.find({}, {"_id": 0, "name": 1}))  # Return only channel names
 
+def clear_channel(channel_name):
+    db.messages.delete_many({"channel": channel_name})
+
+def clear_all_channels():
+    db.messages.delete_many({})
+
 def delete_channel(channel_name):
     if channel_name == "Home":
         return False  # Prevent deletion of "Home"

@@ -140,6 +140,7 @@ function App() {
     }
   });
 
+  // Fetch the user list for the sidebar
   const fetchSidebar = () => {
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
       .then((response) => {
@@ -160,7 +161,7 @@ function App() {
   // Check if the user has a valid session cookie
   const cookieLogin = () => {
     // Check if the current sessionID in document.cookie is valid
-    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/authentication/cookies`, { cookies: document.cookie })
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/authentication/cookies`, { cookie: document.cookie })
     .then((response) => {
       console.log("User authenticated via cookies:", response.data); // Debugging log
       setUsername(response.data.username);
@@ -188,6 +189,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
+      console.log("Current cookie:", document.cookie); // TEMP
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log

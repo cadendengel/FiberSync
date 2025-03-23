@@ -75,15 +75,13 @@ def delete_all_users():
     return jsonify({"message": "All users deleted"}), 200
 
 
-# Login OR Register user
+# Login user
 @app.route('/api/users/login', methods=['POST'])
 def user_login():
     data = request.json
     username = data.get('username')
     password = data.get('password')
     cookie = data.get('cookie')
-  
-
 
     # Prevent empty fields (for debugging)
     if not data or not username or not password:
@@ -92,7 +90,8 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
-            if cookie: userDB.update_user_cookies(username, cookie)
+            if cookie:
+                userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
         else:
             return jsonify({"error": "Invalid username or password"}), 401
@@ -137,10 +136,10 @@ def is_user_authenticated():
 @app.route('/api/users/authentication/cookies', methods=['POST'])
 def is_cookie_authenticated():
     data = request.json
-    cookies = data.get('cookies')
+    cookie = data.get('cookie')
 
-    if userDB.is_cookie_authenticated(cookies):
-        return jsonify({"authenticated": True, "username": userDB.get_user_by_cookies(cookies)}), 200
+    if userDB.is_cookie_authenticated(cookie):
+        return jsonify({"authenticated": True, "username": userDB.get_user_by_cookies(cookie)}), 200
     return jsonify({"authenticated": False}), 401
 
 
@@ -429,4 +428,5 @@ def get_user_status():
 if __name__ == "__main__":
     print("Running Flask App...")          # Debug Statement to confirm everything started, can remove if anyone else wants
     print("Flask App is running in the background at 127.0.0.1:5000")   # Kind of a reminder for local development
+    #os.environ['ENV'] = 'development'  # Set the environment to development (for printing from app.py)
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

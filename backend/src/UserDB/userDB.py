@@ -36,14 +36,11 @@ def get_user_by_cookies(cookies):
     return user["username"] if user else None
 
 def add_user(username, password, cookies):
-    db.users.insert_one({"username": username, "password": password, "cookies": cookies, "status": "online"})
+    db.users.insert_one({"username": username, "password": password, "cookies": [cookies], "status": "online"})
 
 def update_user_cookies(username, cookies):
-    if db.users.find_one({"username": username})["cookies"] == cookies:
-        db.users.update_one({"username": username}, {"$push": {"cookies": cookies}})
+    db.users.update_one({"username": username}, {"$addToSet": {"cookies": cookies}})
 
-
-    
 def is_cookie_authenticated(cookies):
     for user in db.users.find():
         if cookies in user["cookies"]:

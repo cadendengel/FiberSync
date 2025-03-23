@@ -60,3 +60,51 @@ class TestUserDB(unittest.IsolatedAsyncioTestCase):
         userDB.add_user("testuser", "testpassword", "session1")
         self.assertTrue(userDB.is_user_authenticated("testuser", "testpassword"))
         self.assertFalse(userDB.is_user_authenticated("testuser", "wrongpassword"))
+
+
+    def test_robust(self):
+        userDB.add_user("testuser", "testpassword", "session1")
+        userDB.add_user("testuser2", "testpassword2", "session2")
+        userDB.add_user("testuser3", "testpassword3", "session3")
+
+        self.assertEqual(int(userDB.get_user_count()), 3)
+
+        self.assertTrue(userDB.is_user_authenticated("testuser", "testpassword"))
+        self.assertTrue(userDB.is_user_authenticated("testuser2", "testpassword2"))
+        self.assertTrue(userDB.is_user_authenticated("testuser3", "testpassword3"))
+        self.assertFalse(userDB.is_user_authenticated("testuser", "wrongpassword"))
+        self.assertFalse(userDB.is_user_authenticated("testuser2", "wrongpassword"))
+        self.assertFalse(userDB.is_user_authenticated("testuser3", "wrongpassword"))
+
+        self.assertTrue(userDB.is_cookie_authenticated("session1"))
+        self.assertTrue(userDB.is_cookie_authenticated("session2"))
+        self.assertTrue(userDB.is_cookie_authenticated("session3"))
+        self.assertFalse(userDB.is_cookie_authenticated("session4"))
+
+        self.assertEqual(userDB.get_user_by_cookies("session1"), "testuser")
+        self.assertEqual(userDB.get_user_by_cookies("session2"), "testuser2")
+        self.assertEqual(userDB.get_user_by_cookies("session3"), "testuser3")
+
+        self.assertEqual(userDB.get_user_by_username("testuser")["username"], "testuser")
+        self.assertEqual(userDB.get_user_by_username("testuser2")["username"], "testuser2")
+        self.assertEqual(userDB.get_user_by_username("testuser3")["username"], "testuser3")
+
+        userDB.delete_user("testuser")
+        self.assertEqual(int(userDB.get_user_count()), 2)
+        userDB.delete_user("testuser4")
+        self.assertEqual(int(userDB.get_user_count()), 2)
+        userDB.delete_all_users()
+        self.assertEqual(int(userDB.get_user_count()), 0)
+
+
+    def test_salt(self):
+        # salt should be different for different users
+        # technically, this test could fail if the random salt is the same for two users
+        # but the probability of that happening is very low
+        userDB.add_user("testuser", "testpassword", "session1")
+        userDB.add_user("testuser2", "testpassword2", "session2")
+        userDB.add_user("testuser3", "testpassword3", "session3")
+        
+        self.assertNotEqual(userDB.get_user_by_username("testuser")["salt"], userDB.get_user_by_username("testuser2")["salt"])
+        self.assertNotEqual(userDB.get_user_by_username("testuser")["salt"], userDB.get_user_by_username("testuser3")["salt"])
+        self.assertNotEqual(userDB.get_user_by_username("testuser2")["salt"], userDB.get_user_by_username("testuser3")["salt"])

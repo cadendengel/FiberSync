@@ -32,6 +32,9 @@ def add_reaction_to_message(messageid, emoji):
 def remove_reaction_from_message(messageid, emoji):
     db.messages.update_one({"messageid": messageid}, {"$inc": {f"reactions.{emoji}": -1}})
 
+def get_reactions_by_messageid(messageid):
+    db.messages.find_one({"messageid": messageid})["reactions"]
+
 
 def get_messages_by_channel(channel_name):
     messages = db.messages.find({"channel": channel_name})

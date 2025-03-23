@@ -308,9 +308,10 @@ def get_messages(channel):
     messages = msgDB.get_messages_by_channel(channel)
     
     if not messages:
-        return jsonify({"error": "No messages found"}), 404
-
+        return jsonify([]), 200
+    
     return jsonify(messages), 200
+
 
 
 # Get message by ID

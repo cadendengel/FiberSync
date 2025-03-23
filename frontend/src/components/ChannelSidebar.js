@@ -1,144 +1,192 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { io } from "socket.io-client";
 
-function ChannelSidebar() {
-  /* State Management: This is Temporary for now, replaced by eventual API Calls */
-  const [channels, setChannels] = useState([{ id: 1, name: "Primary Channel" }]);
-  const [showMenu, setShowMenu] = useState(null); // Which Channel Menu is open, only one menu can be open at a time currently
-  const [newChannelName, setNewChannelName] = useState(""); // New Channel Names
-  const [showInput, setShowInput] = useState(false); // Controls visibility of input box
-  const [selectedChannel, setSelectedChannel] = useState(1); // Tracks active channel, starts on Channel 1
 
-  /** Effect Hook: Ensure a valid channel is always selected */
- useEffect(() => {
-  if (!channels.find(channel => channel.id === selectedChannel)) {
-    setSelectedChannel(channels.length > 0 ? channels[0].id : 1);
-  }
-  }, [channels]); // Runs whenever channels change
+const socket = io(process.env.REACT_APP_BACKEND_URL);
 
-  // Function to create a new channel
-  function createChannel() {
+function ChannelSidebar({ activeChannel, setActiveChannel }) {
+  const [channels, setChannels] = useState([]);
+  const [newChannelName, setNewChannelName] = useState("");
+  const [showInput, setShowInput] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(null); // Track which channel menu is open
+  const [editingChannel, setEditingChannel] = useState(null);
+  const [editedChannelName, setEditedChannelName] = useState("");
+
+  /* Channel Fetching
+   * Gets the channels from the backend when the component mounts then
+   * ensures that the list of channels is up-to-date.
+   */
+  useEffect(() => {
+    async function fetchChannels() {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);
+        setChannels(response.data);
+      } catch (error) {
+        console.error("Error fetching channels:", error);
+      }
+    }
+    fetchChannels();
+  }, []);
+
+
+
+  /* Channel Switching
+   * Handles switching between channels and updates the active channel in state.
+   * Also notifies the WebSocket server that the user has switched channels.
+   */
+  const handleChannelSwitch = (channelName) => {
+    setActiveChannel(channelName);
+    socket.emit("join_channel", { channel: channelName });
+  };
+
+
+
+  /* Create a Channel
+   * Sends a request to the backend to create a new channel. It updates the
+   * local state after succesfully creating a channel.
+   * Currently limits the total number of channels to 5, we can change this.
+   */
+  const createChannel = async () => {
     if (channels.length >= 5) {
       alert("Channel limit reached!");
       return;
     }
     if (!newChannelName.trim()) return;
-    
-    const newChannel = { id: channels.length + 1, name: newChannelName };
-    setChannels([...channels, newChannel]);
-    setNewChannelName("");
-    setShowInput(false); // Hide input box after creating a channel
-  }
 
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName.trim() });
 
+      // Fetch the updated list of channels after creating a new one
+      const updatedChannels = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);
+      setChannels(updatedChannels.data);  // Update state with the correct names
 
-  // Function to rename a channel
-  function renameChannel(id) {
-    const newName = prompt("Enter new name");
-    if (!newName) return;
-    
-    setChannels(channels.map(channel => 
-      channel.id === id ? { ...channel, name: newName } : channel
-    ));
-    setShowMenu(null);
-  }
-
-
-
-  // Function to delete a channel
-  function deleteChannel(id) {
-    setChannels(channels.filter(channel => channel.id !== id));
-
-    // In case you have a channel selected that you then delete
-    if (selectedChannel === id) {
-      setSelectedChannel(1);
+      // Clear input field and hide the input box
+      setNewChannelName("");
+      setShowInput(false);
+    } catch (error) {
+      console.error("Error creating channel:", error);
     }
-
-    setShowMenu(null);
-  }
+  };
 
 
+
+  /* Delete a Channel
+   * Currently prevents deletion of the default "Home" channel for consistency.
+   * 
+   * Removes the other channels from the backend and updates the local state.
+   * If the user is in the deleted channel, switches them to "Home".
+   */
+  const deleteChannel = async (channelName) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/channels/delete`, {
+        data: { name: channelName }
+      });
+      setChannels(channels.filter(channel => channel.name !== channelName));
   
-  return React.createElement(
-    "div",
-    { className: "channel-sidebar" },
-    
-    React.createElement("h2", null, "Channels"),
-    
-    // "Create Channel" button at the top
-    React.createElement(
-      "button",
-      {
-        onClick: () => setShowInput(!showInput),
-        className: "create-channel-button"
-      },
-      showInput ? "Cancel" : "Create Channel"
-    ),
+      // If deleting active channel, switch to Home
+      if (activeChannel === channelName) {
+        setActiveChannel(channels.length > 1 ? channels[0].name : "Home");
+      }
+    } catch (error) {
+      console.error("Error deleting channel:", error);
+    }
+  };
+  
+  
 
-    // Input box appears only if showInput is true
-    showInput &&
-      React.createElement(
-        "div",
-        { className: "create-channel" },
-        React.createElement("input", {
-          type: "text",
-          className: "channel-input",
-          placeholder: "Enter Channel Name",
-          value: newChannelName,
-          onChange: (e) => setNewChannelName(e.target.value),
-        }),
-        React.createElement(
-          "button",
-          { onClick: createChannel, className: "send-button" },
-          "Create"
-        )
-      ),
-    
-
-    // Channels now map user-friendly names (frontend) to their respective MongoDB collections (backend)
-    React.createElement(
-      "ul",
-      { className: "channel-list" },  // Ensure class is applied
-      channels.map((channel) =>
-        React.createElement(
-          "li",
-          {
-            key: channel.id,
-            className: `channel-item ${selectedChannel === channel.id ? "selected" : ""}`,
-            onClick: () => setSelectedChannel(channel.id)
-          },
-          React.createElement("span", null, channel.name),
+  // Open the menu for a specific channel
+  const toggleMenu = (channelName) => {
+    setMenuOpen(menuOpen === channelName ? null : channelName);
+  };
+  
+  // Start editing a channel
+  const startEditing = (channelName) => {
+    setEditingChannel(channelName);
+    setEditedChannelName(channelName);
+    setMenuOpen(null);
+  };
+  
+  // Save the edited channel name
+  const saveChannelEdit = async () => {
+    if (!editedChannelName.trim()) return;
+  
+    try {
+      // Perform API update here (Future implementation)
+      console.log(`Channel renamed from ${editingChannel} to ${editedChannelName}`);
         
-          showMenu === channel.id
-            ? React.createElement(
-                "div",
-                { className: "channel-menu" },
-                React.createElement(
-                  "button",
-                  { onClick: () => renameChannel(channel.id), className: "channel-action-button" },
-                  "Rename"
-                ),
-                React.createElement(
-                  "button",
-                  { onClick: () => deleteChannel(channel.id), className: "channel-action-button" },
-                  "Delete"
-                ),
-                React.createElement(
-                  "button",
-                  { onClick: () => setShowMenu(null), className: "channel-action-button close-button" },
-                  "Close"
-                )
-              )
-            : React.createElement(
-                "button",
-                {
-                  onClick: () => setShowMenu(channel.id),
-                  className: "channel-menu-button"
-                },
-                "⋮" // We could change this to a gear icon if we want?
-              )
-        )
-      )
-    )
+      // Update local state for now
+      setChannels(channels.map(channel =>
+        channel.name === editingChannel ? { ...channel, name: editedChannelName } : channel
+      ));
+        
+      setEditingChannel(null);
+    } catch (error) {
+      console.error("Error renaming channel:", error);
+    }
+  };
+
+
+
+  return (
+    <div className="channel-sidebar">
+      <h2>Channels</h2>
+
+      {/* Create Channel Button */}
+      <button onClick={() => setShowInput(!showInput)} className="create-channel-button">
+        {showInput ? "Cancel" : "Create Channel"}
+      </button>
+
+      {/* Input for creating a new channel */}
+      {showInput && (
+        <div className="create-channel">
+          <input
+            type="text"
+            className="channel-input"
+            placeholder="Enter Channel Name"
+            value={newChannelName}
+            onChange={(e) => setNewChannelName(e.target.value)}
+          />
+          <button onClick={createChannel} className="send-button">Create</button>
+        </div>
+      )}
+
+      {/* List of Channels */}
+      <ul className="channel-list">
+        {channels.map((channel) => (
+          <li key={channel.name} className={activeChannel === channel.name ? "selected" : ""}>
+            {editingChannel === channel.name ? (
+              <input
+                type="text"
+                className="edit-channel-input"
+                value={editedChannelName}
+                onChange={(e) => setEditedChannelName(e.target.value)}
+                onBlur={saveChannelEdit}
+                onKeyDown={(e) => e.key === "Enter" && saveChannelEdit()}
+                autoFocus
+              />
+            ) : (
+              <span onClick={() => handleChannelSwitch(channel.name)}>{channel.name}</span>
+            )}
+
+            {/* Context Menu (Three Dots ⋮) */}
+            {channel.name !== "Home" && (
+              <div className="channel-options">
+                <button className="menu-button" onClick={() => toggleMenu(channel.name)}>⋮</button>
+
+                {/* Dropdown Menu */}
+                {menuOpen === channel.name && (
+                  <div className="menu-dropdown">
+                    <button onClick={() => startEditing(channel.name)}>Edit Channel</button>
+                    <button onClick={() => deleteChannel(channel.name)}>Delete Channel</button>
+                  </div>
+                )}
+              </div>
+            )}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
 

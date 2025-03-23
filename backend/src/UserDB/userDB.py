@@ -70,4 +70,3 @@ def update_status(username, status):
 
 def get_user_status(username):
     return db.users.find_one({"username": username})["status"]
-

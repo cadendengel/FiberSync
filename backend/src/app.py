@@ -1,26 +1,52 @@
-# This was previously server.py, it's now correctly located here.
+print("Starting Flask App...") # This is debug text. We can remove it if anyone wants.
+
+import eventlet
+import eventlet.wsgi
+eventlet.monkey_patch()  # Enable async support
+
 from flask import Flask, jsonify, request, send_from_directory
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
-from UserDB import userDB
-from MessageDB import msgDB
+from src.UserDB import userDB
+from src.MessageDB import msgDB
+from flask_socketio import SocketIO, emit, join_room, leave_room
+
+# ===== Initialize Flask App ===== #
+app = Flask(__name__)
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
 
 
-# Initialize Flask app
-app = Flask(__name__, static_folder="../../frontend/build", static_url_path="")  
-CORS(app)  # Enable CORS to allow frontend to communicate with backend
-
-# Serve React App (Production)
+# ===== Root Route to Verify Backend Status ===== #
+# Changes: No longer serves React App to Browser
 @app.route('/')
-def serve():
-    return send_from_directory(app.static_folder, 'index.html')
+def home():
+    return "FiberSync Backend is Running!"
 
 
+# ===== Database Connection Test ===== #
+@app.route('/api/test-mongo', methods=['GET'])
+def test_mongo():
+    from pymongo import MongoClient
 
-##############################
-# ===== User Management =====# (Caden)
-##############################
+    try:
+        mongo_uri = os.getenv('MONGODB_LOGIN')
+        if "?" in mongo_uri:
+            mongo_uri += "&directConnection=true"
+        else:
+            mongo_uri += "?directConnection=true"
+
+        client = MongoClient(mongo_uri)
+        db_names = client.list_database_names()  # Fetch all database names
+        return jsonify({"databases": db_names}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ======================================= #
+#             User Management             # 
+# ======================================= #
 # This section is responsible for username storage. Later, it will be extended to include password authentication.
 # For now, it only stores a username when a user enters the app.
 
@@ -34,17 +60,20 @@ def get_all_users():
         user_data.append(userDB.get_user_status(user['username']))
     return jsonify(user_data), 200
 
+
 # Get user count
 @app.route('/api/users/count', methods=['GET'])
 def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
 
+
 # Delete all users
 @app.route('/api/users', methods=['DELETE'])
 def delete_all_users():
     userDB.delete_all_users()
     return jsonify({"message": "All users deleted"}), 200
+
 
 # Login OR Register user
 @app.route('/api/users/login', methods=['POST'])
@@ -103,6 +132,7 @@ def is_user_authenticated():
         return jsonify({"authenticated": True}), 200
     return jsonify({"authenticated": False}), 401
 
+
 # Verify user credentials (cookies)
 @app.route('/api/users/authentication/cookies', methods=['POST'])
 def is_cookie_authenticated():
@@ -115,10 +145,125 @@ def is_cookie_authenticated():
 
 
 
-####################################
-# ===== Chat Message Handling =====# (Chris)
-####################################
+# ======================================= #
+#      Real-Time Chat Functionality       # 
+# ======================================= #
+# WebSocket Event: Handling messages in real-time
+#    - Listens for "send_message" events from clients
+#    - Saves the message in the database
+#    - Broadcasts it to all connected clients instantly
 
+# Ensure Home Channel (atleast one) exists
+if msgDB.get_channels() == []:  # If there are no channels in the database
+    print("No channels found. Creating 'Home' channel...")
+    msgDB.add_channel("Home")
+else:
+    print("Channels already exist, skipping default creation.")
+
+# WebSocket Event: Handles users joining channels
+@socketio.on("join_channel")
+def join_channel(data):
+    channel = data.get("channel")
+    if not channel:
+        return
+
+    sid = request.sid  # Get socket session ID
+    print(f"User {sid} attempting to join channel: {channel}")
+
+    # Leave any existing rooms
+    leave_room(channel)
+    
+    # Join the new channel
+    join_room(channel)
+    print(f"User {sid} joined channel: {channel}")
+
+
+# WebSocket Event: Handles real-time message sending 
+@socketio.on("send_message")
+def handle_message(data):
+    print(f"Received message: {data}")
+
+    if "user" not in data or "text" not in data or "channel" not in data:
+        return
+
+    # Generate message ID and timestamp
+    from datetime import datetime
+    from bson.objectid import ObjectId
+
+    message_id = str(ObjectId())  # Generate a unique message ID
+    timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
+
+    # Save message to the database
+    msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])
+
+    print(f"Broadcasting message to channel: {data['channel']}")
+
+    # Broadcast the message to all connected clients
+    emit("receive_message", {
+        "messageid": message_id,
+        "timestamp": timestamp,
+        "user": data["user"],
+        "text": data["text"],
+        "channel": data["channel"]
+    }, room=data["channel"])
+
+
+# ======================================= #
+#           Channel Management            # 
+# ======================================= #
+# Create a new Channel
+@app.route('/api/channels/create', methods=['POST'])
+def create_channel():
+    data = request.json
+    channel_name = data.get("name")
+
+    if not channel_name:
+        return jsonify({"error": "Channel name required"}), 400
+
+    if msgDB.add_channel(channel_name):
+        return jsonify({"name": channel_name}), 201
+    else:
+        return jsonify({"error": "Channel limit reached (5 max)"}), 400
+
+
+# Fetches all available channels
+@app.route('/api/channels', methods=['GET'])
+def get_channels():
+    channels = msgDB.get_channels()
+    return jsonify(channels), 200
+
+# Clear a channel
+@app.route('/api/channels/clear', methods=['DELETE'])
+def clear_channel():
+    channel = request.json.get("channel")
+    
+    if not channel:
+        return jsonify({"error": "Channel name required"}), 400
+    
+    if (channel == "all"):
+        msgDB.clear_all_channels()
+        return jsonify({"message": "All channels cleared"}), 200
+    else:
+        msgDB.clear_channel(channel)
+        return jsonify({"message": f"Channel '{channel}' cleared"}), 200
+
+
+# Delete a Channel
+@app.route('/api/channels/delete', methods=['DELETE'])
+def delete_channel():
+    data = request.json
+    channel_name = data.get("name")
+
+    if not channel_name:
+        return jsonify({"error": "Missing channel name"}), 400
+
+    msgDB.delete_channel(channel_name)
+    return jsonify({"message": f"Channel '{channel_name}' and its messages deleted"}), 200
+
+
+# ======================================= #
+#            Message Handling             # 
+# ======================================= #
 # Post message to database
 @app.route('/api/messages/create', methods=['POST'])
 def send_message():
@@ -141,7 +286,7 @@ def send_message():
     return jsonify(chat_event), 201
 
 # Get all messages (Later, change to get all in channel only)
-@app.route('/api/messages/all', methods=['GET'])
+"""@app.route('/api/messages/all', methods=['GET'])
 def get_messages():
     messages = msgDB.get_all_messages()
     result = []
@@ -156,7 +301,18 @@ def get_messages():
     if not result:
         return jsonify({"error": "No messages found"}), 404
     
-    return result, 200
+    return result, 200"""
+
+@app.route('/api/messages/<channel>', methods=['GET'])
+def get_messages(channel):
+    messages = msgDB.get_messages_by_channel(channel)
+    
+    if not messages:
+        return jsonify([]), 200
+    
+    return jsonify(messages), 200
+
+
 
 # Get message by ID
 @app.route('/api/messages/id', methods=['GET'])
@@ -208,10 +364,23 @@ def delete_message():
         return jsonify({"error": "Message with that ID not found"}), 404
     return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
 
-#########################################
-# ===== User Online/Offline Status =====# (Ricky)
-#########################################
-# This section will track when a user is connected or not. Ricky can implement logic to update user status in the database.
+# ======================================= #
+#               User Status               # 
+# ======================================= #
+# This section will track when a user is connected or not.
+
+# User Connection Tracking:
+#    - Logs when a user connects/disconnects on the backend
+#    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
+#            your user status tracking Ricky
+
+@socketio.on("connect")
+def handle_connect():
+    print(f"+ Client connected: {request.sid}")
+
+@socketio.on("disconnect")
+def handle_disconnect():
+    print(f"- Client disconnected: {request.sid}")
 
 
 # Caden: I don't think this is functional
@@ -251,7 +420,13 @@ def get_user_status():
 
 
 
-# ===== Run Flask Server ===== (For Development)
-# This starts the Flask server.
+# ================================================== #
+#            STARTING FLASK SERVER                   #
+# ================================================== #
+# Running Flask + WebSocket Server:
+#    - Uses socketio.run() instead of app.run() to support WebSockets
+#    - log_output=True ensures we can debug connection problems
 if __name__ == "__main__":
-    app.run(debug=True)
+    print("Running Flask App...")          # Debug Statement to confirm everything started, can remove if anyone else wants
+    print("Flask App is running in the background at 127.0.0.1:5000")   # Kind of a reminder for local development
+    socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

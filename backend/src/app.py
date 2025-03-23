@@ -94,7 +94,7 @@ def user_login():
                 userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
         else:
-            return jsonify({"error": "Invalid username or password"}), 401
+            return jsonify({"error": "Invalid password"}), 401
     else:
         return jsonify({"error": "User not found"}), 404
     

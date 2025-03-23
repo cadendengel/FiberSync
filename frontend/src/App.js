@@ -189,15 +189,28 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      console.log("Current cookie:", document.cookie); // TEMP
+      // Check if the current document.cookie is already in the userDB
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/authentication/cookies`, { cookie: document.cookie })
+      .then((response) => {
+        // Set the cookie if it is already in the userDB
+        document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
+      })
+      .catch((error) => {
+        // Otherwise, do nothing
+      })
+
+      // Login with username and password
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
-        console.log("User logged in:", response.data); // Debugging log
+        // User logged in successfully
         setEnteredChat(true);
       })
       .catch((error) => {
-        console.error("Error logging in:", error);
-        alert("Invalid username or password."); // Alert the user of the error
+        if (error.response.status === 401) {
+          alert("Invalid password. Please try again.");
+        } else {
+          console.error("Error logging in:", error);
+        }
       })
     }
   };

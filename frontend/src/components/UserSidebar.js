@@ -5,7 +5,7 @@ function UserSidebar() {
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState({}); // Placeholder for Direct Messaging
-  const [notifications, setNotifications] = useState({}); // DM notification
+  const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
 
   const users = ["Fiber"]; // Placeholder user, future feature idea, Fiber has AI integration to allow
                            // real time communication with our Fiber Guy AI!
@@ -68,7 +68,7 @@ function UserSidebar() {
 
   const openChat = (user) => {
     setSelectedUser(user);
-    setNotifications((prev) => ({ ...prev, [user]: false })); // Clear notifications when opened
+    setNotifications((prev) => ({ ...prev, [user]: false })); 
   };
 
   const closeChat = () => {
@@ -87,7 +87,7 @@ function UserSidebar() {
 
       event.target.value = ""; // Clear input
 
-      // Simulated Auto-Response
+      // Simulated Auto-Response for now.
       setTimeout(() => {
         setMessages((prev) => ({
           ...prev,
@@ -98,7 +98,7 @@ function UserSidebar() {
         if (selectedUser !== user) {
           setNotifications((prev) => ({ ...prev, [user]: true }));
         }
-      }, 1000);
+      }, 3000);
     }
   };
 

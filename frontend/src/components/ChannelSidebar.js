@@ -92,6 +92,8 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     }
   };
   
+  
+
   // Open the menu for a specific channel
   const toggleMenu = (channelName) => {
     setMenuOpen(menuOpen === channelName ? null : channelName);

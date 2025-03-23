@@ -86,8 +86,9 @@ function App() {
     useEffect(() => {
       const handleNewMessage = (message) => {
           console.log(`New message received in ${message.channel}:`, message);
-          if (message.channel === activeChannel && io.engine.transport.connected) {  // CADEN: Added check for websocket connection
-            setMessages((prevMessages) => [...prevMessages, message]); 
+        
+          if (message.channel === activeChannel) {  
+              setMessages((prevMessages) => [...prevMessages, message]); 
           }
       };
   

@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from dotenv import load_dotenv, dotenv_values
 import os
+import hashlib
 
 load_dotenv()
 
@@ -35,8 +36,18 @@ def get_user_by_cookies(cookies):
     user = db.users.find_one({"cookies": cookies})
     return user["username"] if user else None
 
+def get_salt_by_username(username):
+    return db.users.find_one({"username": username})["salt"]
+
 def add_user(username, password, cookies):
-    db.users.insert_one({"username": username, "password": password, "cookies": [cookies], "status": "online"})
+    # generate salt
+    salt = os.urandom(16)
+
+    # hash password with salt
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
+
+    # add user
+    db.users.insert_one({"username": username, "salt": salt, "hashed_password": hashed_password, "cookies": [cookies], "status": "online"})
 
 def update_user_cookies(username, cookies):
     db.users.update_one({"username": username}, {"$addToSet": {"cookies": cookies}})
@@ -48,7 +59,15 @@ def is_cookie_authenticated(cookies):
     return False
 
 def is_user_authenticated(username, password):
-    user = db.users.find_one({"username": username, "password": password})
+    # get salt
+    salt = get_salt_by_username(username)
+
+    # hash password with salt
+    hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
+
+    # check if user exists with hashed password
+    user = db.users.find_one({"username": username, "hashed_password": hashed_password})
+
     return user is not None
 
 def delete_user(username):

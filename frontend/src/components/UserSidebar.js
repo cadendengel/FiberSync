@@ -8,6 +8,13 @@ function UserSidebar({ users }) {
   const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
 
 
+  useEffect(() => {
+    for (const user of users) {
+      console.log(users);
+      console.log("User:", user.username, "Status:", user.status);
+    }
+  }, [users]);
+
   // Function to switch to "away" if inactive
   const startInactivityTimer = () => {
     if (status !== "offline") {
@@ -103,27 +110,22 @@ function UserSidebar({ users }) {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        {users.map((user) => (
-          <li key={user} onClick={() => openChat(user)} className={notifications[user] ? "notification" : ""}>
-            👤 {user}
-            {notifications[user] && <span className="message-bubble">•</span>}
-          </li>
-        ))}
-
-        <li>
+      <li>
           👤 You - 
           <span 
             className={`status-indicator ${"online"}`} 
             style={{ cursor: 'pointer', marginLeft: '8px' }}
           ></span>
         </li>
+
         {users.map(user => (
-          user && user.status && user.username  ? (
-            <li key={user.status + user.username}>
-              {user.username} - 
-              <span className={`status-indicator ${user.status}`} ></span>
-            </li>
-          ) : null
+          user && user.username && user.username !== "You" ? (
+          <li key={user.username} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
+            👤 {user.username} -
+            <span className={`status-indicator ${user.status}`} ></span>
+            {notifications[user.username] && <span className="message-bubble">•</span>}
+          </li>
+        ) : null
         ))}
       </ul>
 

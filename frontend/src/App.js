@@ -52,7 +52,7 @@ function App() {
         socket.emit("join_channel", { channel: activeChannel });
 
       // Update user status to online
-      axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "online" })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
 
@@ -61,6 +61,49 @@ function App() {
     }
   }, [enteredChat, activeChannel]);
 
+
+
+    /* Fetch messages for the selected channel
+   * Right now an error flags if you join a channel that doesn't have any messages yet, I think the best solution is to
+   * just add a first message automatically like "Welcome to {Channel Name}!", or we can ignore the error
+   */
+    const fetchMessages = async (channel) => {
+      try {
+          setMessages([]);  
+          const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/messages/${encodeURIComponent(channel)}`);
+          setMessages(response.data);
+      } catch (error) {
+          console.error("Error fetching messages:", error);
+      }
+    };
+  
+  
+  
+    /* WebSocket Message Handling:
+     *   - Listens for new messages from the backend and updates the chat in real-time, no need to manually refresh
+     *   - Ensures messages persist correctly and don't duplicate
+     */
+    useEffect(() => {
+      const handleNewMessage = (message) => {
+          console.log(`New message received in ${message.channel}:`, message);
+        
+          if (message.channel === activeChannel) {  
+              setMessages((prevMessages) => [...prevMessages, message]); 
+          }
+      };
+  
+      socket.on("receive_message", handleNewMessage);
+  
+      return () => {
+        socket.off("receive_message", handleNewMessage);
+      };
+    }, [activeChannel]);
+  
+  
+    const handleSendMessage = (chatEvent) => {
+      const newMessage = { user: username, text: chatEvent, channel: activeChannel };
+      socket.emit("send_message", newMessage);
+    };
 
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
@@ -77,7 +120,7 @@ function App() {
 
     // Update user status
     if (enteredChat) {
-      axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "offline" })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
         // pause web page close
@@ -86,7 +129,7 @@ function App() {
   });
 
   const fetchSidebar = () => {
-    axios.get('http://127.0.0.1:5000/api/users')
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
       .then((response) => {
         const data = response.data
         const users = [];
@@ -105,7 +148,7 @@ function App() {
   // Check if the user has a valid session cookie
   const cookieLogin = () => {
     // Check if the current sessionID in document.cookie is valid
-    axios.post("http://127.0.0.1:5000/api/users/authentication/cookies", { cookies: document.cookie })
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/authentication/cookies`, { cookies: document.cookie })
     .then((response) => {
       console.log("User authenticated via cookies:", response.data); // Debugging log
       setUsername(response.data.username);
@@ -123,7 +166,7 @@ function App() {
     if (isNewUser) {
       // generate new sessionID
       document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
-      axios.post("http://127.0.0.1:5000/api/users/create", { username, password, cookie: document.cookie })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/create`, { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User created:", response.data); // Debugging log
         setEnteredChat(true); // Enter the chat
@@ -133,7 +176,7 @@ function App() {
         alert("Username already exists."); // Alert the user of the error
       })
     } else {
-      axios.post("http://127.0.0.1:5000/api/users/login", { username, password, cookie: document.cookie })
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
         console.log("User logged in:", response.data); // Debugging log
         setEnteredChat(true);
@@ -184,12 +227,20 @@ function App() {
         <div className="entry-box">
           <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin}/>
           <h1>FiberSync</h1>
+          <div className="switch-container">
+            <label className="switch">
+              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
+              <span className="slider round"></span>
+            </label>
+            <p>{isNewUser ? "Create new user" : "Login"}</p>
+          </div>
           <input
             type="text"
             className="username-input"
             placeholder="Enter your username..."
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
           <input
             type="password"
@@ -197,14 +248,16 @@ function App() {
             placeholder="Enter your password..."
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
           />
-          <button className="enter-button" onClick={() => setEnteredChat(true)}>➡</button>
+
+          <button className="enter-button" onClick={handleLogin}>➡</button>
         </div>
       ) : (
         <div className="chat-layout">
           <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
           <div className="chat-main">
-            <ChatWindow messages={messages} />
+            <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
           <UserSidebar users={users} />

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
 
+
 const socket = io(process.env.REACT_APP_BACKEND_URL);
 
 function ChannelSidebar({ activeChannel, setActiveChannel }) {

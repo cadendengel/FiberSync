@@ -274,7 +274,7 @@ function App() {
             <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
-          <UserSidebar users={users} />
+          <UserSidebar username={username} users={users} />
         </div>
       )}
     </div>

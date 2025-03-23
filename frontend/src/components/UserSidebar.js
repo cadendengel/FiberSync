@@ -1,19 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-function UserSidebar({ users }) {
+
+function UserSidebar({ username, users }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState({}); // Placeholder for Direct Messaging
   const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
-
-
-  useEffect(() => {
-    for (const user of users) {
-      console.log(users);
-      console.log("User:", user.username, "Status:", user.status);
-    }
-  }, [users]);
+  const [currentUser] = useState(username); // Placeholder for current user
 
   // Function to switch to "away" if inactive
   const startInactivityTimer = () => {
@@ -110,19 +104,18 @@ function UserSidebar({ users }) {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-      <li>
-          👤 You - 
-          <span 
-            className={`status-indicator ${"online"}`} 
-            style={{ cursor: 'pointer', marginLeft: '8px' }}
-          ></span>
+        <li>
+          👤
+          <span className={`status-indicator ${"online"}`} ></span>
+          {" " + currentUser + " (you)"} 
         </li>
 
         {users.map(user => (
           user && user.username && user.username !== "You" ? (
           <li key={user.username} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
-            👤 {user.username} -
+            👤
             <span className={`status-indicator ${user.status}`} ></span>
+            {" " + user.username}
             {notifications[user.username] && <span className="message-bubble">•</span>}
           </li>
         ) : null

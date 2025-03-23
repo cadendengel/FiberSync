@@ -31,6 +31,7 @@ def get_all_users():
     user_data = []
     for user in users:
         user_data.append(user['username'])
+        user_data.append(userDB.get_user_status(user['username']))
     return jsonify(user_data), 200
 
 # Get user count
@@ -46,7 +47,6 @@ def delete_all_users():
     return jsonify({"message": "All users deleted"}), 200
 
 # Login OR Register user
-# Will be adding a Login/Register feature in SCRUM-69
 @app.route('/api/users/login', methods=['POST'])
 def user_login():
     data = request.json
@@ -70,6 +70,7 @@ def user_login():
     else:
         return jsonify({"error": "User not found"}), 404
     
+# Create user
 @app.route('/api/users/create', methods=['POST'])
 def user_create():
     data = request.json
@@ -90,7 +91,7 @@ def user_create():
         return jsonify({"message": "User created successfully"}), 200
     
 
-# ROUTE LIKELY NOT NEEDED
+# ROUTE MAYBE NOT NEEDED
 # Verify user credentials (username and password)
 @app.route('/api/users/authentication/credentials', methods=['POST'])
 def is_user_authenticated():
@@ -212,6 +213,14 @@ def delete_message():
 #########################################
 # This section will track when a user is connected or not. Ricky can implement logic to update user status in the database.
 
+
+# Caden: I don't think this is functional
+# Caden: I went ahead and reworked the entire user_status backend
+# Caden: Now, the user_status is stored in the userDB, and the same
+# Caden: function is used to update the status as is used to update
+# Caden: other user information.
+# Caden: In other words, we can just call update_status() here.
+
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
 def update_user_status():
@@ -222,8 +231,23 @@ def update_user_status():
     if not username or status not in ["online", "offline"]:
         return jsonify({"error": "Invalid status update"}), 400  # Prevent bad data
 
+    userDB.update_status(username, status)  # Update user status in the database
     return jsonify({"message": f"{username} is now {status}"}), 200  # Confirmation response
 
+# Caden: I needed to add this
+@app.route('/api/user-status', methods=['GET'])
+def get_user_status():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    user = userDB.get_user_by_username(username)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"status": user["status"]}), 200
 
 
 

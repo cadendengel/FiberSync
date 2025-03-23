@@ -15,6 +15,9 @@ function App() {
   const [enteredChat, setEnteredChat] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [hasUpdatedStatus, setHasUpdatedStatus] = useState(false);
+
   useEffect(() => {
     if (enteredChat) {
       axios.get("http://127.0.0.1:5000/api/messages/all")
@@ -22,6 +25,7 @@ function App() {
         .catch((error) => console.error("Error fetching messages:", error));
     }
   }, [enteredChat]);
+
 
   // Clear the database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
@@ -46,6 +50,22 @@ function App() {
     })
   }
 
+  // Handle closing of the window and final update of user status to offline
+  window.addEventListener("beforeunload", (ev) => {
+    if (hasUpdatedStatus) return; // Skip if status has already been updated
+    setHasUpdatedStatus(true); // Set flag to prevent multiple updates
+
+    // Update user status
+    if (enteredChat) {
+      axios.post("http://127.0.0.1:5000/api/user-status", { username, status: "offline" })
+        .then((response) => console.log("User status updated:", response.data)) // Debugging log
+        .catch((error) => console.error("Error updating user status:", error));
+        // pause web page close
+        ev.preventDefault();
+    }
+  });
+
+  // Main login function
   const handleLogin = () => {
     if (isNewUser) {
       document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
@@ -69,6 +89,24 @@ function App() {
         alert("Invalid username or password."); // Alert the user of the error
       })
     }
+
+    // Pre-login priming of user sidebar info
+    // This is the best place I could put it,
+    // even though it doesn't really belong here
+    axios.get('http://127.0.0.1:5000/api/users')
+      .then((response) => {
+        const data = response.data
+        const users = [];
+      for (let i = 0; i < data.length; i += 2) {
+        console.log(data[i], data[i + 1]);
+        if (data[i] !== username)
+          users.push({ username: data[i], status: data[i + 1] });
+      }
+      setUsers(users);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
   };
 
   // Send message to the backend
@@ -140,7 +178,7 @@ function App() {
             <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             <ChatInput onSendMessage={handleSendMessage} />
           </div>
-          <UserSidebar username={username} />
+          <UserSidebar users={users} />
         </div>
       )}
     </div>

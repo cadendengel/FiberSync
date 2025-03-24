@@ -229,13 +229,15 @@ h1 {
 .chat-input {
   position: absolute; /* Default for larger screens */
   bottom: 10px;
-  width: 80%;
+  width: 60%;
   left: 50%;
   transform: translateX(-50%);
   padding: 10px;
   border-radius: 10px;
   border: 1px solid #ccc;
   background: white;
+  display: flex; /* Align input and button in a row */
+  justify-content: center; /* Center horizontally */
 }
 
 /* Mobile Fix - Keep Chat Input Fixed at Bottom */
@@ -249,7 +251,37 @@ h1 {
     padding: 15px;
     border-radius: 0;
     box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Adds slight shadow for separation */
+    display: flex; /* Align input and button in a row */
+    justify-content: center; /* Center horizontally */
   }
+
+  .send-button {
+    width: 15%; /* Adjust the button size for mobile */
+    margin-left: 10px;
+  }
+}
+
+.send-button {
+  justify-content: bottom;
+  display: flex;
+  width: 20%; /* Adjust the button size as per your needs */
+  background: #4a90e2;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  margin-left: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.send-button:hover {
+  background: #357bd8;
+}
+
+.send-button:active {
+  transform: scale(0.95);
 }
 
 /* Individual Chat Messages */
@@ -414,30 +446,6 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
-}
-
-
-
-
-
-.send-button {
-  background: #4a90e2;
-  color: white;
-  border: none;
-  padding: 10px 15px;
-  margin-left: 10px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease-in-out;
-}
-
-.send-button:hover {
-  background: #357bd8;
-}
-
-.send-button:active {
-  transform: scale(0.95);
 }
 
 /* Status Indicator */

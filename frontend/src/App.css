@@ -225,6 +225,33 @@ h1 {
   max-width: 100%; /* Ensures messages stay within the chat window */
 }
 
+/* Chat Input Box - Default */
+.chat-input {
+  position: absolute; /* Default for larger screens */
+  bottom: 10px;
+  width: 80%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+/* Mobile Fix - Keep Chat Input Fixed at Bottom */
+@media (max-width: 768px) {
+  .chat-input {
+    position: fixed;  /* Stays at the bottom */
+    bottom: 0;
+    width: 100%;
+    left: 0;
+    transform: none;
+    padding: 15px;
+    border-radius: 0;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.1); /* Adds slight shadow for separation */
+  }
+}
+
 /* Individual Chat Messages */
 .chat-messages p {
   white-space: pre-wrap; /* Allows long messages to wrap properly */

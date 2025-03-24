@@ -424,7 +424,7 @@ def get_user_status():
 @app.route('/api/messages/reactions', methods=['POST'])
 def update_reaction():
     data = request.json
-    message_id = data.get('messageid')
+    message_id = data.get('message_id')
     emoji = data.get('emoji')
     mode = data.get('mode')
 
@@ -437,10 +437,10 @@ def update_reaction():
         return jsonify({"error": "Message not found"}), 404
    
     if mode == "inc":
-        msgDB.add_reaction_to_message(message_id)
+        msgDB.add_reaction_to_message(message_id, emoji)
 
     elif mode == "dec":
-        msgDB.remove_reaction_from_message(message_id)
+        msgDB.remove_reaction_from_message(message_id, emoji)
     
     else:
         return jsonify({"error": "bad mode data"}), 400

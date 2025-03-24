@@ -286,13 +286,16 @@ function App() {
           <button className="enter-button" onClick={handleLogin}>➡</button>
         </div>
       ) : (
-        <><div className="chat-layout">
+        <>
+        <div className="chat-layout">
             <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
             <div className="chat-main">
               <ChatWindow messages={messages} onDeleteMessage={handleDeleteMessage} onEditMessage={handleEditMessage} />
             </div>
             <UserSidebar username={username} users={users} />
-          </div><ChatInput onSendMessage={handleSendMessage} /></>
+          </div>
+          <ChatInput onSendMessage={handleSendMessage} />
+        </>
       )}
     </div>
   );

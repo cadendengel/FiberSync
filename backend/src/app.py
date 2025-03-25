@@ -15,7 +15,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 # ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", ping_interval=5, ping_timeout=10)
 
 
 # ===== Root Route to Verify Backend Status ===== #
@@ -385,6 +385,28 @@ def handle_connect():
 
 @socketio.on("disconnect")
 def handle_disconnect():
+    print(f"HANDLE DISCONNECT: {request.sid}"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"          
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT"
+          + "\nHANDLE DISCONNECT")
+    
+
     username = session.get("username")
     if username:
         userDB.update_status(username, "offline")

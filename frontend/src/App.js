@@ -25,7 +25,7 @@ import { io } from "socket.io-client";
 const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transports: ["websocket"], // Enforce WebSocket only, prevent polling
   reconnection: true,
-  reconnectionAttempts: 5,
+  reconnectionAttempts: 3,
   reconnectionDelay: 3000,
   timeout: 20000,
 });

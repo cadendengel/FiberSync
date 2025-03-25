@@ -374,34 +374,19 @@ def delete_message():
 #    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
 #            your user status tracking Ricky
 
-# I don't like this but it's for testing:
-connected_users = {}
-
-@socketio.on("connect")
-def handle_connect():
-    username = session.get("username")
-    print(f"Username: {username}")
-    print(username)
-
-    if username:
-        connected_users[request.sid] = username
-        userDB.update_status(username, "online")
-        print(f"{username} connected with SID {request.sid}")
-    else:
-        print("User connected with no username in session: {request.sid}")
-
 @socketio.on("disconnect")
 def handle_disconnect():
-    username = connected_users.pop(request.sid, None)
+    username = session.get("username")
+    print("User disconnected")
+    print(f"Session: {session}")
     print(f"Username: {username}")
-    print(username)
 
     if username:
 
         userDB.update_status(username, "offline")
         print(f"{username} disconnected with SID {request.sid}")
     else:
-        print("No username in session for SID {request.sid}")
+        print(f"No username in session for SID {request.sid}")
 
 
 # Caden: I don't think this is functional

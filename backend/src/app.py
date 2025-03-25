@@ -378,6 +378,7 @@ def delete_message():
 def handle_connect():
     username = session.get("username")
     if username:
+        userDB.update_status(username, "online")
         print(f"{username} connected with SID {request.sid}")
     else:
         print("User connected with no username in session: {request.sid}")

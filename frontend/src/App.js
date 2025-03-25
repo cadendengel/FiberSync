@@ -22,12 +22,13 @@ import { io } from "socket.io-client";
  *    - Uses only WebSockets (no polling)
  *    - Auto-reconnects if disconnected
  */
-const socket = io(process.env.REACT_APP_BACKEND_URL, { 
+const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transports: ["websocket"], // Enforce WebSocket only, prevent polling
-  reconnection: true, 
-  reconnectionAttempts: Infinity, 
-  reconnectionDelay: 2000,  
-  timeout: 20000, 
+  reconnection: true,
+  reconnectionAttempts: 3,
+  reconnectionDelay: 3000,
+  timeout: 20000,
+  query: { username: "" } // needs to be updated with the username later on login
 });
 
 function App() {
@@ -37,8 +38,12 @@ function App() {
   const [isNewUser, setIsNewUser] = useState(false);
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
-
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
+
+  /////////////////////////////////
+  // MESSAGES/CHANNELS FUNCTIONS //
+  /////////////////////////////////
+
   useEffect(() => {
     if (enteredChat) {
         console.log(`Switching to Channel: ${activeChannel}`); // Debugging log
@@ -50,19 +55,13 @@ function App() {
         // Join the new channel
         socket.emit("join_channel", { channel: activeChannel });
 
-      // Update user status to online
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
-        .then((response) => console.log("User status updated:", response.data)) // Debugging log
-        .catch((error) => console.error("Error updating user status:", error));
-
       // Fetch users for the sidebar
       fetchSidebar();
     }
   }, [enteredChat, activeChannel]);
 
 
-
-    /* Fetch messages for the selected channel
+  /* Fetch messages for the selected channel
    * Right now an error flags if you join a channel that doesn't have any messages yet, I think the best solution is to
    * just add a first message automatically like "Welcome to {Channel Name}!", or we can ignore the error
    */
@@ -75,7 +74,6 @@ function App() {
           console.error("Error fetching messages:", error);
       }
     };
-  
   
   
     /* WebSocket Message Handling:
@@ -103,6 +101,32 @@ function App() {
       const newMessage = { user: username, text: chatEvent, channel: activeChannel };
       socket.emit("send_message", newMessage);
     };
+  
+  ////////////////////////////
+  // USER_SIDEBAR FUNCTIONS //
+  ////////////////////////////
+
+  // Fetch the user list for the sidebar
+  const fetchSidebar = () => {
+    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
+      .then((response) => {
+        const data = response.data
+        const users = [];
+      for (let i = 0; i < data.length; i += 2) {
+        console.log(data[i], data[i + 1]);
+        if (data[i] !== username)
+          users.push({ username: data[i], status: data[i + 1] });
+      }
+      setUsers(users);
+      })
+      .catch((error) => {
+        console.error("Error fetching users:", error);
+      });
+    };
+
+  /////////////////////////////////
+  // DEBUGGING/CLEANUP FUNCTIONS //
+  /////////////////////////////////
 
   // Clear the user database, will be accessible from the inspect element console for now
   const clearUserDB = () => {
@@ -111,6 +135,7 @@ function App() {
     .catch((error) => console.error("Error clearing database:", error));
   }
   window.clearUserDB = clearUserDB; // Expose the function to the window object
+
 
   // Clear the messages database, will be accessible from the inspect element console for now
   const clearMessagesFromChannel = (channel) => {
@@ -123,6 +148,16 @@ function App() {
   });
   }
   window.clearMessagesFromChannel = clearMessagesFromChannel; // Expose the function to the window object
+
+
+  // Set users status to offline, will be accessible from the inspect element console for now
+  const setUserOffline = (username) => {
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
+    .then((response) => console.log("User status updated:", response.data)) // Debugging log
+    .catch((error) => console.error("Error updating user status:", error));
+  }
+  window.setUserOffline = setUserOffline; // Expose the function to the window object`
+
 
   // Handle closing of the window and final update of user status to offline
   useEffect(() => {
@@ -145,23 +180,9 @@ function App() {
     }
   })
 
-  // Fetch the user list for the sidebar
-  const fetchSidebar = () => {
-    axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
-      .then((response) => {
-        const data = response.data
-        const users = [];
-      for (let i = 0; i < data.length; i += 2) {
-        console.log(data[i], data[i + 1]);
-        if (data[i] !== username)
-          users.push({ username: data[i], status: data[i + 1] });
-      }
-      setUsers(users);
-      })
-      .catch((error) => {
-        console.error("Error fetching users:", error);
-      });
-    }
+  /////////////////////
+  // LOGIN FUNCTIONS //
+  /////////////////////
 
   // Check if the user has a valid session cookie
   const cookieLogin = () => {
@@ -170,6 +191,17 @@ function App() {
     .then((response) => {
       console.log("User authenticated via cookies:", response.data); // Debugging log
       setUsername(response.data.username);
+
+      // Update socket query with the username
+      socket.disconnect();
+      socket.io.opts.query = { username: response.data.username };
+      socket.connect();
+
+      // Update user status to online
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
+      .then((response) => console.log("User status updated:", response.data)) // Debugging log
+      .catch((error) => console.error("Error updating user status:", error));
+
       setEnteredChat(true); // Enter the chat 
       return;
     })
@@ -179,9 +211,11 @@ function App() {
     })
   }
 
+
   // Main login function
   const handleLogin = () => {
     if (isNewUser) {
+      // Create new user with username and password
       // generate new sessionID
       document.cookie = `sessionID=${uuidv4()}; browser=${window.navigator.userAgent}; expires=${new Date(Date.now() + 24 * 60 * 60 * 1000).toUTCString()}; path=/`;
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/create`, { username, password, cookie: document.cookie })
@@ -204,11 +238,27 @@ function App() {
         // Otherwise, do nothing
       })
 
+
       // Login with username and password
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
+        // Update socket query with the username
+        socket.disconnect();
+        socket.io.opts.query = { username };
+        socket.connect();
+
+        // Update user status to online
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
+        .then((response) => console.log("User status updated:", response.data)) // Debugging log
+        .catch((error) => console.error("Error updating user status:", error));
+
         // User logged in successfully
         setEnteredChat(true);
+
+        // Update socket query with the username
+        socket.disconnect();
+        socket.io.opts.query = { username };
+        socket.connect();
       })
       .catch((error) => {
         if (error.response.status === 401) {
@@ -220,7 +270,9 @@ function App() {
     }
   };
 
-
+  ///////////////////////////////////////////////////
+  // THESE BELOW FUNCTIONS WILL BE ORGANIZED LATER //
+  ///////////////////////////////////////////////////
 
   // Delete message by ID (Button NYI)
   const handleDeleteMessage = (messageId) => {
@@ -230,8 +282,7 @@ function App() {
       setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
     })
     .catch((error) => console.error("Error deleting message:", error));
-  }   
-
+  }
 
 
   // Edit message by ID (Button NYI)

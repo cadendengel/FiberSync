@@ -4,7 +4,7 @@ import eventlet
 import eventlet.wsgi
 eventlet.monkey_patch()  # Enable async support
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
@@ -15,7 +15,7 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 # ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", ping_interval=5, ping_timeout=10)
 
 
 # ===== Root Route to Verify Backend Status ===== #
@@ -373,21 +373,21 @@ def delete_message():
 #    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
 #            your user status tracking Ricky
 
-@socketio.on("connect")
-def handle_connect():
-    print(f"+ Client connected: {request.sid}")
 
+# WebSocket Event: Handles user connection
+#   - Updates user status in the database on disconnect (deployment, not development only, I think)
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"- Client disconnected: {request.sid}")
+    username = request.args.get("username")
+    print("Username:", username)
 
+    if username:
 
-# Caden: I don't think this is functional
-# Caden: I went ahead and reworked the entire user_status backend
-# Caden: Now, the user_status is stored in the userDB, and the same
-# Caden: function is used to update the status as is used to update
-# Caden: other user information.
-# Caden: In other words, we can just call update_status() here.
+        userDB.update_status(username, "offline")
+        print(f"{username} disconnected with SID {request.sid}")
+    else:
+        print(f"No username in session for SID {request.sid}")
+
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
@@ -457,5 +457,5 @@ def update_reaction():
 if __name__ == "__main__":
     print("Running Flask App...")          # Debug Statement to confirm everything started, can remove if anyone else wants
     print("Flask App is running in the background at 127.0.0.1:5000")   # Kind of a reminder for local development
-    #os.environ['ENV'] = 'development'  # Set the environment to development (for printing from app.py)
+    # os.environ['ENV'] = 'development'  # Set the environment to development (for printing from app.py)
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

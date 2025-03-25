@@ -28,6 +28,7 @@ const socket = io(process.env.REACT_APP_BACKEND_URL, {
   reconnectionAttempts: 3,
   reconnectionDelay: 3000,
   timeout: 20000,
+  query: { username: "" }
 });
 
 function App() {
@@ -170,6 +171,12 @@ function App() {
     .then((response) => {
       console.log("User authenticated via cookies:", response.data); // Debugging log
       setUsername(response.data.username);
+
+      // Update socket query with the username
+      socket.disconnect();
+      socket.io.opts.query = { username: response.data.username };
+      socket.connect();
+
       setEnteredChat(true); // Enter the chat 
       return;
     })
@@ -209,6 +216,11 @@ function App() {
       .then((response) => {
         // User logged in successfully
         setEnteredChat(true);
+
+        // Update socket query with the username
+        socket.disconnect();
+        socket.io.opts.query = { username };
+        socket.connect();
       })
       .catch((error) => {
         if (error.response.status === 401) {

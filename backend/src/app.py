@@ -90,7 +90,6 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
-            session = username
             if cookie:
                 userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
@@ -374,45 +373,17 @@ def delete_message():
 #    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
 #            your user status tracking Ricky
 
-@socketio.on("connect")
-def handle_connect():
-    username = session.get("username")
-    if username:
-        userDB.update_status(username, "online")
-        print(f"{username} connected with SID {request.sid}")
-    else:
-        print("User connected with no username in session: {request.sid}")
-
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"HANDLE DISCONNECT: {request.sid}"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"          
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT"
-          + "\nHANDLE DISCONNECT")
-    
+    username = request.args.get("username")
+    print("Username:", username)
 
-    username = session.get("username")
     if username:
+
         userDB.update_status(username, "offline")
         print(f"{username} disconnected with SID {request.sid}")
     else:
-        print("No username in session for SID {request.sid}")
+        print(f"No username in session for SID {request.sid}")
 
 
 # Caden: I don't think this is functional

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
+import axios from "axios"; // Import Axios for backend calls
 
 const reactionsList = ["👍", "👎", "🔥", "😂", "❤️"];
 
@@ -18,6 +19,15 @@ function ChatWindow({ messages }) {
     }
   }, [messages]);
 
+  // Initialize messageReactions from messages
+  useEffect(() => {
+    const initialReactions = {};
+    messages.forEach((msg) => {
+      initialReactions[msg.messageid] = msg.reactions || {};
+    });
+    setMessageReactions(initialReactions);
+  }, [messages]);
+
   // Close emoji picker if user clicks outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -34,23 +44,43 @@ function ChatWindow({ messages }) {
     };
   }, [openPicker]);
 
-  const toggleReaction = (messageId, emoji) => {
+  const incrementReaction = async (messageId, emoji) => {
     setMessageReactions((prev) => {
-      const currentReactions = prev[messageId] || {};
-      const updatedReactions = { ...currentReactions };
-
-      if (updatedReactions[emoji]) {
-        delete updatedReactions[emoji];
-      } else {
-        updatedReactions[emoji] = 1;
-      }
-
-      return {
-        ...prev,
-        [messageId]: Object.keys(updatedReactions).length ? updatedReactions : undefined,
-      };
+      const updatedReactions = { ...prev[messageId], [emoji]: (prev[messageId]?.[emoji] || 0) + 1 };
+      return { ...prev, [messageId]: updatedReactions };
     });
-    setOpenPicker(null); // Close picker after selecting an emoji
+
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/reactions`, {
+        message_id: messageId,
+        emoji,
+        mode: "inc",
+      });
+    } catch (error) {
+      console.error("Error incrementing reaction:", error);
+    }
+  };
+
+  const decrementReaction = async (messageId, emoji) => {
+    setMessageReactions((prev) => {
+      const updatedReactions = { ...prev[messageId] };
+      if (updatedReactions[emoji] > 1) {
+        updatedReactions[emoji] -= 1;
+      } else {
+        delete updatedReactions[emoji];
+      }
+      return { ...prev, [messageId]: Object.keys(updatedReactions).length ? updatedReactions : undefined };
+    });
+
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/reactions`, {
+        message_id: messageId,
+        emoji,
+        mode: "dec",
+      });
+    } catch (error) {
+      console.error("Error decrementing reaction:", error);
+    }
   };
 
   const togglePicker = (messageId) => {
@@ -124,7 +154,7 @@ function ChatWindow({ messages }) {
                 Object.entries(messageReactions[msg.messageid]).map(([emoji, count]) => (
                   <span
                     key={emoji}
-                    onClick={() => toggleReaction(msg.messageid, emoji)}
+                    onClick={() => decrementReaction(msg.messageid, emoji)}
                     style={{
                       padding: "4px",
                       background: "#555",
@@ -164,7 +194,7 @@ function ChatWindow({ messages }) {
                   {reactionsList.map((emoji) => (
                     <span
                       key={emoji}
-                      onClick={() => toggleReaction(msg.messageid, emoji)}
+                      onClick={() => incrementReaction(msg.messageid, emoji)}
                       style={{
                         display: "flex",
                         alignItems: "center",

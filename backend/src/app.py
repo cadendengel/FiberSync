@@ -418,6 +418,35 @@ def get_user_status():
     return jsonify({"status": user["status"]}), 200
 
 
+#########################################
+# ===== User reactions =====# (Ricky)
+#########################################
+@app.route('/api/messages/reactions', methods=['POST'])
+def update_reaction():
+    data = request.json
+    message_id = data.get('message_id')
+    emoji = data.get('emoji')
+    mode = data.get('mode')
+
+
+    if not message_id or not emoji or not mode:
+        return jsonify({"error": "missing data"}), 400
+
+    message = msgDB.get_message_by_id(message_id)
+    if not message:
+        return jsonify({"error": "Message not found"}), 404
+   
+    if mode == "inc":
+        msgDB.add_reaction_to_message(message_id, emoji)
+
+    elif mode == "dec":
+        msgDB.remove_reaction_from_message(message_id, emoji)
+    
+    else:
+        return jsonify({"error": "bad mode data"}), 400
+
+    return jsonify({"message": "reaction/s successfully added to message"}), 200
+
 
 # ================================================== #
 #            STARTING FLASK SERVER                   #

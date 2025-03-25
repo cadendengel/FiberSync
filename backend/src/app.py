@@ -373,6 +373,9 @@ def delete_message():
 #    - Can be expanded to update online status in the database, didn't want to mess with this too much and step into
 #            your user status tracking Ricky
 
+
+# WebSocket Event: Handles user connection
+#   - Updates user status in the database on disconnect (deployment, not development only, I think)
 @socketio.on("disconnect")
 def handle_disconnect():
     username = request.args.get("username")
@@ -385,13 +388,6 @@ def handle_disconnect():
     else:
         print(f"No username in session for SID {request.sid}")
 
-
-# Caden: I don't think this is functional
-# Caden: I went ahead and reworked the entire user_status backend
-# Caden: Now, the user_status is stored in the userDB, and the same
-# Caden: function is used to update the status as is used to update
-# Caden: other user information.
-# Caden: In other words, we can just call update_status() here.
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])

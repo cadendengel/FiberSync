@@ -408,6 +408,8 @@ def handle_disconnect():
     
 
     username = session.get("username")
+    print(f"Username: {username}")
+    print(username)
     if username:
         userDB.update_status(username, "offline")
         print(f"{username} disconnected with SID {request.sid}")

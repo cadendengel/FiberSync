@@ -62,6 +62,9 @@ def get_messages_by_username(username):
 def get_message_count():
     return db.messages.count_documents({})
 
+def edit_message(messageid, new_text):
+    db.messages.update_one({"messageid": messageid}, {"$set": {"text": new_text}})
+
 def delete_all_messages():
     db.messages.delete_many({})
 

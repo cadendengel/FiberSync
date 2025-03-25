@@ -254,6 +254,11 @@ function App() {
 
         // User logged in successfully
         setEnteredChat(true);
+
+        // Update socket query with the username
+        socket.disconnect();
+        socket.io.opts.query = { username };
+        socket.connect();
       })
       .catch((error) => {
         if (error.response.status === 401) {

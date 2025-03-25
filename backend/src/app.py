@@ -90,7 +90,6 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
-            session = username
             if cookie:
                 userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
@@ -376,10 +375,7 @@ def delete_message():
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    username = session.get("username")
-    print("User disconnected")
-    print(f"Session: {session}")
-    print(f"Username: {username}")
+    username = request.args.get("username")
 
     if username:
 

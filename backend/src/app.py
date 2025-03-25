@@ -343,6 +343,23 @@ def get_messages_by_username():
 
     return jsonify(messages), 200
 
+# Edit message by ID (Button NYI)
+@app.route('/api/messages/edit', methods=['PUT'])
+def edit_message():
+    data = request.json
+    message_id = data["messageid"]
+    new_text = data["text"]
+
+    if not message_id:
+        return jsonify({"error": "Missing message ID"}), 400
+    
+    if not new_text:
+        msgDB.edit_message(message_id, "This message is blank.")
+    else: 
+        msgDB.edit_message(message_id, new_text)
+    
+    return jsonify({"message": "Message edited successfully"}), 200
+
 # Delete all messages
 @app.route('/api/messages/all', methods=['DELETE'])
 def delete_all_messages():

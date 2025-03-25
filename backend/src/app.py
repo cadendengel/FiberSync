@@ -4,7 +4,7 @@ import eventlet
 import eventlet.wsgi
 eventlet.monkey_patch()  # Enable async support
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
@@ -90,6 +90,7 @@ def user_login():
     # Check if user is in the database
     if userDB.get_user_by_username(username):
         if userDB.is_user_authenticated(username, password):
+            session = username
             if cookie:
                 userDB.update_user_cookies(username, cookie)
             return jsonify({"message": "User logged in successfully via username and password"}), 200
@@ -375,11 +376,20 @@ def delete_message():
 
 @socketio.on("connect")
 def handle_connect():
-    print(f"+ Client connected: {request.sid}")
+    username = session.get("username")
+    if username:
+        print(f"{username} connected with SID {request.sid}")
+    else:
+        print("User connected with no username in session: {request.sid}")
 
 @socketio.on("disconnect")
 def handle_disconnect():
-    print(f"- Client disconnected: {request.sid}")
+    username = session.get("username")
+    if username:
+        userDB.update_status(username, "offline")
+        print(f"{username} disconnected with SID {request.sid}")
+    else:
+        print("No username in session for SID {request.sid}")
 
 
 # Caden: I don't think this is functional
@@ -428,5 +438,5 @@ def get_user_status():
 if __name__ == "__main__":
     print("Running Flask App...")          # Debug Statement to confirm everything started, can remove if anyone else wants
     print("Flask App is running in the background at 127.0.0.1:5000")   # Kind of a reminder for local development
-    #os.environ['ENV'] = 'development'  # Set the environment to development (for printing from app.py)
+    # os.environ['ENV'] = 'development'  # Set the environment to development (for printing from app.py)
     socketio.run(app, host="0.0.0.0", port=5000, debug=False, log_output=True)

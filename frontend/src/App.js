@@ -22,12 +22,12 @@ import { io } from "socket.io-client";
  *    - Uses only WebSockets (no polling)
  *    - Auto-reconnects if disconnected
  */
-const socket = io(process.env.REACT_APP_BACKEND_URL, { 
+const socket = io(process.env.REACT_APP_BACKEND_URL, {
   transports: ["websocket"], // Enforce WebSocket only, prevent polling
-  reconnection: true, 
-  reconnectionAttempts: Infinity, 
-  reconnectionDelay: 2000,  
-  timeout: 20000, 
+  reconnection: true,
+  reconnectionAttempts: 5,
+  reconnectionDelay: 3000,
+  timeout: 20000,
 });
 
 function App() {

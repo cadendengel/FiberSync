@@ -264,10 +264,9 @@ h1 {
   left: 50%;
   transform: translateX(-50%);
 
-  height: 10%;
+  height: 50px;
   width: 60%;
 
-  padding: 10px;
   background: #1e1e2e;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(74, 144, 226, 0.3);

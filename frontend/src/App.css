@@ -578,7 +578,7 @@ input:checked + .slider:before {
 }
 
 /* Mobile Adjustments */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1300px) {
   body {
     display: block;
     height: auto;
@@ -603,7 +603,7 @@ input:checked + .slider:before {
     height: auto;
   }
 
-  .chat-sidebar, .user-sidebar {
+  .chat-sidebar, .user-sidebar, .channel-sidebar {
     width: 100%;
     border-right: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -617,6 +617,10 @@ input:checked + .slider:before {
   .chat-messages {
     height: 50vh;
     padding: 10px;
+  }
+
+  .message-container {
+    width: 100%;
   }
 
   .chatbox {

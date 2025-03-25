@@ -28,6 +28,7 @@ const socket = io(process.env.REACT_APP_BACKEND_URL, {
   reconnectionAttempts: 3,
   reconnectionDelay: 3000,
   timeout: 20000,
+  query: { username: App.username }
 });
 
 function App() {

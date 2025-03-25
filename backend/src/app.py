@@ -376,6 +376,7 @@ def delete_message():
 @socketio.on("disconnect")
 def handle_disconnect():
     username = request.args.get("username")
+    print("Username:", username)
 
     if username:
 

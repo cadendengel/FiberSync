@@ -3,7 +3,7 @@ import axios from "axios"; // Import Axios for backend calls
 
 const reactionsList = ["👍", "👎", "🔥", "😂", "❤️"];
 
-function ChatWindow({ messages }) {
+function ChatWindow({ messages, onMessagesUpdate }) {
   const chatMessagesRef = useRef(null);
   const pickerRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
@@ -89,26 +89,44 @@ function ChatWindow({ messages }) {
   };
 
 
-
-
-
-  const editMessage = (messageId, text) => {
+  const startEditingMessage = (messageId, text) => {
     setEditingMessageId(messageId);
     setEditedMessage(text);
   };
 
+  const editMessage = async (messageId, text) => {
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/edit`, {
+        message_id: messageId,
+        text,
+      });
+
+      // Update the messages state via the callback
+      const updatedMessages = messages.map((msg) =>
+        msg.messageid === messageId ? { ...msg, text } : msg
+      );
+      onMessagesUpdate(updatedMessages);
+
+      setEditingMessageId("");
+      setEditedMessage("");
+    } catch (error) {
+      console.error("Error editing message:", error);
+    }
+  };
+
   const deleteMessage = async (messageId) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, { data: { messageid: messageId } });
-      // Remove the deleted message from the messages state
-      messages = messages.filter((msg) => msg.messageid !== messageId);
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, {
+        data: { messageid: messageId },
+      });
+
+      // Update the messages state via the callback
+      const updatedMessages = messages.filter((msg) => msg.messageid !== messageId);
+      onMessagesUpdate(updatedMessages);
     } catch (error) {
       console.error("Error deleting message:", error);
     }
   };
-
-  
-
 
   return (
     <div className="chat-window" style={{ flex: 1, overflowY: "auto", maxHeight: "60vh", padding: "10px" }}>
@@ -150,10 +168,7 @@ function ChatWindow({ messages }) {
                 onBlur={() => setEditingMessageId("")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/edit`, {
-                      message_id: msg.messageid,
-                      text: editedMessageText,
-                    });
+                    editMessage(msg.messageid, editedMessageText);
                     setEditingMessageId("");
                   }
                 }}
@@ -230,7 +245,7 @@ function ChatWindow({ messages }) {
               )}
 
               <span
-                onClick={() => editMessage(msg.messageid, msg.text)}
+                onClick={() => startEditingMessage(msg.messageid, msg.text)}
                 style={{ cursor: "pointer", marginLeft: "5px" }}
               >
                 ✏️

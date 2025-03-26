@@ -8,8 +8,9 @@ function ChatWindow({ messages }) {
   const pickerRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
   const [openPicker, setOpenPicker] = useState(null);
-  const [editingMessageId, setEditingMessageId] = useState(null);
-  const [editingText, setEditingText] = useState("");
+
+  const [editedMessageId, setEditingMessageId] = useState("");
+  const [editedMessageText, setEditedMessage] = useState("");
 
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -87,21 +88,27 @@ function ChatWindow({ messages }) {
     setOpenPicker(openPicker === messageId ? null : messageId);
   };
 
-  const startEditing = (messageId, text) => {
+
+
+
+
+  const editMessage = (messageId, text) => {
     setEditingMessageId(messageId);
-    setEditingText(text);
+    setEditedMessage(text);
   };
 
-  const saveEditedMessage = (messageId) => {
-    if (editingText.trim()) {
-      //onEditMessage(messageId, editingText); // Uncomment this line when route is implemented
+  const deleteMessage = async (messageId) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, { data: { messageid: messageId } });
+      // Remove the deleted message from the messages state
+      messages = messages.filter((msg) => msg.messageid !== messageId);
+    } catch (error) {
+      console.error("Error deleting message:", error);
     }
-    setEditingMessageId(null);
   };
 
-  const deleteMessage = (messageId) => {
-    //onDeleteMessage(messageId); // Uncomment this line when route is implemented
-  };
+  
+
 
   return (
     <div className="chat-window" style={{ flex: 1, overflowY: "auto", maxHeight: "60vh", padding: "10px" }}>
@@ -135,13 +142,22 @@ function ChatWindow({ messages }) {
               />
               <strong>{msg.user}:</strong>
             </div>
-            {editingMessageId === msg.messageid ? (
+            {editedMessageId === msg.messageid ? (
               <input
                 type="text"
-                value={editingText}
-                onChange={(e) => setEditingText(e.target.value)}
-                onBlur={() => saveEditedMessage(msg.messageid)}
-                onKeyDown={(e) => e.key === "Enter" && saveEditedMessage(msg.messageid)}
+                value={editedMessageText}
+                onChange={(e) => setEditedMessage(e.target.value)}
+                onBlur={() => setEditingMessageId("")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/messages/edit`, {
+                      message_id: msg.messageid,
+                      text: editedMessageText,
+                    });
+                    setEditingMessageId("");
+                  }
+                }}
+                
                 autoFocus
                 style={{ width: "100%", padding: "5px", fontSize: "1em" }}
               />
@@ -214,7 +230,7 @@ function ChatWindow({ messages }) {
               )}
 
               <span
-                onClick={() => startEditing(msg.messageid, msg.text)}
+                onClick={() => editMessage(msg.messageid, msg.text)}
                 style={{ cursor: "pointer", marginLeft: "5px" }}
               >
                 ✏️

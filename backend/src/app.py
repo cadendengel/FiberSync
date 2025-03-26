@@ -344,10 +344,10 @@ def get_messages_by_username():
     return jsonify(messages), 200
 
 # Edit message by ID (Button NYI)
-@app.route('/api/messages/edit', methods=['PUT'])
+@app.route('/api/messages/edit', methods=['POST'])
 def edit_message():
     data = request.json
-    message_id = data["messageid"]
+    message_id = data["message_id"]
     new_text = data["text"]
 
     if not message_id:
@@ -363,9 +363,11 @@ def edit_message():
 # Delete all messages
 @app.route('/api/messages/all', methods=['DELETE'])
 def delete_all_messages():
-    result = msgDB.delete_all_messages()
-    if result.deleted_count == 0:
+    msgDB.delete_all_messages()
+
+    if msgDB.get_all_messages() == 0:
         return jsonify({"error": "No messages found"}), 404
+    
     return jsonify({"message": "All messages deleted successfully"}), 200
 
 # Delete message by ID
@@ -373,12 +375,15 @@ def delete_all_messages():
 def delete_message():
     data = request.json
     message_id = data["messageid"]
+
     if not message_id:
         return jsonify({"error": "Missing message ID"}), 400
-    result = msgDB.delete_message(message_id)
-    if result.deleted_count == 0:
-        return jsonify({"error": "Message with that ID not found"}), 404
-    return jsonify({"message":"Message deleted successfully", id: data["messageid"]}), 200
+    
+    msgDB.delete_message(message_id)
+    if not msgDB.get_message_by_id(message_id):
+        return jsonify({"message":"Message deleted successfully", "id": data["messageid"]}), 200
+    else:
+        return jsonify({"error": "Message_id still in database"}), 404
 
 # ======================================= #
 #               User Status               # 

@@ -90,20 +90,18 @@ Additional Tasks I, Caden, Assumed Responsibility of:
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-66"> SCRUM-66</a>
 	
 	
-Ricky: 
+Ricky: I focused on the frontend/UI of the website, ensuring that it adapts to different screen sizes. Additionally, I worked on linking reactions to the database.
 
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
+* Jira Task: Implement backend routes to add and remove reactions.
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-98"> SCRUM-98</a>
+* Jira Task: Design and implement a UI for selecting emoji reactions on messages.
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-97"> SCRUM-97</a>
+* Jira Task: Adjust the layout to properly support responsiveness
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-80"> SCRUM-80</a>
+* Jira Task: Ensure the chat input box stays fixed at the bottom of the page (for mobile)
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-79"> SCRUM-79</a>
+* Jira Task: Improve chat message styling
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-78"> SCRUM-78</a>
 
 
 Sprint 1: For our first sprint we hoped to lay out the groundwork for the project by developing the following features:

@@ -459,13 +459,19 @@ def update_reaction():
         return jsonify({"error": "Message not found"}), 404
    
     if mode == "inc":
-        msgDB.add_reaction_to_message(message_id, emoji)
+        msgDB.add_emoji_to_message(message_id, emoji)
 
     elif mode == "dec":
-        if msgDB.get_emoji_count_by_messageid(message_id, emoji) <= 0:
-            return jsonify({"error": "No reactions to remove"}), 400
-        msgDB.remove_reaction_from_message(message_id, emoji)
-    
+        emoji_count = msgDB.get_emoji_count_by_messageid(message_id, emoji)
+        if emoji_count < 0:
+            msgDB.remove_emoji_from_message(message_id, emoji)
+            return jsonify({"error": "Database error, emoji count < 0, emoji removed from reaction{}"}), 400
+        elif emoji_count == 0:
+            return jsonify({"error": "Emoji count is already 0, cannot decrement"}), 400
+        elif emoji_count == 1:
+            msgDB.remove_emoji_from_reactions(message_id, emoji)
+        else:
+            msgDB.remove_emoji_from_message(message_id, emoji)    
     else:
         return jsonify({"error": "bad mode data"}), 400
 

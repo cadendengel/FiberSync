@@ -25,12 +25,15 @@ def add_message(messageid, timestamp, user, text, channel):
         "reactions": {}
     })
 
-def add_reaction_to_message(messageid, emoji):
+def add_emoji_to_message(messageid, emoji):
     db.messages.update_one({"messageid": messageid}, {"$inc": {f"reactions.{emoji}": 1}})
 
 
-def remove_reaction_from_message(messageid, emoji):
+def remove_emoji_from_message(messageid, emoji):
     db.messages.update_one({"messageid": messageid}, {"$inc": {f"reactions.{emoji}": -1}})
+
+def remove_emoji_from_reactions(messageid, emoji):
+    db.messages.update_one({"messageid": messageid}, {"$unset": {f"reactions.{emoji}": None}})
 
 def get_reactions_by_messageid(messageid):
     db.messages.find_one({"messageid": messageid})["reactions"]

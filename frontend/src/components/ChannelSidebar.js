@@ -55,7 +55,7 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     if (!newChannelName.trim()) return;
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName.trim() });
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/channels/create`, { name: newChannelName.trim() });
 
       // Fetch the updated list of channels after creating a new one
       const updatedChannels = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);

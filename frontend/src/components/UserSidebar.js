@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 
 function UserSidebar({ username, users }) {
@@ -10,24 +10,24 @@ function UserSidebar({ username, users }) {
   const [currentUser] = useState(username); // Placeholder for current user
 
   // Function to switch to "away" if inactive
-  const startInactivityTimer = () => {
+  const startInactivityTimer = useCallback(() => {
     if (status !== "offline") {
       clearTimeout(inactivityTimer.current);
       inactivityTimer.current = setTimeout(() => {
         setStatus("away");
       }, 300000); // 5 minutes of inactivity (300,000 ms) (10000 10s timer for testing) 
     }
-  };
+  }, [status]);
 
   // Reset status to online when user interacts
-  const resetStatus = () => {
+  const resetStatus = useCallback(() => {
     if (status !== "offline") {
       if (status === "away") {
         setStatus("online"); // Change back only if currently "away"
       }
       startInactivityTimer();
     }
-  };
+  }, [status, startInactivityTimer]);
 
   useEffect(() => {
     // Listen for user activity
@@ -45,16 +45,7 @@ function UserSidebar({ username, users }) {
       window.removeEventListener("click", resetStatus);
       clearTimeout(inactivityTimer.current);
     };
-  }, [status]); // Re-run useEffect when status changes
-
-  const toggleStatus = () => {
-    setStatus(prevStatus => {
-      if (prevStatus === "offline") {
-        return "online"; // If currently offline, set to online
-      }
-      return prevStatus === "online" ? "offline" : "online"; // Toggle between online and offline
-    });
-  };
+  }, [resetStatus, startInactivityTimer, inactivityTimer]); // Re-run useEffect when status changes
 
   /* User Selection for future "Direct Message" feature. 
    * Currently only planning to do for this is set up the groundwork for a future feature. 

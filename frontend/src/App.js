@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
 import './App.css';
@@ -7,7 +7,6 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
-import ChatMessage from './components/ChatMessage';
 import { io } from "socket.io-client";
 
 // Throwing down a bunch of comments to explain my changes:
@@ -40,26 +39,12 @@ function App() {
   const [users, setUsers] = useState([]);
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
 
+
+
+
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
   /////////////////////////////////
-
-  useEffect(() => {
-    if (enteredChat) {
-        console.log(`Switching to Channel: ${activeChannel}`); // Debugging log
-        fetchMessages(activeChannel);
-
-        // Leave any previous channel before joining the new one
-        socket.emit("leave_channel");
-        
-        // Join the new channel
-        socket.emit("join_channel", { channel: activeChannel });
-
-      // Fetch users for the sidebar
-      fetchSidebar();
-    }
-  }, [enteredChat, activeChannel]);
-
 
   /* Fetch messages for the selected channel
    * Right now an error flags if you join a channel that doesn't have any messages yet, I think the best solution is to
@@ -74,40 +59,43 @@ function App() {
           console.error("Error fetching messages:", error);
       }
     };
+
   
-  
-    /* WebSocket Message Handling:
-     *   - Listens for new messages from the backend and updates the chat in real-time, no need to manually refresh
-     *   - Ensures messages persist correctly and don't duplicate
-     */
-    useEffect(() => {
-      const handleNewMessage = (message) => {
-          console.log(`New message received in ${message.channel}:`, message);
-        
-          if (message.channel === activeChannel) {  
-              setMessages((prevMessages) => [...prevMessages, message]); 
-          }
-      };
-  
-      socket.on("receive_message", handleNewMessage);
-  
-      return () => {
-        socket.off("receive_message", handleNewMessage);
-      };
-    }, [activeChannel]);
-  
-  
+    // Send message
     const handleSendMessage = (chatEvent) => {
       const newMessage = { user: username, text: chatEvent, channel: activeChannel };
       socket.emit("send_message", newMessage);
     };
+
+
+    // Delete message by ID
+  const handleDeleteMessage = (messageId) => {
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, messageId)
+    .then((response) => {
+      console.log("Message deleted:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
+    })
+    .catch((error) => console.error("Error deleting message:", error));
+  };
+
+
+  // Edit message by ID
+  const handleEditMessage = (messageId, newText) => {
+    axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, { id: messageId, text: newText })
+    .then((response) => {
+      console.log("Message edited:", response.data); // Debugging log
+      setMessages((prevMessages) => prevMessages.map(message => message.id === messageId ? { ...message, text: newText } : message)); // Update message
+    })
+    .catch((error) => console.error("Error editing message:", error));
+  };
+
   
   ////////////////////////////
   // USER_SIDEBAR FUNCTIONS //
   ////////////////////////////
 
   // Fetch the user list for the sidebar
-  const fetchSidebar = () => {
+  const fetchSidebar = useCallback(() => {
     axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
       .then((response) => {
         const data = response.data
@@ -122,63 +110,8 @@ function App() {
       .catch((error) => {
         console.error("Error fetching users:", error);
       });
-    };
-
-  /////////////////////////////////
-  // DEBUGGING/CLEANUP FUNCTIONS //
-  /////////////////////////////////
-
-  // Clear the user database, will be accessible from the inspect element console for now
-  const clearUserDB = () => {
-    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
-    .then((response) => console.log("Database cleared:", response.data)) // Debugging log
-    .catch((error) => console.error("Error clearing database:", error));
-  }
-  window.clearUserDB = clearUserDB; // Expose the function to the window object
-
-
-  // Clear the messages database, will be accessible from the inspect element console for now
-  const clearMessagesFromChannel = (channel) => {
-    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/channels/clear`, { data: { channel } })
-    .then((response) => {
-      console.log("Database cleared:", response.data) // Debugging log
-    })
-    .catch((error) => {
-      console.error("Error clearing database:", error)
-  });
-  }
-  window.clearMessagesFromChannel = clearMessagesFromChannel; // Expose the function to the window object
-
-
-  // Set users status to offline, will be accessible from the inspect element console for now
-  const setUserOffline = (username) => {
-    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
-    .then((response) => console.log("User status updated:", response.data)) // Debugging log
-    .catch((error) => console.error("Error updating user status:", error));
-  }
-  window.setUserOffline = setUserOffline; // Expose the function to the window object`
-
-
-  // Handle closing of the window and final update of user status to offline
-  useEffect(() => {
-    const handleWindowClose = (ev) => {
-      if (enteredChat) {
-        // Update user status to offline
-        axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
-          .then((response) => console.log("User status updated:", response.data)) // Debugging log
-          .catch((error) => console.error("Error updating user status:", error));
-      }
-      // Disconnect the WebSocket, prevent errors
-      socket.disconnect();
-    }
-
-    window.addEventListener("beforeunload", handleWindowClose);
-
-    // Prevent this effect from running more than once
-    return () => {
-      window.removeEventListener("beforeunload", handleWindowClose);
-    }
-  })
+    }, [username]);
+  
 
   /////////////////////
   // LOGIN FUNCTIONS //
@@ -265,30 +198,105 @@ function App() {
     }
   };
 
-  ///////////////////////////////////////////////////
-  // THESE BELOW FUNCTIONS WILL BE ORGANIZED LATER //
-  ///////////////////////////////////////////////////
+  
+  /////////////////////////////////
+  // DEBUGGING/CLEANUP FUNCTIONS //
+  /////////////////////////////////
 
-  // Delete message by ID (Button NYI)
-  const handleDeleteMessage = (messageId) => {
-    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, messageId)
-    .then((response) => {
-      console.log("Message deleted:", response.data); // Debugging log
-      setMessages((prevMessages) => prevMessages.filter(message => message.id !== messageId)); // Remove deleted message
-    })
-    .catch((error) => console.error("Error deleting message:", error));
+  // Clear the user database, will be accessible from the inspect element console for now
+  const clearUserDB = () => {
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users`)
+    .then((response) => console.log("Database cleared:", response.data)) // Debugging log
+    .catch((error) => console.error("Error clearing database:", error));
   }
+  window.clearUserDB = clearUserDB; // Expose the function to the window object
 
 
-  // Edit message by ID (Button NYI)
-  const handleEditMessage = (messageId, newText) => {
-    axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, { id: messageId, text: newText })
+  // Clear the messages database, will be accessible from the inspect element console for now
+  const clearMessagesFromChannel = (channel) => {
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/channels/clear`, { data: { channel } })
     .then((response) => {
-      console.log("Message edited:", response.data); // Debugging log
-      setMessages((prevMessages) => prevMessages.map(message => message.id === messageId ? { ...message, text: newText } : message)); // Update message
+      console.log("Database cleared:", response.data) // Debugging log
     })
-    .catch((error) => console.error("Error editing message:", error));
+    .catch((error) => {
+      console.error("Error clearing database:", error)
+  });
   }
+  window.clearMessagesFromChannel = clearMessagesFromChannel; // Expose the function to the window object
+
+
+  // Set users status to offline, will be accessible from the inspect element console for now
+  const setUserOffline = (username) => {
+    axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
+    .then((response) => console.log("User status updated:", response.data)) // Debugging log
+    .catch((error) => console.error("Error updating user status:", error));
+  }
+  window.setUserOffline = setUserOffline; // Expose the function to the window object`
+  
+
+  /////////////////////
+  // HOOKS & EFFECTS //
+  /////////////////////
+
+  // Set the active channel to "Home" on entering chat; fetch messages and users
+  useEffect(() => {
+    if (enteredChat) {
+        console.log(`Switching to Channel: ${activeChannel}`); // Debugging log
+        fetchMessages(activeChannel);
+
+        // Leave any previous channel before joining the new one
+        socket.emit("leave_channel");
+        
+        // Join the new channel
+        socket.emit("join_channel", { channel: activeChannel });
+
+      // Fetch users for the sidebar
+      fetchSidebar();
+    }
+  }, [enteredChat, activeChannel, fetchSidebar]);
+
+
+  /* WebSocket Message Handling:
+     *   - Listens for new messages from the backend and updates the chat in real-time, no need to manually refresh
+     *   - Ensures messages persist correctly and don't duplicate
+     */
+  useEffect(() => {
+    const handleNewMessage = (message) => {
+        console.log(`New message received in ${message.channel}:`, message);
+      
+        if (message.channel === activeChannel) {  
+            setMessages((prevMessages) => [...prevMessages, message]); 
+        }
+    };
+
+    socket.on("receive_message", handleNewMessage);
+
+    return () => {
+      socket.off("receive_message", handleNewMessage);
+    };
+  }, [activeChannel]);
+
+
+  // Handle closing of the window and final update of user status to offline
+  useEffect(() => {
+    const handleWindowClose = (ev) => {
+      if (enteredChat) {
+        // Update user status to offline
+        axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
+          .then((response) => console.log("User status updated:", response.data)) // Debugging log
+          .catch((error) => console.error("Error updating user status:", error));
+      }
+      // Disconnect the WebSocket, prevent errors
+      socket.disconnect();
+    }
+
+    window.addEventListener("beforeunload", handleWindowClose);
+
+    // Prevent this effect from running more than once
+    return () => {
+      window.removeEventListener("beforeunload", handleWindowClose);
+    }
+  }, [enteredChat, username]);
 
 
   /* The actual React app UI below: (or the important part)

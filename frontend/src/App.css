@@ -577,6 +577,13 @@ input:checked + .slider:before {
   padding: 5px;
 }
 
+/* Weird screen case... */
+@media screen and (min-width: 1550px) {
+  .chat-window {
+    min-width: 100%;
+  }
+}
+
 /* Mobile Adjustments */
 @media screen and (max-width: 1300px) {
   body {
@@ -621,6 +628,7 @@ input:checked + .slider:before {
   }
 
   .chat-window {
+    min-width: 100%;
     max-width: 100%;
   }
 
@@ -629,6 +637,7 @@ input:checked + .slider:before {
   }
 
   .chatbox {
+    height: 100px;
     flex-direction: column;
     padding: 10px;
   }

@@ -32,6 +32,61 @@ can utilize a platform that accounts for their working environment and prioritiz
 
 
 ## Features
+Sprint 2: For our second sprint, we aimed to expand upon the foundation established in Sprint 1 by refining existing features and adding new functionality. Our goals included:
+* Enhancing real-time messaging functionality with better UI/UX improvements.
+* Implementing User Status features
+* Improving backend integration with optimized API responses.
+* Ensuring seamless switching between chat channels.
+* Strengthening automated testing with integration tests.
+
+Contributions:
+Clark: I focused on integrating the first steps to direct messaging, channel features and ultimately ensuring real-time messaging and managed to deploy the backend to a Live server.
+
+* Jira Task: Implement Backend for Real-Time Communication
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-16"> SCRUM-16</a>
+* Jira Task: Integrate Chat Box with Direct Message Feature
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-17"> SCRUM-17</a>
+* Jira Task: Update the sidebar that lists available channels
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-73"> SCRUM-73</a>
+* Jira Task: Implement channel switching logic on the frontend
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-74"> SCRUM-74</a>
+* Jira Task: Update backend to return channel-specific messages
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-75"> SCRUM-75</a>
+* Jira Task: Ensure the active channel is visually highlighted in the UI
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-76"> SCRUM-76</a>
+* Jira Task: Write integration tests to verify channel switching and message loading
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-77"> SCRUM-77</a>
+
+Caden:
+
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+
+Ricky: 
+
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+* Jira Task: 
+	* <a href = ""> SCRUM-##</a>
+
 
 Sprint 1: For our first sprint we hoped to lay out the groundwork for the project by developing the following features:
 * A website that multiple users can connect to from different devices
@@ -96,7 +151,7 @@ Chris B:
 
 
 ## Project Status
--  In-Progress: Beginning Development in Sprint 2.
+-  In-Progress: Beginning Development in Sprint 3.
 
 
 ## Room for Improvement
@@ -106,14 +161,12 @@ Chris B:
 
 To do:
 
-**Sprint 2:**
-1. Fix bugs
+**Sprint 3:**
+1. Improve Performance
 2. Improve UI/UX for the Chat Interface
-3. Implement Channel Navigation with Dynamic Channel Messages
-4. Implement User Authentication for secure sessions
-5. Real-Time Messaging and Status Updates
-6. Message Editing and Deletion
-7. Persistent Login
+3. Implement small Direct Messaging sessions
+4. Implement User "Roles" to include Administrative Actions
+5. Introduce Fiber, an active AI "user"
 
 ## Acknowledgements
 - This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal

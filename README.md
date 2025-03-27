@@ -57,21 +57,39 @@ Clark: I focused on integrating the first steps to direct messaging, channel fea
 * Jira Task: Write integration tests to verify channel switching and message loading
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-77"> SCRUM-77</a>
 
-Caden:
+Caden: Completed tasks include implementing secure session management, user authentication, frontend login/signup forms with validation, error handling,
+and dynamic message handling, while also ensuring secure password storage, user details display, and real-time updates.
 
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
-* Jira Task: 
-	* <a href = ""> SCRUM-##</a>
+* Implement secure session management: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-55"> SCRUM-55</a>
+* Store authentication tokens: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-56"> SCRUM-56</a>
+* Modify UI to show logged-in user details when loading in: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-57"> SCRUM-57</a>
+* Write security tests to ensure proper session handling: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-58"> SCRUM-58</a>
+* Implement Authentication for user sign-up and sign-in: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-68"> SCRUM-68</a>
+* Create login and signup pages in the frontend with form validation: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-69"> SCRUM-69</a>
+* Ensures passwords are stored: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-70"> SCRUM-70</a>
+* Implement error handling for failed login attempts: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-71"> SCRUM-71</a>
+* Write unit tests for authentication function: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-72"> SCRUM-72</a>
 
+Additional Tasks I, Caden, Assumed Responsibility of:
+* Implement backend routes to handle message edits and deletions:
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-60"> SCRUM-60</a>
+* Ensure frontend updates message content dynmically after an edit:
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-61"> SCRUM-61</a>
+* Modify the UI to display real-time user status updates:
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-65"> SCRUM-65</a>
+* Implement automatic reconnection handling for lost connections:
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-66"> SCRUM-66</a>
+	
+	
 Ricky: 
 
 * Jira Task: 
@@ -166,7 +184,8 @@ To do:
 2. Improve UI/UX for the Chat Interface
 3. Implement small Direct Messaging sessions
 4. Implement User "Roles" to include Administrative Actions
-5. Introduce Fiber, an active AI "user"
+5. Improve the real-time functionalities
+6. Introduce Fiber, an active AI "user"
 
 ## Acknowledgements
 - This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal

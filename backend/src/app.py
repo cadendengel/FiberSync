@@ -462,6 +462,8 @@ def update_reaction():
         msgDB.add_reaction_to_message(message_id, emoji)
 
     elif mode == "dec":
+        if msgDB.get_emoji_count_by_messageid(message_id, emoji) <= 0:
+            return jsonify({"error": "No reactions to remove"}), 400
         msgDB.remove_reaction_from_message(message_id, emoji)
     
     else:

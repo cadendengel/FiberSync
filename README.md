@@ -91,6 +91,7 @@ Additional Tasks I, Caden, Assumed Responsibility of:
 	
 	
 Ricky: I focused on the frontend/UI of the website, ensuring that it adapts to different screen sizes. Additionally, I worked on linking reactions to the database.
+Ricky: I focused on the frontend/UI of the website, ensuring that it adapts to different screen sizes. Additionally, I worked on linking reactions to the database.
 
 * Jira Task: Implement backend routes to add and remove reactions.
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-98"> SCRUM-98</a>

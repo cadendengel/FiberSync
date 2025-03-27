@@ -191,6 +191,7 @@ h1 {
 }
 
 .chat-main {
+  min-width: 500px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -200,7 +201,7 @@ h1 {
 
 .chat-window {
   flex: 6;
-  min-width: 500px; /* Ensures it never shrinks too much */
+  min-width: 450px; /* Ensures it never shrinks too much */
   max-width: 700px; /* Prevents it from expanding infinitely */
   padding: 20px;
   color: white;
@@ -585,7 +586,7 @@ input:checked + .slider:before {
 }
 
 /* Mobile Adjustments */
-@media screen and (max-width: 1300px) {
+@media screen and (max-width: 1000px) {
   body {
     display: block;
     height: auto;

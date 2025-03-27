@@ -345,6 +345,7 @@ function App() {
             <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
             <div className="chat-main">
               <ChatWindow 
+                username = {username}
                 messages={messages}
                 onMessagesUpdate={(updatedMessages) => setMessages(updatedMessages)}
                 onDeleteMessage={handleDeleteMessage}

@@ -3,7 +3,7 @@ import axios from "axios"; // Import Axios for backend calls
 
 const reactionsList = ["👍", "👎", "🔥", "😂", "❤️"];
 
-function ChatWindow({ messages, onMessagesUpdate }) {
+function ChatWindow({ username, messages, onMessagesUpdate }) {
   const chatMessagesRef = useRef(null);
   const pickerRef = useRef(null);
   const [messageReactions, setMessageReactions] = useState({});
@@ -114,7 +114,14 @@ function ChatWindow({ messages, onMessagesUpdate }) {
     }
   };
 
-  const deleteMessage = async (messageId) => {
+  const deleteMessage = async (username, messageId) => {
+    // Check if the user is the message author
+    const message = messages.find((msg) => msg.messageid === messageId);
+    if (message.user !== username) {
+      console.error("You can only delete your own messages.");
+      return;
+    }
+    // Delete the message
     try {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, {
         data: { messageid: messageId },
@@ -252,7 +259,7 @@ function ChatWindow({ messages, onMessagesUpdate }) {
               </span>
 
               <span
-                onClick={() => deleteMessage(msg.messageid)}
+                onClick={() => deleteMessage(username, msg.messageid)}
                 style={{ cursor: "pointer", color: "red", marginLeft: "5px" }}
               >
                 🗑️

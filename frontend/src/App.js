@@ -192,15 +192,15 @@ function App() {
       console.log("User authenticated via cookies:", response.data); // Debugging log
       setUsername(response.data.username);
 
+      // Update user status to online
+      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
+      .then((response) => console.log("User status updated:", response.data)) // Debugging log
+      .catch((error) => console.error("Error updating user status:", error));
+
       // Update socket query with the username
       socket.disconnect();
       socket.io.opts.query = { username: response.data.username };
       socket.connect();
-
-      // Update user status to online
-      axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
-      .then((response) => console.log("User status updated:", response.data)) // Debugging log
-      .catch((error) => console.error("Error updating user status:", error));
 
       setEnteredChat(true); // Enter the chat 
       return;
@@ -242,23 +242,18 @@ function App() {
       // Login with username and password
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
-        // Update socket query with the username
-        socket.disconnect();
-        socket.io.opts.query = { username };
-        socket.connect();
-
         // Update user status to online
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
 
-        // User logged in successfully
-        setEnteredChat(true);
-
         // Update socket query with the username
         socket.disconnect();
         socket.io.opts.query = { username };
         socket.connect();
+
+        // User logged in successfully
+        setEnteredChat(true);
       })
       .catch((error) => {
         if (error.response.status === 401) {

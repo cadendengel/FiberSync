@@ -181,9 +181,10 @@ To do:
 1. Improve Performance
 2. Improve UI/UX for the Chat Interface
 3. Implement small Direct Messaging sessions
-4. Implement User "Roles" to include Administrative Actions
-5. Improve the real-time functionalities
-6. Introduce Fiber, an active AI "user"
+4. Implement Developer Mode for Administrative Actions
+5. Implement User Profiles
+6. Improve the real-time functionalities
+[Optimistically] Introduce Fiber, an active AI "user"
 
 ## Acknowledgements
 - This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal

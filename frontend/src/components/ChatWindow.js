@@ -89,7 +89,14 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
   };
 
 
-  const startEditingMessage = (messageId, text) => {
+  const startEditingMessage = (username, messageId, text) => {
+    // Check if the user is the message author
+    const message = messages.find((msg) => msg.messageid === messageId);
+    if (message.user !== username) {
+    console.error("You can only edit your own messages.");
+      return;
+    }
+    // Set the message to be edited
     setEditingMessageId(messageId);
     setEditedMessage(text);
   };
@@ -252,7 +259,7 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
               )}
 
               <span
-                onClick={() => startEditingMessage(msg.messageid, msg.text)}
+                onClick={() => startEditingMessage(username, msg.messageid, msg.text)}
                 style={{ cursor: "pointer", marginLeft: "5px" }}
               >
                 ✏️

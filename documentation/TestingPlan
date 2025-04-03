@@ -1,4 +1,28 @@
-# FiberSync - Testing Plan
+Below are the Tests planned for our FLASK Backend:
+    User
+        Routes
+            get_all_users()
+                fields: none
+                return: jsonify(user_data[])
+            get_user_count()
+                fields: 
+                return: 
+            delete_all_users()
+                fields: none
+                return: jsonify(int count)
+            user_login()
+                fields: string username, password, cookie
+                return: jsonify(string success/failure/error)
+            user_create()
+                fields: string username, password, cookie
+                return: jsonify(string success/failure/error)
+            is_user_authenticated()
+                fields: string username, password
+                return: jsonify(string success/failure)
+            is_cookie_authenticated()
+                fields: string cookie
+                return: jsonify({"authenticated": boolean success/failure})
+        Database
 
 This document outlines the current and planned unit tests across our backend and frontend.
 Note: Tests currently marked as skipped or commented out are retained in the codebase for future repair and to be reintegrated. 

@@ -13,6 +13,15 @@ pipelines:
             - echo $GOOGLE_APPLICATION_CREDENTIALS
 
       - step:
+          name: Backend Tests
+          image: python:3.10
+          script:
+            - pip install -r backend/requirements.txt
+            - cd backend
+            - python -m unittest discover -s ./__tests__ -p *_test.py
+
+
+      - step:
           name: Build
           script:
             - cd frontend
@@ -33,6 +42,21 @@ pipelines:
             - export GOOGLE_APPLICATION_CREDENTIALS=$PWD/firebase-key.json
             - npm install -g firebase-tools
             - firebase deploy --project $FIREBASE_PROJECT
+
+      - step:
+          name: Test Firebase Deployment # Had ChatGPT make this one, couldn't quite get it to work myself
+          script:
+            - apt-get update && apt-get install -y curl
+            - |
+              echo "Testing deployed Firebase site..."
+              URL="https://fiber-sync.web.app"
+              curl -s --head $URL | head -n 1 | grep "200 OK"
+              if [ $? -eq 0 ]; then
+                echo "Firebase deployment successful!"
+              else
+                echo "Deployment failed or site unreachable."
+                exit 1
+              fi
 
   default:  # Still runs on feature branches but should NOT deploy
     - step:

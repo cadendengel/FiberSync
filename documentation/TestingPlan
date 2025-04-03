@@ -1,11 +1,18 @@
 Below are the Tests planned for our FLASK Backend:
-Caden continue backend unittests on User
+    User
+        Routes
+        Database
 
-Chris continue backend unittests on Channels
+    Channels
+        Routes
+        Database
 
-Ricky backend unittests on UserStatus
+    UserStatus
+        Routes
+        Database
+        WebSockets
 
 Below are the Tests planned for our REACT Frontend:
-Channel jests on ---
-frontend jests on ---
-frontend jests on ---
+Channel     jests on ---
+frontend    jests on ---
+frontend    jests on ---

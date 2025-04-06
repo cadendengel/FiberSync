@@ -40,28 +40,33 @@ function App() {
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
 
-   /////////////////////////////////
+  ///////////////////////////////
   //       DEVELOPER MODE        //
-  /////////////////////////////////
+  ///////////////////////////////
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // Ricky: I had issues with keystrokes on mac so I put this
-      // as a temp to ensure that the feature works with keystrokes.
-      // To activate dev mode through keystrokes, hold "shift + '.'
-      if (event.shiftKey && event.key === ">") { 
-        const password = prompt("Enter Developer Mode Password:");
-        if (password === "devpass") {
-          setIsDeveloperMode(true);
+      // WINDOWS: Check if Shift + Alt + P are pressed
+      // MAC: Check if Option + Shift + P are pressed
+      if ((event.shiftKey && event.altKey && event.key === "p") || event.key === '∏') {
+        if (!isDeveloperMode) {
+          // Enter Developer Mode: prompt for password
+          const password = prompt("Enter Developer Mode Password:");
+          if (password === "devpass") {
+            setIsDeveloperMode(true);
+          } else {
+            alert("Incorrect password!");
+          }
         } else {
-          alert("Incorrect password!");
+          // Exit Developer Mode: no password needed
+          setIsDeveloperMode(false);
         }
       }
     };
-
+  
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
-
+  }, [isDeveloperMode]); // Dependency array to track changes in developer mode state
+  
   const activateDevMode = () => {
     const password = prompt("Enter Developer Mode Password:");
     if (password === "devpass") {

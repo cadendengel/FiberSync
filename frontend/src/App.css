@@ -698,9 +698,10 @@ input:checked + .slider:before {
   z-index: 999;
 }
 
+/* DEVELOPER MODE */
 .dev-mode-button {
   position: fixed;
-  top: 60px; /* lowered from top of the screen */
+  top: 45px; 
   right: 20px;
   padding: 8px 12px;
   background-color: #444;

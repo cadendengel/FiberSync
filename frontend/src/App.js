@@ -45,7 +45,10 @@ function App() {
   /////////////////////////////////
   useEffect(() => {
     const handleKeyDown = (event) => {
-      if (event.ctrlKey && event.shiftKey && event.key === ".") {
+      // Ricky: I had issues with keystrokes on mac so I put this
+      // as a temp to ensure that the feature works with keystrokes.
+      // To activate dev mode through keystrokes, hold "shift + '.'
+      if (event.shiftKey && event.key === ">") { 
         const password = prompt("Enter Developer Mode Password:");
         if (password === "devpass") {
           setIsDeveloperMode(true);

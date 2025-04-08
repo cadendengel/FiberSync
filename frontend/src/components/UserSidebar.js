@@ -8,6 +8,9 @@ function UserSidebar({ username, users }) {
   const [messages, setMessages] = useState({});
   const [notifications, setNotifications] = useState({});
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
+  const [dmBoxPosition, setDmBoxPosition] = useState({ x: 100, y: 100 });
+  const [snapEnabled, setSnapEnabled] = useState(false); // New state to get the box back in corner
+  const dmBoxRef = useRef();
 
   // Inactivity logic
   const startInactivityTimer = useCallback(() => {
@@ -50,6 +53,45 @@ function UserSidebar({ username, users }) {
   };
 
   const closeDM = () => setSelectedUser(null);
+
+  const startDragging = (e) => {
+    const box = dmBoxRef.current;
+    const offsetX = e.clientX - box.getBoundingClientRect().left;
+    const offsetY = e.clientY - box.getBoundingClientRect().top;
+  
+    const handleMouseMove = (eMove) => {
+      setDmBoxPosition({
+        x: eMove.clientX - offsetX,
+        y: eMove.clientY - offsetY
+      });
+    };
+  
+    const stopDragging = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", stopDragging);
+    };
+  
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", stopDragging);
+  };
+
+  const snapToCorner = () => {
+    const margin = 20;
+    const chatWidth = 400; // match default dm-box width
+    const chatHeight = 350; // match default dm-box height
+  
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+  
+    const x = screenWidth - chatWidth - margin;
+    const y = screenHeight - chatHeight - margin;
+  
+    setSnapEnabled(true);
+    setDmBoxPosition({ x, y });
+  
+    // Optionally disable snap after it animates
+    setTimeout(() => setSnapEnabled(false), 300);
+  };
 
   const sendMessage = (event, user) => {
     if (event.key === "Enter") {
@@ -106,10 +148,21 @@ function UserSidebar({ username, users }) {
 
       {/* Direct Message Box */}
       {selectedUser && (
-        <div className="dm-box">
-          <div className="dm-header">
+        <div
+          ref={dmBoxRef}
+          className={`dm-box ${snapEnabled ? 'snapping' : ''}`}
+          style={{
+            left: dmBoxPosition.x,
+            top: dmBoxPosition.y,
+            transition: snapEnabled ? 'all 0.3s ease-in-out' : 'none',
+          }}
+        >
+            <div className="dm-header" onMouseDown={startDragging}>
             <span>Chat with {selectedUser}</span>
-            <button onClick={closeDM}>✖</button>
+            <div>
+              <button onClick={snapToCorner}>📍</button>
+              <button onClick={closeDM}>✖</button>
+            </div>
           </div>
           <div className="dm-messages">
             {messages[selectedUser]?.map((msg, i) => (

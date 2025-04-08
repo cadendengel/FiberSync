@@ -235,27 +235,6 @@ h1 {
   max-width: 75%; /* Prevents messages from stretching across the whole width */
 }
 
-/* User List */
-.user-list {
-  list-style: none;
-  padding: 10px 0;
-  text-align: left;
-}
-
-.user-list li {
-  padding: 8px 0;
-  font-size: 1rem;
-  color: #cfd8dc;
-  transition: 0.3s;
-  cursor: pointer;
-}
-
-.user-list li:hover {
-  color: #4a90e2;
-}
-
-
-
 /* Below is the CSS for the ChatBox Entry */
 .chatbox {
   display: flex;

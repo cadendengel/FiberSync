@@ -10,6 +10,21 @@
   .user-item.selected {
     background-color: #d0ebff;
   }
+  .user-list {
+    list-style: none;
+    padding: 10px 0;
+    text-align: left;
+  }
+  .user-list li {
+    padding: 8px 0;
+    font-size: 1rem;
+    color: #cfd8dc;
+    transition: 0.3s;
+    cursor: pointer;
+  }
+  .user-list li:hover {
+    color: #4a90e2;
+  }
   .user-list .user-entry {
     position: relative;
     padding: 10px 12px;
@@ -56,14 +71,45 @@
     text-align: center;
   }
   .dm-box {
-    border-top: 2px solid #999;
-    margin-top: 10px;
+    position: absolute;
+    bottom: 100px;
+    left: 100px;
+    width: 400px;
+    height: 350px;
+    background: #222;
+    color: white;
+    padding: 0;
+    border-radius: 8px;
+    border: 2px solid #4a90e2;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(74, 144, 226, 0.4);
+    z-index: 1000;
   }
   .dm-header {
     display: flex;
     justify-content: space-between;
-    padding: 4px 8px;
-    background-color: #eee;
+    align-items: center;
+    font-weight: bold;
+    background: #1e1e2e;
+    color: #4a90e2;
+    padding: 10px 12px;
+    border-bottom: 1px solid #4a90e2;
+    cursor: move;
+  }
+  .dm-header button {
+    background: #4a90e2;
+    border: none;
+    color: white;
+    padding: 5px 8px;
+    margin-left: 6px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s ease-in-out;
+  }
+  
+  .dm-header button:hover {
+    background: #357bd8;
   }
   .sent {
     text-align: right;
@@ -71,5 +117,10 @@
   .received {
     text-align: left;
   }
-  
-  
+  .draggable {
+    position: absolute;
+    z-index: 1000;
+  }
+  .dm-box.snapping {
+    transition: all 0.3s ease-in-out;
+  }

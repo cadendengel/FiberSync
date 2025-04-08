@@ -406,6 +406,7 @@ def handle_connect():
     if username:
         userDB.update_status(username, "online")
         print(f"{username} connected with SID {request.sid}")
+        emit("user_connected", {"username": username}, broadcast=True)  # Notify all clients about the new user
     else:
         print(f"No username in session for SID {request.sid}")
         
@@ -419,6 +420,7 @@ def handle_disconnect():
 
         userDB.update_status(username, "offline")
         print(f"{username} disconnected with SID {request.sid}")
+        emit("user_disconnected", {"username": username}, broadcast=True)  # Notify all clients about the user leaving
     else:
         print(f"No username in session for SID {request.sid}")
 

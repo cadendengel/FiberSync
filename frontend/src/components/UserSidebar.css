@@ -1,0 +1,75 @@
+/* This CSS file is designed specifically for the UserSidebar.js component, trying to keep all style out of app.css */
+.user-item {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  .user-item:hover {
+    background-color: #e9e9e9;
+  }
+  .user-item.selected {
+    background-color: #d0ebff;
+  }
+  .user-list .user-entry {
+    position: relative;
+    padding: 10px 12px;
+    border-radius: 4px;
+    transition: background 0.2s ease-in-out;
+  }
+  .user-list .user-entry:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #4a90e2;
+    box-shadow: 0 0 10px rgba(74, 144, 226, 0.4);
+  }
+  .user-dropdown {
+    position: absolute;
+    background-color: #3A3D41;
+    border-radius: 6px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    margin-top: 4px;
+    margin-left: 20px; /* Indents slightly under the username */
+  }
+  
+  .user-dropdown button {
+    background: none;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    text-align: left;
+    cursor: pointer;
+    font-size: 0.95rem;
+    width: 150px;
+  }
+  
+  .user-dropdown button:hover {
+    background-color: #4a90e2;
+    color: white;
+  }
+  .dm-action-bar {
+    margin-top: 10px;
+    padding: 10px;
+    border-top: 1px solid #ccc;
+    background-color: #f7f7f7;
+    text-align: center;
+  }
+  .dm-box {
+    border-top: 2px solid #999;
+    margin-top: 10px;
+  }
+  .dm-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background-color: #eee;
+  }
+  .sent {
+    text-align: right;
+  }
+  .received {
+    text-align: left;
+  }
+  
+  

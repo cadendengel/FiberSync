@@ -1,4 +1,8 @@
-print("Starting Flask App...") # This is debug text. We can remove it if anyone wants.
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# print("Starting Flask App...") # This is debug text. We can remove it if anyone wants. Commenting out for tests
 
 import eventlet
 import eventlet.wsgi
@@ -6,7 +10,6 @@ eventlet.monkey_patch()  # Enable async support
 
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
-import os
 from datetime import datetime, timezone
 from src.UserDB import userDB
 from src.MessageDB import msgDB
@@ -15,6 +18,15 @@ from flask_socketio import SocketIO, emit, join_room, leave_room
 # ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
+
+# Added for security tests, but provides security off of every request
+@app.after_request
+def apply_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'              # Prevent browser from guessing content type
+    response.headers['X-Frame-Options'] = 'DENY'                        # Prevent site being loaded in an iFrame
+    response.headers['Content-Security-Policy'] = "default-src 'self'"  # Limit content sources
+    return response
+
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", ping_interval=5, ping_timeout=10)
 
 

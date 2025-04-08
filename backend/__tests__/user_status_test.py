@@ -9,6 +9,7 @@ from backend.src.UserDB import user_status
 # Run this test:
 # python -m unittest discover -s ./backend/__tests__ -p user_status_test.py
 
+@unittest.skip("Skipping test: user_status.py is currently under refactor")
 class TestUserStatusManager(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

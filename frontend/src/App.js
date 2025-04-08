@@ -62,7 +62,7 @@ function App() {
         }
       }
     };
-  
+ 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDeveloperMode]); // Dependency array to track changes in developer mode state
@@ -75,6 +75,11 @@ function App() {
       alert("Incorrect password!");
     }
   };
+
+  const handleDevDeleteAllMessages = () => {
+    console.log("hi"); // This is where the real deletion logic will go
+  };
+  
 
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
@@ -391,6 +396,12 @@ function App() {
               <UserSidebar username={username} users={users} />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
+            {isDeveloperMode && (
+  <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
+    Delete All Messages
+  </button>
+)}
+
           </>
         )}
       </div>

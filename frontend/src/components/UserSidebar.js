@@ -11,6 +11,8 @@ function UserSidebar({ username, users }) {
   const [dmBoxPosition, setDmBoxPosition] = useState({ x: 100, y: 100 });
   const [snapEnabled, setSnapEnabled] = useState(false); // New state to get the box back in corner
   const dmBoxRef = useRef();
+  const [minimized, setMinimized] = useState(false);
+
 
   // Inactivity logic
   const startInactivityTimer = useCallback(() => {
@@ -122,9 +124,11 @@ function UserSidebar({ username, users }) {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        <li>
-          👤 <span className={`status-indicator ${"online"}`}></span> {username} (you)
-        </li>
+      <li className="user-entry">
+        <div>
+          👤 <span className={`status-indicator ${status}`}></span> {username} (you)
+        </div>
+      </li>
 
         {users.map(user => (
           user?.username && user.username !== "You" && (
@@ -145,9 +149,15 @@ function UserSidebar({ username, users }) {
           )
         ))}
       </ul>
+      {/* Mini Tab if minimized */}
+      {minimized && selectedUser && (
+        <div className="dm-mini-tab" onClick={() => setMinimized(false)}>
+          💬 Chat with {selectedUser}
+        </div>
+      )}
 
       {/* Direct Message Box */}
-      {selectedUser && (
+      {!minimized && selectedUser && (
         <div
           ref={dmBoxRef}
           className={`dm-box ${snapEnabled ? 'snapping' : ''}`}
@@ -160,8 +170,12 @@ function UserSidebar({ username, users }) {
             <div className="dm-header" onMouseDown={startDragging}>
             <span>Chat with {selectedUser}</span>
             <div>
-              <button onClick={snapToCorner}>📍</button>
-              <button onClick={closeDM}>✖</button>
+              <button onClick={() => {
+                setMinimized(true);
+                snapToCorner();
+              }}>-</button>
+              <button onClick={snapToCorner}>!</button>
+              <button onClick={closeDM}>x</button>
             </div>
           </div>
           <div className="dm-messages">

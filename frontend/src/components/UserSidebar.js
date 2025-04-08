@@ -5,9 +5,11 @@ function UserSidebar({ username, users }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [activeDM, setActiveDM] = useState(null); // newly added for DMs
   const [messages, setMessages] = useState({}); // Placeholder for Direct Messaging
   const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
   const [currentUser] = useState(username); // Placeholder for current user
+  
 
   // Function to switch to "away" if inactive
   const startInactivityTimer = useCallback(() => {
@@ -57,7 +59,11 @@ function UserSidebar({ username, users }) {
 
   const openChat = (user) => {
     setSelectedUser(user);
-    setNotifications((prev) => ({ ...prev, [user]: false })); 
+  
+    // We can emit a WebSocket "join_dm_room" event here
+    // socket.emit("join_dm", { user1: currentUser, user2: user });
+  
+    setNotifications((prev) => ({ ...prev, [user]: false }));
   };
 
   const closeChat = () => {
@@ -96,38 +102,53 @@ function UserSidebar({ username, users }) {
       <h2>Users</h2>
       <ul className="user-list">
         <li>
-          👤
-          <span className={`status-indicator ${"online"}`} ></span>
-          {" " + currentUser + " (you)"} 
+          👤 <span className="status-indicator online"></span> {currentUser} (you)
         </li>
 
         {users.map(user => (
-          user && user.username && user.username !== "You" ? (
-          <li key={user.username} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
-            👤
-            <span className={`status-indicator ${user.status}`} ></span>
-            {" " + user.username}
-            {notifications[user.username] && <span className="message-bubble">•</span>}
-          </li>
-        ) : null
+          user.username && user.username !== currentUser && (
+            <li 
+              key={user.username} 
+              onClick={() => setSelectedUser(user.username)} 
+              className={`user-item ${selectedUser === user.username ? "selected" : ""}`}
+            >
+              👤 <span className={`status-indicator ${user.status}`}></span> {user.username}
+              {notifications[user.username] && <span className="message-bubble">•</span>}
+            </li>
+          )
         ))}
       </ul>
+      {selectedUser && !activeDM && (
+        <div className="dm-action-bar">
+          <p>Start a conversation with <strong>{selectedUser}</strong>?</p>
+          <button onClick={() => {
+            setActiveDM(selectedUser);
+            setNotifications((prev) => ({ ...prev, [selectedUser]: false }));
+          }}>Send Message</button>
+        </div>
+      )}
 
-      {/* Direct Message Box (Appears if a User is Selected) */}
-      {selectedUser && (
+      {activeDM && (
         <div className="dm-box">
           <div className="dm-header">
-            <span>Chat with {selectedUser}</span>
-            <button onClick={closeChat}>✖</button>
+            <span>Chat with {activeDM}</span>
+            <button onClick={() => {
+              setActiveDM(null);
+              setSelectedUser(null);
+            }}>✖</button>
           </div>
           <div className="dm-messages">
-            {messages[selectedUser]?.map((msg, index) => (
+            {messages[activeDM]?.map((msg, index) => (
               <p key={index} className={msg.sender === "You" ? "sent" : "received"}>
                 <strong>{msg.sender}:</strong> {msg.text}
               </p>
             ))}
           </div>
-          <input type="text" placeholder="Type a message..." onKeyDown={(e) => sendMessage(e, selectedUser)} />
+          <input
+            type="text"
+            placeholder="Type a message..."
+            onKeyDown={(e) => sendMessage(e, activeDM)}
+          />
         </div>
       )}
     </div>

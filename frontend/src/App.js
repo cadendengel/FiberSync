@@ -126,9 +126,12 @@ function App() {
       setUsername(response.data.username);
 
       // Update user status to online
+      socket.emit("user_status", { username: response.data.username, status: "online" });
+      /*
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
       .then((response) => console.log("User status updated:", response.data)) // Debugging log
       .catch((error) => console.error("Error updating user status:", error));
+      */
 
       // Update socket query with the username
       socket.disconnect();
@@ -176,9 +179,12 @@ function App() {
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
         // Update user status to online
+        socket.emit("user_status", { username, status: "online" });
+        /*
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
+        */
 
         // Update socket query with the username
         socket.disconnect();

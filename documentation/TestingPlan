@@ -1,6 +1,9 @@
 # FiberSync - Testing Plan
 
 This document outlines the current and planned unit tests across our backend and frontend.
+Note: Tests currently marked as skipped or commented out are retained in the codebase for future repair and to be reintegrated. 
+Once other features have been implemented we'll begin working to resolve database state issues that interfere with consistent test behavior.
+
 
 ---
 
@@ -16,10 +19,18 @@ This document outlines the current and planned unit tests across our backend and
   - `test_login_wrong_password`: Ensures login with incorrect password returns `401`.
   - These tests validate error-handling and structure of return objects for authentication.
 
-#### Database Access
-- Currently Indirectly tested via:
+#### Database Access (via userDB_test.py by Caden)
+- **Test File:** `backend/__tests__/userDB_test.py`
   - User creation (`/api/users/create`) to set up test user.
   - `userDB.get_user_by_username()` and `userDB.delete_user()` used in setup/teardown.
+  - test_add_user_and_get_user_count
+  - test_get_user_by_username
+  - test_get_user_by_cookies
+  - test_is_cookie_authenticated
+  - test_is_user_authenticated
+  - test_salt
+  - test_robust
+  
   - Confirms database is interacting correctly with route logic.
   - To add extra tests for User Profiles and Status
 
@@ -37,15 +48,39 @@ This document outlines the current and planned unit tests across our backend and
     - `Content-Security-Policy`
 
 ---
-## Planned Tests by Category
-#### Channels
+### Channels
+#### Routes Tested
 - **Routes**
   - `POST /api/channels/create`
   - `GET /api/channels/`
-- **Database**
-  - CRUD operations for channel data.
-  - Ensure channels are not duplicated and are persisted correctly.
+  **Test File:** `backend/__tests__/channel_test.py`
+- **Tests:**
+  - `test_switch_to_empty_channel`: Verifies that switching to a newly created channel with no messages returns an empty list.
+  - `test_switch_to_non_existent_channel`: Confirms that requesting messages from a non-existent channel returns a safe, empty list (status 200).
+  - `test_switch_channels_and_fetch_messages` (currently skipped): Creates multiple channels, injects messages into each, and verifies messages 
+        are fetched correctly per channel.
+  - `test_create_channel` (commented out): Was functional but is currently broken after recent changes. Expected to test channel creation via POST 
+        and confirm existence in DB.
+    `test_delete_channel_and_check_messages` (commented out): Previously tested deletion of a channel and confirmed both the channel and its messages are removed from DB.
 
+#### Database Access
+- msgDB.init_db_for_testing() ensures a clean slate for each test run. 
+  - CRUD operations on:
+    - msgDB.get_channels()
+    - msgDB.add_message()
+    - msgDB.get_messages_by_channel()
+    - msgDB.delete_channel() and msgDB.delete_all_messages()
+  - The tearDownClass method clears out all test-created data and confirms that only the default Home channel remains.
+  - `userDB.get_user_by_username()` and `userDB.delete_user()` used in setup/teardown.
+  - Confirms database is interacting correctly with route logic.
+  - To add extra tests for User Profiles and Status
+
+  Known Test issue: DB inconsistencies suspected in commented-out test_create_channel. Tests are suddenly being conducted in the main
+  collection rather than in our test collection.
+
+---
+## Planned Tests by Category
+Many of the tests below have already been implemented by Caden and Ricky, but I formatted them to follow the above, change it if you want for sure.
 #### UserStatus
 - **Routes**
   - `GET /api/status/{user_id}`
@@ -53,6 +88,27 @@ This document outlines the current and planned unit tests across our backend and
   - Status updates and retrieval (online/offline).
 - **WebSockets**
   - Real-time status updates over socket connections.
+
+
+#### Messages
+- **Test File:** backend/__tests__/msgDB_test.py
+  **Tests:**
+    - test_add_message
+    - test_get_all_messages
+    - test_delete_all_messages
+    - test_delete_message
+- **Database**
+    - Validates creation, retrieval, and deletion of messages.
+
+#### User Status
+- **Test File:** backend/__tests__/user_status_test.py
+  **Tests:**
+    - status (currently skipped)
+    - test_update_status
+    - test_get_active_users
+    - test_mark_inactive_users
+- **Database**
+    - Targets user presence, device tracking, and inactivity timeout logic. Currently being refactored.
 
 ---
 

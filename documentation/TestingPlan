@@ -6,8 +6,9 @@ Once other features have been implemented we'll begin working to resolve databas
 
 
 ---
-
 ## FLASK Backend - Unit Tests
+All tests can be run by:
+
 ### User
 #### Routes Tested
 - **Endpoint:** `/api/users/login`
@@ -111,20 +112,64 @@ Many of the tests below have already been implemented by Caden and Ricky, but I 
     - Targets user presence, device tracking, and inactivity timeout logic. Currently being refactored.
 
 ---
-
-
-
 ## REACT Frontend - Jest
+All Tests can be run by: npm test
+Some of the Tests below target outdated features and need to be updated a little bit.
+
 ### Channel
-- Component: `ChannelSidebar`
-  - Verify rendering of channel list.
-  - Ensure click handler triggers context update or navigation.
+- **Component:** `ChannelSidebar`
+- **File:** `frontend/src/components/__tests__/ChannelSidebar.test.js`
+- **Tests:**
+  - Renders list of available channels from the backend
+  - Toggles create-channel input field visibility
+  - Successfully creates a new channel and updates state
+  - Calls `setActiveChannel` when switching between channels
+  - Enforces 5-channel limit and shows alert
+  - Handles backend failure gracefully with `console.error`
+- **Mocks Used:**
+  - `axios` for API interactions
+  - `socket.io-client` for WebSocket emit
+- Note: You'll see a Jest warning about `act()` are expected due to async axios use; handled via `waitFor()` couldn't clear warning tho
+
 
 ### ChatInput
-- Component: `ChatInput`
+- **Component:** `ChatInput`
+  **Test File:** `frontend/src/components/__tests__/ChatInput.test.js`
   - Typing updates input value.
-  - Pressing Enter calls `sendMessage`.
-  - Prevents sending when empty.
+  - Clicking the "Send" button calls `onSendMessage`
+  - Pressing Enter also calls `onSendMessage`
+  - Input field clears after sending
+  - Prevents sending empty messages
+
+### ChatWindow
+- **Component:** `ChatWindow`
+  **Test File:** `frontend/src/components/__tests__/ChatWindow.test.js`
+  - Renders hardcoded messages correctly.
+  - Scrolls to bottom when new messages appear.
+  - Handles long messages without breaking layout.
+  Planned Update: Messages are now dynamically fetched — test should be adjusted to simulate prop changes or WebSocket injections.
+
+## Planned Tests by Category
+Many of the tests below have already been implemented but with older features, need to be adjusted.
+
+### UserSidebar
+- **Component:** UserSidebar
+  **Planned Tests:**
+    - Renders a list of users passed as props
+    - Displays online/offline indicator next to each user
+    - Hides or filters out current logged-in user from the list
+    - Handles empty user list gracefully (no crash/UI fallback)
+    - Supports re-render when user list updates via socket or prop change
+
+### Direct Messaging
+- **Component(s):** (Likely split between UserSidebar, ChatWindow, and ChatInput with DM context)
+  **Planned Tests:**
+    - Clicking a user opens a Direct Message preview or modal
+    - “Send Message” button appears and opens the DM chat UI
+    - Messages sent in DM context only appear for sender and recipient
+    - UI reflects current DM target (e.g., shows recipient's name)
+    - DMs persist during session (but are cleared on refresh if no storage is used)
+    - DM socket messages are routed correctly based on active target
 
 ### App Root
 - Component: `App.js` or routing container

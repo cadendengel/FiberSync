@@ -38,9 +38,43 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
 
-
-
+  ///////////////////////////////
+  //       DEVELOPER MODE        //
+  ///////////////////////////////
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // WINDOWS: Check if Shift + Alt + P are pressed
+      // MAC: Check if Option + Shift + P are pressed
+      if ((event.shiftKey && event.altKey && event.key === "p") || event.key === '∏') {
+        if (!isDeveloperMode) {
+          // Enter Developer Mode: prompt for password
+          const password = prompt("Enter Developer Mode Password:");
+          if (password === "devpass") {
+            setIsDeveloperMode(true);
+          } else {
+            alert("Incorrect password!");
+          }
+        } else {
+          // Exit Developer Mode: no password needed
+          setIsDeveloperMode(false);
+        }
+      }
+    };
+  
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDeveloperMode]); // Dependency array to track changes in developer mode state
+  
+  const activateDevMode = () => {
+    const password = prompt("Enter Developer Mode Password:");
+    if (password === "devpass") {
+      setIsDeveloperMode(true);
+    } else {
+      alert("Incorrect password!");
+    }
+  };
 
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
@@ -308,56 +342,60 @@ function App() {
    */
 
   return (
-    <div className="container">
-      {!enteredChat ? (
-        <div className="entry-box">
-          <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin}/>
-          <h1>FiberSync</h1>
-          <div className="switch-container">
-            <label className="switch">
-              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
-              <span className="slider round"></span>
-            </label>
-            <p>{isNewUser ? "Create new user" : "Login"}</p>
-          </div>
-          <input
-            type="text"
-            className="username-input"
-            placeholder="Enter your username..."
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          />
-          <input
-            type="password"
-            className="password-input"
-            placeholder="Enter your password..."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          />
-
-          <button className="enter-button" onClick={handleLogin}>➡</button>
-        </div>
-      ) : (
-        <>
-        <div className="chat-layout">
-            <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
-            <div className="chat-main">
-              <ChatWindow 
-                username = {username}
-                messages={messages}
-                onMessagesUpdate={(updatedMessages) => setMessages(updatedMessages)}
-                onDeleteMessage={handleDeleteMessage}
-                onEditMessage={handleEditMessage} />
+    <div className={`App ${isDeveloperMode ? "dev-mode" : ""}`}>
+      {isDeveloperMode && <div className="dev-banner">Developer Mode Activated</div>}
+      <button className="dev-mode-button" onClick={activateDevMode}>Enter Developer Mode</button>
+  
+      <div className="container">
+        {!enteredChat ? (
+          <div className="entry-box">
+            <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin} />
+            <h1>FiberSync</h1>
+            <div className="switch-container">
+              <label className="switch">
+                <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
+                <span className="slider round"></span>
+              </label>
+              <p>{isNewUser ? "Create new user" : "Login"}</p>
             </div>
-            <UserSidebar username={username} users={users} />
+            <input
+              type="text"
+              className="username-input"
+              placeholder="Enter your username..."
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+            <input
+              type="password"
+              className="password-input"
+              placeholder="Enter your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+            <button className="enter-button" onClick={handleLogin}>➡</button>
           </div>
-          <ChatInput onSendMessage={handleSendMessage} />
-        </>
-      )}
+        ) : (
+          <>
+            <div className="chat-layout">
+              <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
+              <div className="chat-main">
+                <ChatWindow 
+                  username={username}
+                  messages={messages}
+                  onMessagesUpdate={(updatedMessages) => setMessages(updatedMessages)}
+                  onDeleteMessage={handleDeleteMessage}
+                  onEditMessage={handleEditMessage} />
+              </div>
+              <UserSidebar username={username} users={users} />
+            </div>
+            <ChatInput onSendMessage={handleSendMessage} />
+          </>
+        )}
+      </div>
     </div>
-  );
+  );  
 }
 
   export default App;

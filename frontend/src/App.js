@@ -76,10 +76,15 @@ function App() {
     }
   };
 
-  const handleDevDeleteAllMessages = () => {
-    console.log("hi"); // This is where the real deletion logic will go
+  const handleDevDeleteAllMessages = async () => {
+    try {
+      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`);
+      console.log("All messages deleted:", response.data);
+      fetchMessages(activeChannel);
+    } catch (error) {
+      console.error("Error deleting all messages:", error);
+    }
   };
-  
 
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //

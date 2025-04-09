@@ -348,9 +348,16 @@ function App() {
 
   return (
     <div className={`App ${isDeveloperMode ? "dev-mode" : ""}`}>
-      {isDeveloperMode && <div className="dev-banner">Developer Mode Activated</div>}
+      {isDeveloperMode && <div className="dev-banner">Developer Mode Activated ("Ctrl" + "Alt" + 'p' to deactivate)</div>}
       <button className="dev-mode-button" onClick={activateDevMode}>Enter Developer Mode</button>
-  
+      {isDeveloperMode && (
+  <div className="dev-tools-panel">
+    <h3>Developer Mode Commands</h3>
+    <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
+      Delete All Messages
+    </button>
+  </div>
+)}
       <div className="container">
         {!enteredChat ? (
           <div className="entry-box">
@@ -396,12 +403,6 @@ function App() {
               <UserSidebar username={username} users={users} />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
-            {isDeveloperMode && (
-  <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
-    Delete All Messages
-  </button>
-)}
-
           </>
         )}
       </div>

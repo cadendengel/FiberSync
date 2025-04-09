@@ -397,30 +397,24 @@ def delete_message():
 
 
 # WebSocket Event: Handles user connection
-#   - Updates user status in the database on connect (deployment, not development only, I think)
-@socketio.on("connect")
+#   - Updates user status in the database (deployment, not development only, I think)
+@socketio.on("user_status")
 def handle_connect():
     username = request.args.get("username")
+    status = request.args.get("status")
     print("Username:", username)
 
     if username:
-        userDB.update_status(username, "online")
-        print(f"{username} connected with SID {request.sid}")
-        emit("user_connected", {"username": username}, broadcast=True)  # Notify all clients about the new user
-    else:
-        print(f"No username in session for SID {request.sid}")
-        
-#   - Updates user status in the database on disconnect (deployment, not development only, I think)
-@socketio.on("disconnect")
-def handle_disconnect():
-    username = request.args.get("username")
-    print("Username:", username)
-
-    if username:
-
-        userDB.update_status(username, "offline")
-        print(f"{username} disconnected with SID {request.sid}")
-        emit("user_disconnected", {"username": username}, broadcast=True)  # Notify all clients about the user leaving
+        if status == "online":
+            userDB.update_status(username, "online")
+            print(f"{username} connected with SID {request.sid}")
+            emit("user_connected", {"username": username}, broadcast=True)  # Notify all clients about the user
+        elif status == "offline":
+            userDB.update_status(username, "offline")
+            print(f"{username} disconnected with SID {request.sid}")
+            emit("user_disconnected", {"username": username}, broadcast=True)
+        else:
+            print(f"Invalid status: {status}")
     else:
         print(f"No username in session for SID {request.sid}")
 

@@ -717,3 +717,20 @@ input:checked + .slider:before {
 .dev-mode-button:hover {
   opacity: 1;
 }
+
+.delete-messages-button {
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.delete-messages-button:hover {
+  background-color: #e60000;
+}

@@ -126,7 +126,7 @@ function App() {
       setUsername(response.data.username);
 
       // Update user status to online
-      socket.emit("user_status", { username: response.data.username, status: "online" });
+      socket.emit("connect", { username: response.data.username});
       /*
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
       .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -179,7 +179,7 @@ function App() {
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
         // Update user status to online
-        socket.emit("user_status", { username, status: "online" });
+        socket.emit("connect", { username });
         /*
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -288,32 +288,41 @@ function App() {
      *   - Ensures users persist correctly and don't duplicate
      */
   useEffect(() => {
-    const handleUserStatus = (userStatus) => {
-      console.log(`User status received for ${userStatus.username}:`, userStatus);
-
-      if (userStatus.username !== username) {
-        setUsers((prevUsers) => [...prevUsers, userStatus]);
-      }
+    const handleUserConnection = (user) => {
+        console.log("User connected:", user);
+        setUsers((prevUsers) => [...prevUsers, user]);
     };
 
-    socket.on("user_status", handleUserStatus);
+    const handleUserDisconnection = (user) => {
+        console.log("User disconnected:", user);
+        setUsers((prevUsers) => prevUsers.filter((u) => u.username !== user.username));
+    };
+
+    socket.on("connected", handleUserConnection);
+    socket.on("disconnected", handleUserDisconnection);
 
     return () => {
-      socket.off("user_status", handleUserStatus);
+      socket.off("connected", handleUserConnection);
+      socket.off("disconnected", handleUserDisconnection);
     };
-  }, [username]);
-
+  }, []);
+  
 
   // Handle closing of the window and final update of user status to offline
   useEffect(() => {
     const handleWindowClose = (ev) => {
+      /*
       if (enteredChat) {
         // Update user status to offline
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
           .then((response) => console.log("User status updated:", response.data)) // Debugging log
           .catch((error) => console.error("Error updating user status:", error));
       }
+      */
+
+      // Update user status to offline
       // Disconnect the WebSocket, prevent errors
+      if (enteredChat) socket.emit("disconnect");
       socket.disconnect();
     }
 

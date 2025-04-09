@@ -283,6 +283,27 @@ function App() {
   }, [activeChannel]);
 
 
+  /* Websocket User Status Handling:
+     *   - Listens for user status updates from the backend and updates the sidebar in real-time, no need to manually refresh
+     *   - Ensures users persist correctly and don't duplicate
+     */
+  useEffect(() => {
+    const handleUserStatus = (userStatus) => {
+      console.log(`User status received for ${userStatus.username}:`, userStatus);
+
+      if (userStatus.username !== username) {
+        setUsers((prevUsers) => [...prevUsers, userStatus]);
+      }
+    };
+
+    socket.on("user_status", handleUserStatus);
+
+    return () => {
+      socket.off("user_status", handleUserStatus);
+    };
+  }, [username]);
+
+
   // Handle closing of the window and final update of user status to offline
   useEffect(() => {
     const handleWindowClose = (ev) => {

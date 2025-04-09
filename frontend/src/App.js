@@ -290,14 +290,15 @@ function App() {
   useEffect(() => {
     const handleUserStatusUpdate = (user, status) => {
         console.log(`User ${user.username} is now ${status}`); // Debugging log
-        setSidebarUsers((prevSidebarUsers) => {
-          const updatedSidebarUsers = [...prevSidebarUsers];
-          const userIndex = updatedSidebarUsers.findIndex((u) => u.username === user.username);
-          if (userIndex !== -1) {
-            updatedSidebarUsers[userIndex].status = status;
-          }
-          return updatedSidebarUsers;
-        });
+        setUsers((prevUsers) => {
+          const updatedUsers = prevUsers.map((u) => {
+            if (u.username === user.username) {
+              return { ...u, status };
+            }
+            return u;
+          });
+          return updatedUsers;
+        })
     };
 
     socket.on("user_status", handleUserStatusUpdate);

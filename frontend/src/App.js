@@ -322,7 +322,7 @@ function App() {
 
       // Update user status to offline
       // Disconnect the WebSocket, prevent errors
-      if (enteredChat) socket.emit("disconnect");
+      if (enteredChat) socket.emit("disconnect", { username });
       socket.disconnect();
     }
 

@@ -40,6 +40,7 @@ function App() {
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [deletionSuccess, setDeletionSuccess] = useState(false);
+  const [noMessagesToDelete, setNoMessagesToDelete] = useState(false);
 
   ///////////////////////////////
   //       DEVELOPER MODE        //
@@ -78,19 +79,25 @@ function App() {
   };
 
   const handleDevDeleteAllMessages = async () => {
+    if (messages.length === 0) {
+      setNoMessagesToDelete(true); // Show "no messages" popup
+      setTimeout(() => setNoMessagesToDelete(false), 3000); // Hide after 3s
+      return;
+    }
+  
     try {
       const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`);
       console.log("All messages deleted:", response.data);
       fetchMessages(activeChannel);
   
-      setDeletionSuccess(true); // Show confirmation message
-      setTimeout(() => setDeletionSuccess(false), 3000); // Hide it after 3 seconds
+      setDeletionSuccess(true); // Show success popup
+      setTimeout(() => setDeletionSuccess(false), 3000); // Hide after 3s
     } catch (error) {
       console.error("Error deleting all messages:", error);
     }
-  };  
+  };
   
-
+  
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
   /////////////////////////////////
@@ -358,16 +365,19 @@ function App() {
 
   return (
     <div className={`App ${isDeveloperMode ? "dev-mode" : ""}`}>
-      {isDeveloperMode && (
-        <>
-          <div className="dev-banner">
-            Developer Mode Activated ("Ctrl" + "Alt" + 'p' to deactivate)
-          </div>
-          {deletionSuccess && (
-            <div className="popup-message success">All messages deleted.</div>
-          )}
-        </>
-      )}
+    {isDeveloperMode && (
+      <>
+        <div className="dev-banner">
+          Developer Mode Activated ("Ctrl" + "Alt" + 'p' to deactivate)
+        </div>
+        {deletionSuccess && (
+          <div className="popup-message success">All messages deleted.</div>
+        )}
+        {noMessagesToDelete && (
+          <div className="popup-message error">No messages to delete.</div>
+        )}
+      </>
+    )}
       <button className="dev-mode-button" onClick={activateDevMode}>Enter Developer Mode</button>
       {isDeveloperMode && (
         <div className="dev-tools-panel">

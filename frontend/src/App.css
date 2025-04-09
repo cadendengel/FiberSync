@@ -778,3 +778,11 @@ input:checked + .slider:before {
   90% { opacity: 1; }
   100% { opacity: 0; transform: translate(-50%, -10px); }
 }
+
+.popup-message.error {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 6px;
+}

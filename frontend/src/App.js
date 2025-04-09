@@ -126,7 +126,7 @@ function App() {
       setUsername(response.data.username);
 
       // Update user status to online
-      socket.emit("connect", { username: response.data.username});
+      socket.emit("user_status", { username: response.data.username, status: "online" });
       /*
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
       .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -179,7 +179,7 @@ function App() {
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
         // Update user status to online
-        socket.emit("connect", { username });
+        socket.emit("user_status", { username, status: "online" });
         /*
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -288,22 +288,22 @@ function App() {
      *   - Ensures users persist correctly and don't duplicate
      */
   useEffect(() => {
-    const handleUserConnection = (user) => {
-        console.log("User connected:", user);
-        setUsers((prevUsers) => [...prevUsers, user]);
+    const handleUserStatusUpdate = (user, status) => {
+        console.log(`User ${user.username} is now ${status}`); // Debugging log
+        setSidebarUsers((prevSidebarUsers) => {
+          const updatedSidebarUsers = [...prevSidebarUsers];
+          const userIndex = updatedSidebarUsers.findIndex((u) => u.username === user.username);
+          if (userIndex !== -1) {
+            updatedSidebarUsers[userIndex].status = status;
+          }
+          return updatedSidebarUsers;
+        });
     };
 
-    const handleUserDisconnection = (user) => {
-        console.log("User disconnected:", user);
-        setUsers((prevUsers) => prevUsers.filter((u) => u.username !== user.username));
-    };
-
-    socket.on("connected", handleUserConnection);
-    socket.on("disconnected", handleUserDisconnection);
+    socket.on("user_status", handleUserStatusUpdate);
 
     return () => {
-      socket.off("connected", handleUserConnection);
-      socket.off("disconnected", handleUserDisconnection);
+      socket.off("user_status", handleUserStatusUpdate);
     };
   }, []);
   
@@ -322,7 +322,7 @@ function App() {
 
       // Update user status to offline
       // Disconnect the WebSocket, prevent errors
-      if (enteredChat) socket.emit("disconnect", { username });
+      if (enteredChat) socket.emit("user_status", { username, status: "offline" });
       socket.disconnect();
     }
 

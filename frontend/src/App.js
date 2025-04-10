@@ -126,7 +126,9 @@ function App() {
       setUsername(response.data.username);
 
       // Update user status to online
-      socket.emit("user_status", { username: response.data.username, status: "online" });
+      //socket.emit("user_status", { username: response.data.username, status: "online" });
+      
+      
       /*
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
       .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -137,8 +139,12 @@ function App() {
       socket.disconnect();
       socket.io.opts.query = { username: response.data.username };
       socket.connect();
-
-      setEnteredChat(true); // Enter the chat 
+      // Note for Caden is he wants to use:
+      // - Moved the Emit user_status = 'online' after socket connects, commented out old location on line 129
+      socket.once("connect", () => {
+        socket.emit("user_status", {username: response.data.username, status: "online" });
+      setEnteredChat(true); // Enter the chat, moved this inside the then statement but
+      });
       return;
     })
     .catch((error) => {
@@ -178,8 +184,7 @@ function App() {
       // Login with username and password
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
-        // Update user status to online
-        socket.emit("user_status", { username, status: "online" });
+        //socket.emit("user_status", { username, status: "online" });
         /*
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
@@ -190,6 +195,10 @@ function App() {
         socket.disconnect();
         socket.io.opts.query = { username };
         socket.connect();
+        // Update user status to online
+        socket.once("connect", () => {
+          socket.emit("user_status", { username, status: "online" });
+        });
 
         // User logged in successfully
         setEnteredChat(true);
@@ -288,17 +297,14 @@ function App() {
      *   - Ensures users persist correctly and don't duplicate
      */
   useEffect(() => {
-    const handleUserStatusUpdate = (user, status) => {
-        console.log(`User ${user.username} is now ${status}`); // Debugging log
-        setUsers((prevUsers) => {
-          const updatedUsers = prevUsers.map((u) => {
-            if (u.username === user.username) {
-              return { ...u, status };
-            }
-            return u;
-          });
-          return updatedUsers;
-        })
+    const handleUserStatusUpdate = (payload) => {
+      const { username: updatedUsername, status } = payload;
+      console.log(`User ${updatedUsername} is now ${status}`);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.username === updatedUsername ? { ...u, status } : u
+        )
+      );
     };
 
     socket.on("user_status", handleUserStatusUpdate);
@@ -323,7 +329,9 @@ function App() {
 
       // Update user status to offline
       // Disconnect the WebSocket, prevent errors
-      if (enteredChat) socket.emit("user_status", { username, status: "offline" });
+      if (enteredChat && socket.connected) {
+        socket.emit("user_status", { username, status: "offline" });
+      }
       socket.disconnect();
     }
 
@@ -335,6 +343,16 @@ function App() {
     }
   }, [enteredChat, username]);
 
+  useEffect(() => {
+    const handleReconnect = () => {
+      if (username && enteredChat) {
+        socket.emit("user_status", { username, status: "online" });
+      }
+    };
+  
+    socket.on("connect", handleReconnect);
+    return () => socket.off("connect", handleReconnect);
+  }, [username, enteredChat]);
 
   /* The actual React app UI below: (or the important part)
    * Conditionally renders either the Login Screen (before entering chat) 
@@ -392,7 +410,9 @@ function App() {
             </div>
             <UserSidebar
               username={username}
-              users={users} />
+              users={users}
+              socket={socket} // pass socket
+              />
           </div>
           <ChatInput onSendMessage={handleSendMessage} />
         </>

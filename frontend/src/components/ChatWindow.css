@@ -1,0 +1,109 @@
+.chat-window {
+    flex: 6;
+    overflow-y: auto;
+    max-height: 60vh;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    color: white;
+  }
+  
+  .chat-messages {
+    max-height: 50vh;
+    overflow-y: auto;
+  }
+  
+  .message-container {
+    position: relative;
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    border-radius: 12px;
+    background-color: #333;
+    color: white;
+    margin-bottom: 8px;
+  }
+  
+  .message-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  
+  .message-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 8px;
+  }
+  
+  .reactions {
+    margin-top: 5px;
+    display: flex;
+    gap: 5px;
+  }
+  
+  .reaction {
+    padding: 4px;
+    background: #555;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  
+  .reaction-picker {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+  }
+  
+  .picker-button {
+    color: #fff;
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  .reaction-options {
+    position: absolute;
+    right: 10px;
+    top: 100%;
+    background: #444;
+    padding: 5px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    display: flex;
+    gap: 5px;
+    z-index: 999;
+  }
+  
+  .reaction-option {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 1.2em;
+    border-radius: 8px;
+    color: white;
+  }
+  
+  .edit-icon,
+  .delete-icon {
+    margin-left: 5px;
+    cursor: pointer;
+  }
+  
+  .delete-icon {
+    color: red;
+  }
+  
+  .edit-input {
+    width: 100%;
+    padding: 5px;
+    font-size: 1em;
+    border-radius: 5px;
+    border: none;
+  }
+  

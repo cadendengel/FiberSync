@@ -1,3 +1,4 @@
+import './ChatInput.css';
 import React, { useState } from 'react';
 
 function ChatInput({ onSendMessage }) {

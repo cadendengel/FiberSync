@@ -1,5 +1,6 @@
+import './ChatWindow.css';
 import React, { useEffect, useRef, useState } from "react";
-import axios from "axios"; // Import Axios for backend calls
+import axios from "axios";
 
 const reactionsList = ["👍", "👎", "🔥", "😂", "❤️"];
 
@@ -20,7 +21,6 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
     }
   }, [messages]);
 
-  // Initialize messageReactions from messages
   useEffect(() => {
     const initialReactions = {};
     messages.forEach((msg) => {
@@ -29,11 +29,10 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
     setMessageReactions(initialReactions);
   }, [messages]);
 
-  // Close emoji picker if user clicks outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (pickerRef.current && !pickerRef.current.contains(event.target)) {
-        setOpenPicker(null); // Close picker
+        setOpenPicker(null);
       }
     }
 
@@ -88,15 +87,12 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
     setOpenPicker(openPicker === messageId ? null : messageId);
   };
 
-
   const startEditingMessage = (username, messageId, text) => {
-    // Check if the user is the message author
     const message = messages.find((msg) => msg.messageid === messageId);
     if (message.user !== username) {
-    console.error("You can only edit your own messages.");
+      console.error("You can only edit your own messages.");
       return;
     }
-    // Set the message to be edited
     setEditingMessageId(messageId);
     setEditedMessage(text);
   };
@@ -108,7 +104,6 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
         text,
       });
 
-      // Update the messages state via the callback
       const updatedMessages = messages.map((msg) =>
         msg.messageid === messageId ? { ...msg, text } : msg
       );
@@ -122,19 +117,17 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
   };
 
   const deleteMessage = async (username, messageId) => {
-    // Check if the user is the message author
     const message = messages.find((msg) => msg.messageid === messageId);
     if (message.user !== username) {
       console.error("You can only delete your own messages.");
       return;
     }
-    // Delete the message
+
     try {
       await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/id`, {
         data: { messageid: messageId },
       });
 
-      // Update the messages state via the callback
       const updatedMessages = messages.filter((msg) => msg.messageid !== messageId);
       onMessagesUpdate(updatedMessages);
     } catch (error) {
@@ -143,37 +136,20 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
   };
 
   return (
-    <div className="chat-window" style={{ flex: 1, overflowY: "auto", maxHeight: "60vh", padding: "10px" }}>
+    <div className="chat-window">
       <h2>Chat Messages</h2>
-      <div className="chat-messages" ref={chatMessagesRef} style={{ maxHeight: "50vh", overflowY: "auto" }}>
+      <div className="chat-messages" ref={chatMessagesRef}>
         {messages.map((msg) => (
-          <div
-            key={msg.messageid}
-            className="message-container"
-            style={{
-              position: "relative",
-              padding: "12px",
-              borderBottom: "1px solid #ddd",
-              borderRadius: "12px", // Rounded corners for message bubbles
-              backgroundColor: "#333", // Dark background for the message box
-              color: "white", // White text inside
-              marginBottom: "8px", // Space between messages
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", marginBottom: "8px" }}>
+          <div className="message-container" key={msg.messageid}>
+            <div className="message-header">
               <img
-                src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`} // Dynamic user-based default avatar
+                src={`https://ui-avatars.com/api/?name=${msg.user}&background=random&color=fff&size=128`}
                 alt={`${msg.user}'s avatar`}
-                style={{
-                  width: "30px",
-                  height: "30px",
-                  borderRadius: "50%",
-                  objectFit: "cover",
-                  marginRight: "8px", // Space between avatar and message
-                }}
+                className="message-avatar"
               />
               <strong>{msg.user}:</strong>
             </div>
+
             {editedMessageId === msg.messageid ? (
               <input
                 type="text"
@@ -186,71 +162,32 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
                     setEditingMessageId("");
                   }
                 }}
-                
                 autoFocus
-                style={{ width: "100%", padding: "5px", fontSize: "1em" }}
+                className="edit-input"
               />
             ) : (
               <p>{msg.text}</p>
             )}
 
-            <div className="reactions" style={{ marginTop: "5px", display: "flex", gap: "5px" }}>
+            <div className="reactions">
               {messageReactions[msg.messageid] &&
                 Object.entries(messageReactions[msg.messageid]).map(([emoji, count]) => (
-                  <span
-                    key={emoji}
-                    onClick={() => decrementReaction(msg.messageid, emoji)}
-                    style={{
-                      padding: "4px",
-                      background: "#555",
-                      borderRadius: "8px",
-                      cursor: "pointer",
-                    }}
-                  >
+                  <span key={emoji} onClick={() => decrementReaction(msg.messageid, emoji)} className="reaction">
                     {emoji} {count}
                   </span>
                 ))}
             </div>
 
-            <div className="reaction-picker" style={{ position: "absolute", right: "10px", top: "10px", cursor: "pointer" }}>
-              <span
-                onClick={() => togglePicker(msg.messageid)}
-                style={{ color: "#fff", fontWeight: "bold" }}
-              >
-                ➕
-              </span>
+            <div className="reaction-picker">
+              <span onClick={() => togglePicker(msg.messageid)} className="picker-button">➕</span>
+
               {openPicker === msg.messageid && (
-                <div
-                  ref={pickerRef}
-                  className="reaction-options"
-                  style={{
-                    position: "absolute",
-                    right: "10px",
-                    top: "100%",
-                    background: "#444",
-                    padding: "5px",
-                    borderRadius: "8px",
-                    boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
-                    display: "flex",
-                    gap: "5px",
-                    zIndex: 999,
-                  }}
-                >
+                <div className="reaction-options" ref={pickerRef}>
                   {reactionsList.map((emoji) => (
                     <span
                       key={emoji}
                       onClick={() => incrementReaction(msg.messageid, emoji)}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: "6px",
-                        cursor: "pointer",
-                        lineHeight: "1",
-                        fontSize: "1.2em",
-                        borderRadius: "8px",
-                        color: "white",
-                      }}
+                      className="reaction-option"
                     >
                       {emoji}
                     </span>
@@ -258,19 +195,8 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
                 </div>
               )}
 
-              <span
-                onClick={() => startEditingMessage(username, msg.messageid, msg.text)}
-                style={{ cursor: "pointer", marginLeft: "5px" }}
-              >
-                ✏️
-              </span>
-
-              <span
-                onClick={() => deleteMessage(username, msg.messageid)}
-                style={{ cursor: "pointer", color: "red", marginLeft: "5px" }}
-              >
-                🗑️
-              </span>
+              <span onClick={() => startEditingMessage(username, msg.messageid, msg.text)} className="edit-icon">✏️</span>
+              <span onClick={() => deleteMessage(username, msg.messageid)} className="delete-icon">🗑️</span>
             </div>
           </div>
         ))}

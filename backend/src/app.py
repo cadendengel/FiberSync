@@ -8,8 +8,8 @@ from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
 import os
 from datetime import datetime, timezone
-from src.UserDB import userDB
-from src.MessageDB import msgDB
+from backend.src.UserDB import userDB
+from backend.src.MessageDB import msgDB
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
 # ===== Initialize Flask App ===== #

@@ -5,8 +5,8 @@ Below are the Tests planned for our FLASK Backend:
                 fields: none
                 return: jsonify(user_data[])
             get_user_count()
-                fields: 
-                return: 
+                fields: none
+                return: jsonify(int count)
             delete_all_users()
                 fields: none
                 return: jsonify(int count)

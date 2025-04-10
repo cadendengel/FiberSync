@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 
-function UserSidebar({ username, users }) {
+function UserSidebar({ username, users, socket }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -28,6 +28,12 @@ function UserSidebar({ username, users }) {
       startInactivityTimer();
     }
   }, [status, startInactivityTimer]);
+
+  useEffect(() => {
+    if (socket && username && (status === "away" || status === "online")) {
+      socket.emit("user_status", { username, status });
+    }
+  }, [status, socket, username]);
 
   useEffect(() => {
     // Listen for user activity
@@ -101,9 +107,10 @@ function UserSidebar({ username, users }) {
           {" " + currentUser + " (you)"} 
         </li>
 
+        {/* I thought adding the + user.status here would force it to render status changes.. but it's showing a blank space..*/}
         {users.map(user => (
           user && user.username && user.username !== "You" ? (
-          <li key={user.username} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
+          <li key={user.username + user.status} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
             👤
             <span className={`status-indicator ${user.status}`} ></span>
             {" " + user.username}

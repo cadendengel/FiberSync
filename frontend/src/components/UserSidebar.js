@@ -1,89 +1,118 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-
+import './UserSidebar.css'; // Modular CSS if you break it out later
 
 function UserSidebar({ username, users }) {
-  const [status, setStatus] = useState("online"); // Default to online
-  const inactivityTimer = useRef(null);
+  const [status, setStatus] = useState("online");
+  const [inactivityTimer] = useState(useRef(null));
   const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState({}); // Placeholder for Direct Messaging
-  const [notifications, setNotifications] = useState({}); // DM notification not currently functioning 3/22/25
-  const [currentUser] = useState(username); // Placeholder for current user
+  const [messages, setMessages] = useState({});
+  const [notifications, setNotifications] = useState({});
+  const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
+  const [dmBoxPosition, setDmBoxPosition] = useState({ x: 100, y: 100 });
+  const [snapEnabled, setSnapEnabled] = useState(false); // New state to get the box back in corner
+  const dmBoxRef = useRef();
+  const [minimized, setMinimized] = useState(false);
 
-  // Function to switch to "away" if inactive
+
+  // Inactivity logic
   const startInactivityTimer = useCallback(() => {
     if (status !== "offline") {
       clearTimeout(inactivityTimer.current);
       inactivityTimer.current = setTimeout(() => {
         setStatus("away");
-      }, 300000); // 5 minutes of inactivity (300,000 ms) (10000 10s timer for testing) 
+      }, 300000); // 5 min
     }
   }, [status]);
 
-  // Reset status to online when user interacts
   const resetStatus = useCallback(() => {
     if (status !== "offline") {
-      if (status === "away") {
-        setStatus("online"); // Change back only if currently "away"
-      }
+      if (status === "away") setStatus("online");
       startInactivityTimer();
     }
   }, [status, startInactivityTimer]);
 
   useEffect(() => {
-    // Listen for user activity
     window.addEventListener("mousemove", resetStatus);
     window.addEventListener("keydown", resetStatus);
     window.addEventListener("click", resetStatus);
-
-    // Start inactivity timer
     startInactivityTimer();
-
     return () => {
-      // Cleanup event listeners
       window.removeEventListener("mousemove", resetStatus);
       window.removeEventListener("keydown", resetStatus);
       window.removeEventListener("click", resetStatus);
       clearTimeout(inactivityTimer.current);
     };
-  }, [resetStatus, startInactivityTimer, inactivityTimer]); // Re-run useEffect when status changes
+  }, [resetStatus, startInactivityTimer]);
 
-  /* User Selection for future "Direct Message" feature. 
-   * Currently only planning to do for this is set up the groundwork for a future feature. 
-   * What I am doing is setting up a chat window when you select a User (One of our filler Users)
-   * You can send a message to that user and a small chat window will show up.
-   * I'll have the Filler User respond with "I recieved your message!"
-   * A small bubble should show up by their name showing you recieved a message 
-   */
-
-  const openChat = (user) => {
-    setSelectedUser(user);
-    setNotifications((prev) => ({ ...prev, [user]: false })); 
+  const toggleUserMenu = (user) => {
+    setActiveUserMenu(activeUserMenu === user ? null : user);
   };
 
-  const closeChat = () => {
-    setSelectedUser(null);
+  const openDM = (user) => {
+    setSelectedUser(user);
+    setNotifications((prev) => ({ ...prev, [user]: false }));
+    setActiveUserMenu(null);
+  };
+
+  const closeDM = () => setSelectedUser(null);
+
+  const startDragging = (e) => {
+    const box = dmBoxRef.current;
+    const offsetX = e.clientX - box.getBoundingClientRect().left;
+    const offsetY = e.clientY - box.getBoundingClientRect().top;
+  
+    const handleMouseMove = (eMove) => {
+      setDmBoxPosition({
+        x: eMove.clientX - offsetX,
+        y: eMove.clientY - offsetY
+      });
+    };
+  
+    const stopDragging = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", stopDragging);
+    };
+  
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", stopDragging);
+  };
+
+  const snapToCorner = () => {
+    const margin = 20;
+    const chatWidth = 400; // match default dm-box width
+    const chatHeight = 350; // match default dm-box height
+  
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+  
+    const x = screenWidth - chatWidth - margin;
+    const y = screenHeight - chatHeight - margin;
+  
+    setSnapEnabled(true);
+    setDmBoxPosition({ x, y });
+  
+    // Optionally disable snap after it animates
+    setTimeout(() => setSnapEnabled(false), 300);
   };
 
   const sendMessage = (event, user) => {
     if (event.key === "Enter") {
-      const newMessage = event.target.value;
-      if (!newMessage.trim()) return;
+      const newMessage = event.target.value.trim();
+      if (!newMessage) return;
 
       setMessages((prev) => ({
         ...prev,
         [user]: [...(prev[user] || []), { sender: "You", text: newMessage }],
       }));
 
-      event.target.value = ""; // Clear input
+      event.target.value = "";
 
-      // Simulated Auto-Response for now.
       setTimeout(() => {
         setMessages((prev) => ({
           ...prev,
           [user]: [...(prev[user] || []), { sender: user, text: "I received your message!" }],
         }));
 
-        // Show notification if chat is closed
         if (selectedUser !== user) {
           setNotifications((prev) => ({ ...prev, [user]: true }));
         }
@@ -95,34 +124,63 @@ function UserSidebar({ username, users }) {
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
-        <li>
-          👤
-          <span className={`status-indicator ${"online"}`} ></span>
-          {" " + currentUser + " (you)"} 
-        </li>
+      <li className="user-entry">
+        <div>
+          👤 <span className={`status-indicator ${status}`}></span> {username} (you)
+        </div>
+      </li>
 
         {users.map(user => (
-          user && user.username && user.username !== "You" ? (
-          <li key={user.username} onClick={() => openChat(user.username)} className={notifications[user.username] ? "notification" : ""}>
-            👤
-            <span className={`status-indicator ${user.status}`} ></span>
-            {" " + user.username}
-            {notifications[user.username] && <span className="message-bubble">•</span>}
-          </li>
-        ) : null
+          user?.username && user.username !== "You" && (
+            <li key={user.username} className="user-entry">
+              <div onClick={() => toggleUserMenu(user.username)}>
+                👤 <span className={`status-indicator ${user.status}`}></span> {user.username}
+                {notifications[user.username] && <span className="message-bubble">•</span>}
+              </div>
+
+              {/* Dropdown menu when clicked */}
+              {activeUserMenu === user.username && (
+                <div className="user-dropdown">
+                  <button onClick={() => alert(`You're viewing ${user.username}'s profile!`)}>View Profile</button>
+                  <button onClick={() => openDM(user.username)}>Send Message</button>
+                </div>
+              )}
+            </li>
+          )
         ))}
       </ul>
+      {/* Mini Tab if minimized */}
+      {minimized && selectedUser && (
+        <div className="dm-mini-tab" onClick={() => setMinimized(false)}>
+          💬 Chat with {selectedUser}
+        </div>
+      )}
 
-      {/* Direct Message Box (Appears if a User is Selected) */}
-      {selectedUser && (
-        <div className="dm-box">
-          <div className="dm-header">
+      {/* Direct Message Box */}
+      {!minimized && selectedUser && (
+        <div
+          ref={dmBoxRef}
+          className={`dm-box ${snapEnabled ? 'snapping' : ''}`}
+          style={{
+            left: dmBoxPosition.x,
+            top: dmBoxPosition.y,
+            transition: snapEnabled ? 'all 0.3s ease-in-out' : 'none',
+          }}
+        >
+            <div className="dm-header" onMouseDown={startDragging}>
             <span>Chat with {selectedUser}</span>
-            <button onClick={closeChat}>✖</button>
+            <div>
+              <button onClick={() => {
+                setMinimized(true);
+                snapToCorner();
+              }}>-</button>
+              <button onClick={snapToCorner}>!</button>
+              <button onClick={closeDM}>x</button>
+            </div>
           </div>
           <div className="dm-messages">
-            {messages[selectedUser]?.map((msg, index) => (
-              <p key={index} className={msg.sender === "You" ? "sent" : "received"}>
+            {messages[selectedUser]?.map((msg, i) => (
+              <p key={i} className={msg.sender === "You" ? "sent" : "received"}>
                 <strong>{msg.sender}:</strong> {msg.text}
               </p>
             ))}

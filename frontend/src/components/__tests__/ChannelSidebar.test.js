@@ -14,6 +14,8 @@ jest.mock("socket.io-client", () => ({
     }),
 }));
   
+// All required ChatInput tests completed as per Testing Plan (SCRUM-119) - Chris 4/10/25
+
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import ChannelSidebar from "../ChannelSidebar";
@@ -113,4 +115,38 @@ describe("ChannelSidebar Component", () => {
       expect(screen.queryByText("Home")).not.toBeInTheDocument();
     });
   });
+
+  // Should not be able to create a channel with an empty name
+  test("prevents creation with empty channel name", async () => {
+    render(<ChannelSidebar activeChannel="Home" setActiveChannel={setActiveChannel} />);
+    
+    fireEvent.click(screen.getByText("Create Channel"));
+    const createButton = screen.getByText("Create");
+  
+    fireEvent.change(screen.getByPlaceholderText("Enter Channel Name"), {
+      target: { value: "    " }, // whitespace input
+    });
+    fireEvent.click(createButton);
+  
+    expect(axios.post).not.toHaveBeenCalled();
+  });
+
+
+  // So right now the frontend is setup to edit a channel name but we don't actually make any changes on the backend. 
+  test("edits a channel name inline", async () => {
+    render(<ChannelSidebar activeChannel="Home" setActiveChannel={setActiveChannel} />);
+    
+    await waitFor(() => screen.getByText("Gaming"));
+  
+    fireEvent.click(screen.getAllByText("⋮")[1]); // open menu
+    fireEvent.click(screen.getByText("Edit Channel"));
+  
+    const editInput = screen.getByDisplayValue("Gaming");
+    fireEvent.change(editInput, { target: { value: "NewGaming" } });
+    fireEvent.keyDown(editInput, { key: "Enter", code: "Enter" });
+  
+    await waitFor(() => {
+      expect(screen.getByText("NewGaming")).toBeInTheDocument();
+    });
+  });  
 });

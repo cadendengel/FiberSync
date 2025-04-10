@@ -19,6 +19,29 @@ All tests can be run by:
   - `test_login_invalid_user`: Ensures logging in with a non-existent user returns `404`.
   - `test_login_wrong_password`: Ensures login with incorrect password returns `401`.
   - These tests validate error-handling and structure of return objects for authentication.
+- Routes (From older Testing Plan, can merge more cleanly)
+            get_all_users()
+                fields: none
+                return: jsonify(user_data[])
+            get_user_count()
+                fields: 
+                return: 
+            delete_all_users()
+                fields: none
+                return: jsonify(int count)
+            user_login()
+                fields: string username, password, cookie
+                return: jsonify(string success/failure/error)
+            user_create()
+                fields: string username, password, cookie
+                return: jsonify(string success/failure/error)
+            is_user_authenticated()
+                fields: string username, password
+                return: jsonify(string success/failure)
+            is_cookie_authenticated()
+                fields: string cookie
+                return: jsonify({"authenticated": boolean success/failure})
+
 
 #### Database Access (via userDB_test.py by Caden)
 - **Test File:** `backend/__tests__/userDB_test.py`
@@ -139,7 +162,7 @@ Some of the Tests below target outdated features and need to be updated a little
   - Clicking the "Send" button calls `onSendMessage`
   - Pressing Enter also calls `onSendMessage`
   - Input field clears after sending
-  - Prevents sending empty messages
+  - Prevents sending empty messages (Added 4/10/25)
 
 ### ChatWindow
 - **Component:** `ChatWindow`

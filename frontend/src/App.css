@@ -433,3 +433,72 @@ input:checked + .slider:before {
 .dev-mode-button:hover {
   opacity: 1;
 }
+
+.delete-messages-button {
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.delete-messages-button:hover {
+  background-color: #e60000;
+}
+
+.dev-tools-panel {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  background-color: #333;
+  padding: 12px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
+  z-index: 999;
+  width: 220px;
+  text-align: left;
+  color: white;
+  font-family: monospace;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.dev-tools-panel h3 {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #ff4d4d;
+}
+
+.popup-message {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #28a745; 
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(40, 167, 69, 0.6);
+  font-weight: bold;
+  z-index: 9999;
+  animation: fadeInOut 3s ease-in-out forwards;
+}
+
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translate(-50%, -10px); }
+  10% { opacity: 1; transform: translate(-50%, 0); }
+  90% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-50%, -10px); }
+}
+
+.popup-message.error {
+  background-color: #ff4d4d;
+  color: white;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 6px;
+}

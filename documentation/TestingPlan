@@ -162,7 +162,7 @@ Some of the Tests below target outdated features and need to be updated a little
   - Clicking the "Send" button calls `onSendMessage`
   - Pressing Enter also calls `onSendMessage`
   - Input field clears after sending
-  - Prevents sending empty messages
+  - Prevents sending empty messages (Added 4/10/25)
 
 ### ChatWindow
 - **Component:** `ChatWindow`

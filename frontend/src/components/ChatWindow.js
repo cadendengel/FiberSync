@@ -14,9 +14,10 @@ function ChatWindow({ username, messages, onMessagesUpdate }) {
   const [editedMessageText, setEditedMessage] = useState("");
 
   useEffect(() => {
-    if (chatMessagesRef.current) {
+    const el = chatMessagesRef.current;
+    if (el) {
       setTimeout(() => {
-        chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        el.scrollTop = el.scrollHeight;
       });
     }
   }, [messages]);

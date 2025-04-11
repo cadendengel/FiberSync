@@ -15,10 +15,6 @@ load_dotenv(env_path)
 # Import app.py
 from backend.src import app
 
-<<<<<<< Updated upstream
-=======
-#from backend.src.app import app
->>>>>>> Stashed changes
 import unittest
 import json
 
@@ -29,40 +25,9 @@ class TestRoutes(unittest.TestCase):
         self.app.testing = True
         self.client = self.app.test_client()  # Initialize the test client
         
-<<<<<<< Updated upstream
         # Initialize the test databases
         app.userDB.init_db_for_testing()
         app.msgDB.init_db_for_testing()
-=======
-        
-        msgDB.init_db_for_testing()
-        
-        # Have to make multiple cleanup attempts because it wasn't working with one???
-        for _ in range(3):  # Retry cleanup up to 3 times :)
-            existing_channels = msgDB.get_channels()
-            for channel in existing_channels:
-                if channel["name"] != "Home":  # Keep "Home" channel
-                    msgDB.delete_channel(channel["name"])
-
-            # Ensure all previous messages are deleted
-            msgDB.delete_all_messages()
-
-            # **Re-check the cleanup**
-            channels = msgDB.get_channels()
-            if len(channels) == 1 and channels[0]["name"] == "Home":
-                break  # Exit loop if cleanup succeeded
-        else:
-            print("WARNING: Some channels are not getting deleted properly.")
-            # Debug because dear god what is happening
-
-        # Final assertion before tests start
-        assert len(channels) == 1, f"Expected only 'Home' to exist, found: {channels}"
-        assert channels[0]["name"] == "Home", f"Unexpected channel found: {channels}"
-        assert msgDB.get_message_count() == 0, f"Expected 0 messages, found: {msgDB.get_message_count()}"
-
-        #self.app.testing = True
-        #self.client = app.test_client()
->>>>>>> Stashed changes
         
         # Ensure the databases are empty
         app.userDB.delete_all_users()
@@ -226,15 +191,79 @@ class TestRoutes(unittest.TestCase):
     #####################
     # User Status Tests #
     #####################
+    # ROUTES TESTED:
+    # - create_user()
+    # - update_user_status()
+    # - get_user_status()
+    def test_update_and_get_user_status(self):
+        # Create user
+        response = self.client.post('/api/users/create', json={
+            "username": "testuser", 
+            "password": "password", 
+            "cookie": ["cookie"]
+        })
+        self.assertEqual(response.status_code, 200)
+
+        # Update status to online
+        response = self.client.post('/api/user-status', json={
+            "username": "testuser",
+            "status": "online"
+        })
+        self.assertEqual(response.status_code, 200)
+
+        # Get status
+        response = self.client.get('/api/user-status', json={
+            "username": "testuser"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["status"], "online")
+
+    # ROUTES TESTED:
+    # - update_user_status() on a nonexistent user
+    def test_update_status_for_nonexistent_user(self):
+        # Attempt to update status for a nonexistent user
+        response = self.client.post('/api/user-status', json={
+            "username": "ghostuser",
+            "status": "online"
+        })
+        self.assertEqual(response.status_code, 200) 
+
+    # ROUTES TESTED:
+    # - create_user()
+    # - update_user_status()
+    # - get_user_status() twice
+    def test_update_status_to_offline(self):
+        # Create a user
+        self.client.post('/api/users/create', json={
+            "username": "testuser2",
+            "password": "pass2",
+            "cookie": ["cookie"]
+        })
+
+        # Set status to online
+        self.client.post('/api/user-status', json={
+            "username": "testuser2",
+            "status": "online"
+        })
+
+        # Change to offline
+        response = self.client.post('/api/user-status', json={
+            "username": "testuser2",
+            "status": "offline"
+        })
+        self.assertEqual(response.status_code, 200)
+
+        # Confirm status is offline
+        response = self.client.get('/api/user-status', json={
+            "username": "testuser2"
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json()["status"], "offline")
 
 
-<<<<<<< Updated upstream
 
 
 
 
 
 
-=======
-    
->>>>>>> Stashed changes

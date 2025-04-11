@@ -44,6 +44,10 @@ class TestRoutes(unittest.TestCase):
     ################
     # UserDB Tests #
     ################
+    
+    # ROUTES TESTED:
+    # - create_user()
+    # - get_all_users()
     def test_get_all_users(self):
         # Create a user
         response = self.client.post('/api/users/create', json={"username": "testuser1", "password": "password1", "cookie": ["cookie1"]})
@@ -53,12 +57,13 @@ class TestRoutes(unittest.TestCase):
         response = self.client.get('/api/users')
         self.assertEqual(response.status_code, 200, "Failed to fetch users")
         
-        # Parse the JSON response
-        users = response.get_json()
-        
         # Validate the user data
-        self.assertEqual(users[0], "testuser1", "Username does not match")
+        self.assertEqual(response.get_json()[0], "testuser1", "Username does not match")
         
+        
+    # ROUTES TESTED:
+    # - create_user()
+    # - get_user_count()
     def test_get_user_count(self):
         # Create a user
         response = self.client.post('/api/users/create', json={"username": "testuser1", "password": "password1", "cookie": ["cookie1"]})
@@ -68,11 +73,8 @@ class TestRoutes(unittest.TestCase):
         response = self.client.get('/api/users/count')
         self.assertEqual(response.status_code, 200, "Failed to fetch user count")
         
-        # Parse the JSON response
-        user_count = response.get_json()
-        
         # Validate the user count
-        self.assertEqual(user_count["count"], 1, "User count does not match")
+        self.assertEqual(response.get_json()["count"], 1, "User count does not match")
         
         # Create another user
         response = self.client.post('/api/users/create', json={"username": "testuser2", "password": "password2", "cookie": ["cookie2"]})
@@ -82,12 +84,14 @@ class TestRoutes(unittest.TestCase):
         response = self.client.get('/api/users/count')
         self.assertEqual(response.status_code, 200, "Failed to fetch user count")
         
-        # Parse the JSON response
-        user_count = response.get_json()
-        
         # Validate the user count
-        self.assertEqual(user_count["count"], 2, "User count does not match")
+        self.assertEqual(response.get_json()["count"], 2, "User count does not match")
         
+        
+    # ROUTES TESTED:
+    # - create_user()
+    # - get_user_count()
+    # - delete_all_users()
     def test_delete_all_users(self):
         # Create a user
         response = self.client.post('/api/users/create', json={"username": "testuser1", "password": "password1", "cookie": ["cookie1"]})
@@ -115,12 +119,61 @@ class TestRoutes(unittest.TestCase):
         response = self.client.get('/api/users/count')
         self.assertEqual(response.status_code, 200, "Failed to fetch user count")
         
-        # Parse the JSON response
-        user_count = response.get_json()
-        
         # Validate the user count
-        self.assertEqual(user_count["count"], 0, "User count does not match")
+        self.assertEqual(response.get_json()["count"], 0, "User count does not match")
+        
+        
+    # ROUTES TESTED:
+    # - create_user()
+    # - user_login()
+    def test_user_login(self):
+        # Create a user
+        response = self.client.post('/api/users/create', json={"username": "testuser", "password": "password", "cookie": ["cookie"]})
+        self.assertEqual(response.status_code, 200, "Failed to create user")
+        
+        # Login the user
+        response = self.client.post('/api/users/login', json={"username": "testuser", "password": "password"})
+        self.assertEqual(response.status_code, 200, "Failed to login user")
+        self.assertEqual(response.get_json()["message"], "User logged in successfully via username and password", "User is not logged in")
+
+        # Login the user with invalid credentials
+        response = self.client.post('/api/users/login', json={"username": "testuser", "password": "wrong_password"})
+        self.assertEqual(response.status_code, 401, "User should not be logged in with invalid credentials")
     
+    
+    # ROUTES TESTED:
+    # - create_user()
+    # - is_user_authenticated()
+    def test_is_user_authenticated(self):
+        # Create a user
+        response = self.client.post('/api/users/create', json={"username": "testuser", "password": "password", "cookie": ["cookie"]})
+        self.assertEqual(response.status_code, 200, "Failed to create user")
+        
+        # Check if the user is authenticated
+        response = self.client.post('/api/users/authentication/credentials', json={"username": "testuser", "password": "password"})
+        self.assertEqual(response.status_code, 200, "Failed to check if user is authenticated")
+        
+        # Check if the user is authenticated with invalid credentials
+        response = self.client.post('/api/users/authentication/credentials', json={"username": "testuser", "password": "wrong_password"})
+        self.assertEqual(response.status_code, 401, "User should not be authenticated with invalid credentials")
+        
+        
+    # ROUTES TESTED:
+    # - create_user()
+    # - is_cookie_authenticated()
+    def test_is_cookie_authenticated(self):
+        # Create a user
+        response = self.client.post('/api/users/create', json={"username": "testuser", "password": "password", "cookie": ["cookie"]})
+        self.assertEqual(response.status_code, 200, "Failed to create user")
+        
+        # Check if the user is authenticated
+        response = self.client.post('/api/users/authentication/cookies', json={"cookie": ["cookie"]})
+        self.assertEqual(response.status_code, 200, "Failed to check if user is authenticated")
+        
+        # Check if the user is authenticated with an invalid cookie
+        response = self.client.post('/api/users/authentication/cookies', json={"cookie": ["invalid_cookie"]})
+        self.assertEqual(response.status_code, 401, "User should not be authenticated with invalid cookie")
+        
     
     
     

@@ -28,197 +28,21 @@ This document outlines the current and planned unit tests across our backend and
 Note: Tests currently marked as skipped or commented out are retained in the codebase for future repair and to be reintegrated. 
 Once other features have been implemented we'll begin working to resolve database state issues that interfere with consistent test behavior.
 
+    UserStatus
+        Routes
+            update_user_status()
+                method: POST
+                fields: string username, string status ("online" or "offline")
+                return: jsonify({"message": string})
+            get_user_status()
+                method: GET
+                fields: string username
+                return: jsonify({"status": string})
+        Tests
+            test_update_and_get_user_status()
+                creates a user, sets status to "online", then checks returned status
+            test_update_status_for_nonexistent_user()
+                attempts to update status for a non-existent user; checks status code
+            test_update_status_to_offline()
+                creates a user, sets to "online", then "offline", and verifies the final status
 
----
-## FLASK Backend - Unit Tests
-All tests can be run by:
-
-### User
-#### Routes Tested
-- **Endpoint:** `/api/users/login`
-- **Test File:** `backend/__tests__/security/test_auth.py`
-- **Framework:** `unittest` (Python)
-- **Tests:**
-  - `test_login_missing_fields`: Ensures login endpoint returns `404` if no fields are provided.
-  - `test_login_invalid_user`: Ensures logging in with a non-existent user returns `404`.
-  - `test_login_wrong_password`: Ensures login with incorrect password returns `401`.
-  - These tests validate error-handling and structure of return objects for authentication.
-- Routes (From older Testing Plan, can merge more cleanly)
-            get_all_users()
-                fields: none
-                return: jsonify(user_data[])
-            get_user_count()
-                fields: 
-                return: 
-            delete_all_users()
-                fields: none
-                return: jsonify(int count)
-            user_login()
-                fields: string username, password, cookie
-                return: jsonify(string success/failure/error)
-            user_create()
-                fields: string username, password, cookie
-                return: jsonify(string success/failure/error)
-            is_user_authenticated()
-                fields: string username, password
-                return: jsonify(string success/failure)
-            is_cookie_authenticated()
-                fields: string cookie
-                return: jsonify({"authenticated": boolean success/failure})
-
-
-#### Database Access (via userDB_test.py by Caden)
-- **Test File:** `backend/__tests__/userDB_test.py`
-  - User creation (`/api/users/create`) to set up test user.
-  - `userDB.get_user_by_username()` and `userDB.delete_user()` used in setup/teardown.
-  - test_add_user_and_get_user_count
-  - test_get_user_by_username
-  - test_get_user_by_cookies
-  - test_is_cookie_authenticated
-  - test_is_user_authenticated
-  - test_salt
-  - test_robust
-  
-  - Confirms database is interacting correctly with route logic.
-  - To add extra tests for User Profiles and Status
-
----
-
-### Headers / Security
-#### App Root Route
-- **Endpoint:** `/`
-- **Test File:** `backend/__tests__/security/test_headers.py`
-- **Tests:**
-  - `test_root_endpoint_returns_text`: Verifies that the root endpoint is up and returns correct health-check message.
-  - `test_headers_contain_security_flags`: Verifies HTTP headers include important security features:
-    - `X-Content-Type-Options`
-    - `X-Frame-Options`
-    - `Content-Security-Policy`
-
----
-### Channels
-#### Routes Tested
-- **Routes**
-  - `POST /api/channels/create`
-  - `GET /api/channels/`
-  **Test File:** `backend/__tests__/channel_test.py`
-- **Tests:**
-  - `test_switch_to_empty_channel`: Verifies that switching to a newly created channel with no messages returns an empty list.
-  - `test_switch_to_non_existent_channel`: Confirms that requesting messages from a non-existent channel returns a safe, empty list (status 200).
-  - `test_switch_channels_and_fetch_messages` (currently skipped): Creates multiple channels, injects messages into each, and verifies messages 
-        are fetched correctly per channel.
-  - `test_create_channel` (commented out): Was functional but is currently broken after recent changes. Expected to test channel creation via POST 
-        and confirm existence in DB.
-    `test_delete_channel_and_check_messages` (commented out): Previously tested deletion of a channel and confirmed both the channel and its messages are removed from DB.
-
-#### Database Access
-- msgDB.init_db_for_testing() ensures a clean slate for each test run. 
-  - CRUD operations on:
-    - msgDB.get_channels()
-    - msgDB.add_message()
-    - msgDB.get_messages_by_channel()
-    - msgDB.delete_channel() and msgDB.delete_all_messages()
-  - The tearDownClass method clears out all test-created data and confirms that only the default Home channel remains.
-  - `userDB.get_user_by_username()` and `userDB.delete_user()` used in setup/teardown.
-  - Confirms database is interacting correctly with route logic.
-  - To add extra tests for User Profiles and Status
-
-  Known Test issue: DB inconsistencies suspected in commented-out test_create_channel. Tests are suddenly being conducted in the main
-  collection rather than in our test collection.
-
----
-## Planned Tests by Category
-Many of the tests below have already been implemented by Caden and Ricky, but I formatted them to follow the above, change it if you want for sure.
-#### UserStatus
-- **Routes**
-  - `GET /api/status/{user_id}`
-- **Database**
-  - Status updates and retrieval (online/offline).
-- **WebSockets**
-  - Real-time status updates over socket connections.
-
-
-#### Messages
-- **Test File:** backend/__tests__/msgDB_test.py
-  **Tests:**
-    - test_add_message
-    - test_get_all_messages
-    - test_delete_all_messages
-    - test_delete_message
-- **Database**
-    - Validates creation, retrieval, and deletion of messages.
-
-#### User Status
-- **Test File:** backend/__tests__/user_status_test.py
-  **Tests:**
-    - status (currently skipped)
-    - test_update_status
-    - test_get_active_users
-    - test_mark_inactive_users
-- **Database**
-    - Targets user presence, device tracking, and inactivity timeout logic. Currently being refactored.
-
----
-## REACT Frontend - Jest
-All Tests can be run by: npm test
-Some of the Tests below target outdated features and need to be updated a little bit.
-
-### Channel
-- **Component:** `ChannelSidebar`
-- **File:** `frontend/src/components/__tests__/ChannelSidebar.test.js`
-- **Tests:**
-  - Renders list of available channels from the backend
-  - Toggles create-channel input field visibility
-  - Successfully creates a new channel and updates state
-  - Calls `setActiveChannel` when switching between channels
-  - Enforces 5-channel limit and shows alert
-  - Handles backend failure gracefully with `console.error`
-- **Mocks Used:**
-  - `axios` for API interactions
-  - `socket.io-client` for WebSocket emit
-- Note: You'll see a Jest warning about `act()` are expected due to async axios use; handled via `waitFor()` couldn't clear warning tho
-
-
-### ChatInput
-- **Component:** `ChatInput`
-  **Test File:** `frontend/src/components/__tests__/ChatInput.test.js`
-  - Typing updates input value.
-  - Clicking the "Send" button calls `onSendMessage`
-  - Pressing Enter also calls `onSendMessage`
-  - Input field clears after sending
-  - Prevents sending empty messages (Added 4/10/25)
-
-### ChatWindow
-- **Component:** `ChatWindow`
-  **Test File:** `frontend/src/components/__tests__/ChatWindow.test.js`
-  - Renders hardcoded messages correctly.
-  - Scrolls to bottom when new messages appear.
-  - Handles long messages without breaking layout.
-  Planned Update: Messages are now dynamically fetched — test should be adjusted to simulate prop changes or WebSocket injections.
-
-## Planned Tests by Category
-Many of the tests below have already been implemented but with older features, need to be adjusted.
-
-### UserSidebar
-- **Component:** UserSidebar
-  **Planned Tests:**
-    - Renders a list of users passed as props
-    - Displays online/offline indicator next to each user
-    - Hides or filters out current logged-in user from the list
-    - Handles empty user list gracefully (no crash/UI fallback)
-    - Supports re-render when user list updates via socket or prop change
-
-### Direct Messaging
-- **Component(s):** (Likely split between UserSidebar, ChatWindow, and ChatInput with DM context)
-  **Planned Tests:**
-    - Clicking a user opens a Direct Message preview or modal
-    - “Send Message” button appears and opens the DM chat UI
-    - Messages sent in DM context only appear for sender and recipient
-    - UI reflects current DM target (e.g., shows recipient's name)
-    - DMs persist during session (but are cleared on refresh if no storage is used)
-    - DM socket messages are routed correctly based on active target
-
-### App Root
-- Component: `App.js` or routing container
-  - Ensure routes render correct components.
-  - Basic smoke tests to confirm the app loads without crashing.

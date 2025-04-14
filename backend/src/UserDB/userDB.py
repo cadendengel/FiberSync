@@ -25,8 +25,12 @@ def get_all_users():
 def get_user_by_username(username):
     return db.users.find_one({"username": username})
 
+# Generally useless in this project since we don't ever use UUIDs
 def get_uuid_by_username(username):
     return db.users.find_one({"username": username})["_id"]
+
+def get_timestamp_by_username(username):
+    return db.users.find_one({"username": username})["timestamp"]
 
 # LIKELY NOT NEEDED
 def get_random_user():
@@ -40,6 +44,9 @@ def get_salt_by_username(username):
     return db.users.find_one({"username": username})["salt"]
 
 def add_user(username, password, cookies):
+    # generate timestamp
+    timestamp = int(os.time())
+    
     # generate salt
     salt = os.urandom(16)
 
@@ -47,7 +54,7 @@ def add_user(username, password, cookies):
     hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
 
     # add user
-    db.users.insert_one({"username": username, "salt": salt, "hashed_password": hashed_password, "cookies": [cookies], "status": "online"})
+    db.users.insert_one({"username": username, "salt": salt, "hashed_password": hashed_password, "timestamp": timestamp, "cookies": [cookies], "status": "online"})
 
 def update_user_cookies(username, cookies):
     db.users.update_one({"username": username}, {"$addToSet": {"cookies": cookies}})

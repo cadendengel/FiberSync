@@ -234,6 +234,9 @@ def create_channel():
         return jsonify({"error": "Channel name required"}), 400
 
     if msgDB.add_channel(channel_name):
+        # Broadcast the new channel to all connected clients
+        socketio.emit("update_channels", {}, to=None)
+        
         return jsonify({"name": channel_name}), 201
     else:
         return jsonify({"error": "Channel limit reached (5 max)"}), 400
@@ -271,6 +274,10 @@ def delete_channel():
         return jsonify({"error": "Missing channel name"}), 400
 
     msgDB.delete_channel(channel_name)
+    
+    # Broadcast the deleted channel to all connected clients
+    socketio.emit("update_channels", {}, to=None)
+    
     return jsonify({"message": f"Channel '{channel_name}' and its messages deleted"}), 200
 
 

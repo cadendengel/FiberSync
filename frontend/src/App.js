@@ -475,7 +475,9 @@ function App() {
         ) : (
           <>
             <div className="chat-layout">
-              <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
+              <ChannelSidebar
+                activeChannel={activeChannel}
+                setActiveChannel={setActiveChannel} />
               <div className="chat-main">
                 <ChatWindow 
                   username={username}
@@ -484,7 +486,9 @@ function App() {
                   onDeleteMessage={handleDeleteMessage}
                   onEditMessage={handleEditMessage} />
               </div>
-              <UserSidebar username={username} users={users} />
+              <UserSidebar
+                username={username}
+                users={users} />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
           </>

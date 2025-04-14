@@ -97,6 +97,41 @@ def get_user_timestamp():
     return jsonify({"timestamp": timestamp}), 200
 
 
+# Get user description
+@app.route('/api/users/description', methods=['GET'])
+def get_user_description():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    description = userDB.get_description_by_username(username)
+    if not description:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"description": description}), 200
+
+
+# Update user description
+@app.route('/api/users/description', methods=['PUT'])
+def update_user_description():
+    data = request.json
+    username = data.get('username')
+    description = data.get('description')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    if not description:
+        return jsonify({"error": "Missing description"}), 400
+    
+    if userDB.get_user_by_username(username):
+        userDB.update_description(username, description)
+        return jsonify({"message": "User description updated successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
+
+
 # Delete all users
 @app.route('/api/users', methods=['DELETE'])
 def delete_all_users():

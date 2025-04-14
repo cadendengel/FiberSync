@@ -61,8 +61,7 @@ def test_mongo():
 # ======================================= #
 #             User Management             # 
 # ======================================= #
-# This section is responsible for username storage. Later, it will be extended to include password authentication.
-# For now, it only stores a username when a user enters the app.
+# This section is responsible for user database functions.
 
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
@@ -80,6 +79,57 @@ def get_all_users():
 def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
+
+
+# Get user timestamp
+@app.route('/api/users/timestamp', methods=['GET'])
+def get_user_timestamp():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    timestamp = userDB.get_timestamp_by_username(username)
+    if not timestamp:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"timestamp": timestamp}), 200
+
+
+# Get user description
+@app.route('/api/users/description', methods=['GET'])
+def get_user_description():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    description = userDB.get_description_by_username(username)
+    if not description:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"description": description}), 200
+
+
+# Update user description
+@app.route('/api/users/description', methods=['PUT'])
+def update_user_description():
+    data = request.json
+    username = data.get('username')
+    description = data.get('description')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    if not description:
+        return jsonify({"error": "Missing description"}), 400
+    
+    if userDB.get_user_by_username(username):
+        userDB.update_description(username, description)
+        return jsonify({"message": "User description updated successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 
 # Delete all users

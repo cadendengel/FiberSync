@@ -32,6 +32,9 @@ def get_uuid_by_username(username):
 def get_timestamp_by_username(username):
     return db.users.find_one({"username": username})["timestamp"]
 
+def get_description_by_username(username):
+    return db.users.find_one({"username": username})["description"]
+
 # LIKELY NOT NEEDED
 def get_random_user():
     return db.users.aggregate([{ "$sample": { "size": 1 } }]).next()["username"]
@@ -54,7 +57,10 @@ def add_user(username, password, cookies):
     hashed_password = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 10000)
 
     # add user
-    db.users.insert_one({"username": username, "salt": salt, "hashed_password": hashed_password, "timestamp": timestamp, "cookies": [cookies], "status": "online"})
+    db.users.insert_one({"username": username, "salt": salt, "hashed_password": hashed_password, "timestamp": timestamp, "description": "", "cookies": [cookies], "status": "online"})
+
+def update_description(username, description):
+    db.users.update_one({"username": username}, {"$set": {"description": description}})
 
 def update_user_cookies(username, cookies):
     db.users.update_one({"username": username}, {"$addToSet": {"cookies": cookies}})

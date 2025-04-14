@@ -29,6 +29,8 @@ def apply_security_headers(response):
 
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", ping_interval=5, ping_timeout=10)
 
+# Track which socket ID is tied to which username
+sid_to_username = {}
 
 # ===== Root Route to Verify Backend Status ===== #
 # Changes: No longer serves React App to Browser
@@ -409,19 +411,53 @@ def delete_message():
 
 
 # WebSocket Event: Handles user connection
-#   - Updates user status in the database on disconnect (deployment, not development only, I think)
-@socketio.on("disconnect")
-def handle_disconnect():
-    username = request.args.get("username")
+#   - Updates user status in the database (deployment, not development only, I think)
+#   - Tracks WebSocket SID -> username mappings for disconnection cleanup
+#   - On "offline", disconnect below: updates DB + emits + removes/pops from sid map
+
+'''You were using `request.args.get("username")` to extract the username
+   from that WebSocket handshake business deal query string thing which works on login but it was stale or no longer dynamic
+   but it looked like Websocket can use `data.get("username")` from client side emit calls 
+   as long as we pass data into the function on this end. 
+   (https://forum.chirpstack.io/t/how-to-get-data-from-websocket-using-python/16892)
+   This is from client-side `socket.emit()` events... `data` from `socket.emit()` gives us access to real-time, 
+   event-based ~payloads~ is what the tech gurus seem to be calling it. '''
+@socketio.on("user_status")
+def handle_user_status(data):
+    username = data.get("username")
+    status = data.get("status")
+    sid = request.sid
     print("Username:", username)
 
     if username:
+        sid_to_username[sid] = username  # Track SID → username
 
-        userDB.update_status(username, "offline")
-        print(f"{username} disconnected with SID {request.sid}")
+        if status == "online":
+            userDB.update_status(username, "online")
+            print(f"{username} connected with SID {sid}")
+            emit("user_status", {"username": username, "status": "online"}, broadcast=True)
+
+        elif status == "offline":
+            userDB.update_status(username, "offline")
+            print(f"{username} disconnected with SID {sid}")
+            emit("user_status", {"username": username, "status": "offline"}, broadcast=True)
+
+        else:
+            print(f"Invalid status: {status}")
     else:
-        print(f"No username in session for SID {request.sid}")
+        print(f"No username provided for SID {sid}")
 
+@socketio.on('disconnect')
+def handle_disconnect():
+    sid = request.sid
+    username = sid_to_username.pop(sid, None)
+
+    if username:
+        print(f"{username} disconnected (SID {sid})")
+        userDB.update_status(username, "offline")
+        emit("user_status", {"username": username, "status": "offline"}, broadcast=True)
+    else:
+        print(f"Disconnected SID {sid} with no associated username")
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])

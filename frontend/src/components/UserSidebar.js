@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './UserSidebar.css'; // Modular CSS if you break it out later
 
-function UserSidebar({ username, users }) {
-  const [status, setStatus] = useState("online");
-  const [inactivityTimer] = useState(useRef(null));
+
+function UserSidebar({ username, users, socket }) {
+  const [status, setStatus] = useState("online"); // Default to online
+  const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [messages, setMessages] = useState({});
   const [notifications, setNotifications] = useState({});
@@ -32,6 +33,13 @@ function UserSidebar({ username, users }) {
   }, [status, startInactivityTimer]);
 
   useEffect(() => {
+    if (socket && username && (status === "away" || status === "online")) {
+      socket.emit("user_status", { username, status });
+    }
+  }, [status, socket, username]);
+
+  useEffect(() => {
+    // Listen for user activity
     window.addEventListener("mousemove", resetStatus);
     window.addEventListener("keydown", resetStatus);
     window.addEventListener("click", resetStatus);
@@ -130,6 +138,7 @@ function UserSidebar({ username, users }) {
         </div>
       </li>
 
+        {/* I thought adding the + user.status here would force it to render status changes.. but it's showing a blank space..*/}
         {users.map(user => (
           user?.username && user.username !== "You" && (
             <li key={user.username} className="user-entry">

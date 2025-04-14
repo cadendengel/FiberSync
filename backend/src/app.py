@@ -61,8 +61,7 @@ def test_mongo():
 # ======================================= #
 #             User Management             # 
 # ======================================= #
-# This section is responsible for username storage. Later, it will be extended to include password authentication.
-# For now, it only stores a username when a user enters the app.
+# This section is responsible for user database functions.
 
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
@@ -80,6 +79,22 @@ def get_all_users():
 def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
+
+
+# Get user timestamp
+@app.route('/api/users/timestamp', methods=['GET'])
+def get_user_timestamp():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    timestamp = userDB.get_timestamp_by_username(username)
+    if not timestamp:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"timestamp": timestamp}), 200
 
 
 # Delete all users

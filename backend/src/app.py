@@ -15,6 +15,10 @@ from backend.src.UserDB import userDB
 from backend.src.MessageDB import msgDB
 from flask_socketio import SocketIO, emit, join_room, leave_room
 
+# DevConsole imports
+import io
+import contextlib
+
 # ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
@@ -590,6 +594,40 @@ def update_reaction():
 
     return jsonify({"message": "reaction/s successfully added to message"}), 200
 
+
+##################
+# Developer Mode #
+##################
+@app.route('/api/devconsole', methods=['POST'])
+def dev_console_command():
+    data = request.json
+    command = data.get('command')
+
+    if not command:
+        return jsonify({"error": "Missing command"}), 400
+
+    # Restrict the execution environment
+    allowed_globals = {
+        "get_user_count": userDB.get_user_count,
+        # "get_all_users": userDB.get_all_users, # Uncomment if needed, returns a cursor object, so it might not work as expected
+        "get_user_by_username": userDB.get_user_by_username,
+        "print": print,  # Allow print for debugging
+    }
+
+    # Capture the output of the command
+    output = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output):
+            # Use eval for expressions and exec for statements
+            if "=" in command or " " in command.split("(")[0]:  # Likely a statement
+                exec(command, {"__builtins__": None}, allowed_globals)
+            else:  # Likely an expression
+                result = eval(command, {"__builtins__": None}, allowed_globals)
+                print(result)  # Print the result to capture it in the output
+
+        return jsonify({"message": "Command executed successfully", "output": output.getvalue()}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ================================================== #
 #            STARTING FLASK SERVER                   #

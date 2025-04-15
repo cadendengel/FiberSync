@@ -9,6 +9,8 @@ import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
 import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
+import DirectMessaging from "./components/DirectMessaging";
+
 
 // Throwing down a bunch of comments to explain my changes:
 /* Axios Requests: Now uses an environment variable to toggle between development & deployment
@@ -614,10 +616,25 @@ function App() {
                 socket={socket}
                 isDeveloperMode={isDeveloperMode}
                 onDevDeleteUser={handleDevDeleteUser}
+                onStartDM={startDMWithUser}
               />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
           </>
+        )}
+        {isDMOpen && (
+          <DirectMessaging
+            dmTarget={dmTarget}
+            dmMessages={dmMessages}
+            onSend={sendDirectMessage}
+            onClose={() => {
+              socket.emit("leave_dm", { room: dmRoom });
+              setDMRoom(null);
+              setDMMessages([]);
+              setDMTarget(null);
+              setIsDMOpen(false);
+            }}
+          />
         )}
       </div>
     </div>

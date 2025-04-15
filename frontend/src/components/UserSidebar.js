@@ -2,17 +2,10 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './UserSidebar.css'; // Modular CSS if you break it out later
 
 
-function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [messages, setMessages] = useState({});
-  const [notifications, setNotifications] = useState({});
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
-  const [dmBoxPosition, setDmBoxPosition] = useState({ x: 100, y: 100 });
-  const [snapEnabled, setSnapEnabled] = useState(false); // New state to get the box back in corner
-  const dmBoxRef = useRef();
-  const [minimized, setMinimized] = useState(false);
   const [viewingProfile, setViewingProfile] = useState(null);
 
 
@@ -57,78 +50,6 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     setActiveUserMenu(activeUserMenu === user ? null : user);
   };
 
-  const openDM = (user) => {
-    setSelectedUser(user);
-    setNotifications((prev) => ({ ...prev, [user]: false }));
-    setActiveUserMenu(null);
-  };
-
-  const closeDM = () => setSelectedUser(null);
-
-  const startDragging = (e) => {
-    const box = dmBoxRef.current;
-    const offsetX = e.clientX - box.getBoundingClientRect().left;
-    const offsetY = e.clientY - box.getBoundingClientRect().top;
-  
-    const handleMouseMove = (eMove) => {
-      setDmBoxPosition({
-        x: eMove.clientX - offsetX,
-        y: eMove.clientY - offsetY
-      });
-    };
-  
-    const stopDragging = () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", stopDragging);
-    };
-  
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", stopDragging);
-  };
-
-  const snapToCorner = () => {
-    const margin = 20;
-    const chatWidth = 400; // match default dm-box width
-    const chatHeight = 350; // match default dm-box height
-  
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-  
-    const x = screenWidth - chatWidth - margin;
-    const y = screenHeight - chatHeight - margin;
-  
-    setSnapEnabled(true);
-    setDmBoxPosition({ x, y });
-  
-    // Optionally disable snap after it animates
-    setTimeout(() => setSnapEnabled(false), 300);
-  };
-
-  const sendMessage = (event, user) => {
-    if (event.key === "Enter") {
-      const newMessage = event.target.value.trim();
-      if (!newMessage) return;
-
-      setMessages((prev) => ({
-        ...prev,
-        [user]: [...(prev[user] || []), { sender: "You", text: newMessage }],
-      }));
-
-      event.target.value = "";
-
-      setTimeout(() => {
-        setMessages((prev) => ({
-          ...prev,
-          [user]: [...(prev[user] || []), { sender: user, text: "I received your message!" }],
-        }));
-
-        if (selectedUser !== user) {
-          setNotifications((prev) => ({ ...prev, [user]: true }));
-        }
-      }, 3000);
-    }
-  };
-
   return (
     <div className="chat-sidebar">
       <h2>Users</h2>
@@ -166,14 +87,13 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
             <li key={user.username} className="user-entry">
               <div onClick={() => toggleUserMenu(user.username)}>
                 👤 <span className={`status-indicator ${user.status}`}></span> {user.username}
-                {notifications[user.username] && <span className="message-bubble">•</span>}
               </div>
 
               {/* Dropdown menu when clicked */}
               {activeUserMenu === user.username && (
                 <div className="user-dropdown">
                   <button onClick={() => setViewingProfile(user)}>View Profile</button>
-                  <button onClick={() => openDM(user.username)}>Send Message</button>
+                  <button onClick={() => onStartDM(user.username)}>Send Message</button>
                   {isDeveloperMode && (
                     <button
                       onClick={() => {
@@ -192,45 +112,6 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
           )
         ))}
       </ul>
-      {/* Mini Tab if minimized */}
-      {minimized && selectedUser && (
-        <div className="dm-mini-tab" onClick={() => setMinimized(false)}>
-          💬 Chat with {selectedUser}
-        </div>
-      )}
-
-      {/* Direct Message Box */}
-      {!minimized && selectedUser && (
-        <div
-          ref={dmBoxRef}
-          className={`dm-box ${snapEnabled ? 'snapping' : ''}`}
-          style={{
-            left: dmBoxPosition.x,
-            top: dmBoxPosition.y,
-            transition: snapEnabled ? 'all 0.3s ease-in-out' : 'none',
-          }}
-        >
-            <div className="dm-header" onMouseDown={startDragging}>
-            <span>Chat with {selectedUser}</span>
-            <div>
-              <button onClick={() => {
-                setMinimized(true);
-                snapToCorner();
-              }}>-</button>
-              <button onClick={snapToCorner}>!</button>
-              <button onClick={closeDM}>x</button>
-            </div>
-          </div>
-          <div className="dm-messages">
-            {messages[selectedUser]?.map((msg, i) => (
-              <p key={i} className={msg.sender === "You" ? "sent" : "received"}>
-                <strong>{msg.sender}:</strong> {msg.text}
-              </p>
-            ))}
-          </div>
-          <input type="text" placeholder="Type a message..." onKeyDown={(e) => sendMessage(e, selectedUser)} />
-        </div>
-      )}
     </div>
   );
 }

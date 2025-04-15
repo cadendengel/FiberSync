@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './UserSidebar.css'; // Modular CSS if you break it out later
+import axios from 'axios';
 
 
-function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, get }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -14,7 +15,10 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
   const dmBoxRef = useRef();
   const [minimized, setMinimized] = useState(false);
   const [viewingProfile, setViewingProfile] = useState(null);
-
+  const [profileData, setProfileData] = useState(null); // State to store profile data
+  const [isEditingProfile, setIsEditingProfile] = useState(false); // State to track if editing profile
+  const [editProfileData, setEditProfileData] = useState({ description: "" }); // State to store edited profile data
+  
 
   // Inactivity logic
   const startInactivityTimer = useCallback(() => {
@@ -129,6 +133,19 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     }
   };
 
+  const handleEditProfile = async () => {
+    try {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, {
+        username: username,
+        description: editProfileData.description,
+      });
+      setProfileData((prev) => ({ ...prev, description: editProfileData.description }));
+      setIsEditingProfile(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
   return (
     <div className="chat-sidebar">
       <h2>Users</h2>
@@ -147,15 +164,45 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
               <h3>{viewingProfile.username}</h3>
               <p className={`status ${viewingProfile.status}`}>{viewingProfile.status}</p>
               <div className="profile-description-box">
-              {/* Placeholder for now, will contain user description later */}
-              <p className="description-placeholder">This user hasn't written a description yet.</p>
+                {profileData ? (
+                  <>
+                    <p>User Since: {profileData.timestamp}</p>
+                    <p>{profileData.description}</p> 
+                  </>
+                ) : (
+                  <p>User has not edited their description</p>
+                )}
             </div>
+            {/* Edit Profile Section */}
+            {viewingProfile.username === username && (
+              <div className="edit-profile-section">
+                {isEditingProfile ? (
+                  <div className="edit-profile-form">
+                    <textarea
+                      value={editProfileData.description}
+                      onChange={(e) => setEditProfileData({ description: e.target.value })}
+                      placeholder="Update your description..."
+                    />
+                    <button onClick={handleEditProfile}>Save</button>
+                    <button onClick={() => setIsEditingProfile(false)}>Cancel</button>
+                  </div>
+                ) : (
+                  <button onClick={() => {
+                    setIsEditingProfile(true);
+                    setEditProfileData({ description: profileData?.description || "" });
+                  }}>
+                    Edit Profile
+                  </button>
+                )}
+              </div>
+            )}
             </div>
           </div>
         </div>
       )}
       <li className="user-entry">
-        <div>
+        <div onClick={() => setViewingProfile({ username, status })}>
+          {/* User's own profile */}
           👤 <span className={`status-indicator ${status}`}></span> {username} (you)
         </div>
       </li>

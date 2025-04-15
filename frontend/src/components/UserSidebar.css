@@ -168,3 +168,23 @@
     background-color: #FFC107; /* Yellow */
     box-shadow: 0 0 5px #FFC107;
   }
+
+
+
+  .edit-profile-section {
+    margin-top: 10px;
+  }
+  
+  .edit-profile-form {
+    margin-top: 10px;
+  }
+  
+  .edit-profile-form textarea {
+    width: 100%;
+    height: 60px;
+    margin-bottom: 10px;
+  }
+  
+  .edit-profile-form button {
+    margin-right: 5px;
+  }

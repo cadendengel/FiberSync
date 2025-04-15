@@ -63,6 +63,14 @@ def test_mongo():
 # ======================================= #
 # This section is responsible for user database functions.
 
+@app.route('/api/users/<username>', methods=['DELETE'])
+def delete_user_by_name_route(username):
+    try:
+        userDB.delete_user(username)
+        return {"message": f"{username} deleted successfully"}, 200
+    except Exception as e:
+        return {"error": str(e)}, 500
+
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
 def get_all_users():

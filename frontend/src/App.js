@@ -69,6 +69,7 @@ function App() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isDeveloperMode]); // Dependency array to track changes in developer mode state
   
+  // Base developer mode gateway
   const activateDevMode = () => {
     const password = prompt("Enter Developer Mode Password:");
     if (password === "devpass") {
@@ -78,6 +79,7 @@ function App() {
     }
   };
 
+  // Deletes messages on all channels
   const handleDevDeleteAllMessages = async () => {
     if (messages.length === 0) {
       setNoMessagesToDelete(true); // Show "no messages" popup
@@ -96,7 +98,20 @@ function App() {
       console.error("Error deleting all messages:", error);
     }
   };
+
+  // deletes individual user
+  const handleDevDeleteUser = async (usernameToDelete) => {
+    try {
+      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${usernameToDelete}`);
+      console.log(`User ${usernameToDelete} deleted`);
+      // Refresh the user sidebar after deletion
+      fetchSidebar();
+    } catch (error) {
+      console.error(`Error deleting user ${usernameToDelete}:`, error);
+    }
+  };
   
+ 
   
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
@@ -488,7 +503,11 @@ function App() {
               </div>
               <UserSidebar
                 username={username}
-                users={users} />
+                users={users}
+                socket={socket}
+                isDeveloperMode={isDeveloperMode}
+                onDevDeleteUser={handleDevDeleteUser}
+              />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
           </>

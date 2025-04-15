@@ -5,7 +5,9 @@ import axios from "axios";
 function DevConsole() {
     const [consoleOutput, setConsoleOutput] = useState("Output will appear here...");
     const [command, setCommand] = useState("");
-
+    const [position, setPosition] = useState({ x: 50, y: 50 });
+    const [isDragging, setIsDragging] = useState(false);
+    const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     const handleCommandSubmit = async () => {
         if (!command.trim()) return; // Ignore empty commands
@@ -28,11 +30,40 @@ function DevConsole() {
         setCommand(""); // Clear the command input after submission
     };
 
+    const handleMouseDown = (e) => {
+        setIsDragging(true);
+        setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+    };
+
+    const handleMouseMove = (e) => {
+        if (!isDragging) return;
+        setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+    };
+
+    const handleMouseUp = () => {
+        setIsDragging(false);
+    };
 
     return (
-        // New console window for dev console
-        <div className="dev-console">
-            <div className="console-header">
+        <div
+            style={{
+                position: "absolute",
+                left: position.x,
+                top: position.y,
+                width: 400,
+                height: 300,
+                border: "1px solid black",
+            }}
+            className="dev-console"
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+        >
+            <div
+                className="console-header"
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                style={{ cursor: "move", padding: "5px" }}
+            >
                 <h3>Dev Console</h3>
             </div>
             <div className="console-body">
@@ -60,6 +91,5 @@ function DevConsole() {
         </div>
     );
 }
-
 
 export default DevConsole;

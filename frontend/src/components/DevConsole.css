@@ -22,17 +22,16 @@
 .dev-console {
   display: flex;
   flex-direction: column;
-  width: 50%;
+  width: 20%;
   max-width: 800px;
   margin: 0 auto;
   background-color: #222;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   position: absolute;
-  top: 50px;
-  left: 50px;
   resize: both;
   overflow: hidden;
+  z-index: 2147483647; /* Maximum z-index value to ensure it's always on top */
 }
 
 .dev-console:active {

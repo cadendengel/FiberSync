@@ -620,4 +620,22 @@ input:checked + .slider:before {
   border: 2px solid white;
 }
 
+/* Description box */
+.profile-description-box {
+  margin-top: 20px;
+  background-color: #40444b;
+  border-radius: 8px;
+  padding: 12px;
+  min-height: 60px;
+  color: #ccc;
+  font-size: 14px;
+}
+
+.description-placeholder {
+  margin: 0;
+  font-style: italic;
+  color: #888;
+}
+
+
 

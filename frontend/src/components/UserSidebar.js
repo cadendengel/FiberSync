@@ -146,12 +146,10 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
             <div className="profile-info">
               <h3>{viewingProfile.username}</h3>
               <p className={`status ${viewingProfile.status}`}>{viewingProfile.status}</p>
-              <button onClick={() => {
-                openDM(viewingProfile.username);
-                setViewingProfile(null);
-              }}>
-                Message
-              </button>
+              <div className="profile-description-box">
+              {/* Placeholder for now, will contain user description later */}
+              <p className="description-placeholder">This user hasn't written a description yet.</p>
+            </div>
             </div>
           </div>
         </div>

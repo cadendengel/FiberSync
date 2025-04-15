@@ -43,6 +43,12 @@ function App() {
   const [deletionSuccess, setDeletionSuccess] = useState(false);
   const [noMessagesToDelete, setNoMessagesToDelete] = useState(false);
   const [isDevConsoleOpen, setIsDevConsoleOpen] = useState(false);
+  // States for Direct Messaging
+  const [dmRoom, setDMRoom] = useState(null);
+  const [dmMessages, setDMMessages] = useState([]);
+  const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
+  const [isDMOpen, setIsDMOpen] = useState(false);
+
 
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
@@ -446,6 +452,56 @@ function App() {
     return () => socket.off("connect", handleReconnect);
   }, [username, enteredChat]);
 
+
+  // UseEffect for Direct Messaging:
+  useEffect(() => {
+    // When DM session is initialized
+    const handleDMSessionStarted = ({ room }) => {
+      console.log("DM session started in room:", room);
+      setDMRoom(room);
+      setDMMessages([]);  // Reset DM history
+      setIsDMOpen(true);  // Trigger DM UI
+    };
+  
+    const handleReceiveDM = ({ from, message }) => {
+      console.log(`DM from ${from}: ${message}`);
+      setDMMessages(prev => [...prev, { from, message }]);
+    };
+  
+    socket.on("dm_session_started", handleDMSessionStarted);
+    socket.on("receive_dm", handleReceiveDM);
+  
+    return () => {
+      socket.off("dm_session_started", handleDMSessionStarted);
+      socket.off("receive_dm", handleReceiveDM);
+    };
+  }, []);
+
+  const startDMWithUser = (targetUsername) => {
+    if (targetUsername === username) return;
+  
+    socket.emit("start_dm_session", {
+      from: username,
+      to: targetUsername
+    });
+  
+    setDMTarget(targetUsername);
+  };
+
+  const sendDirectMessage = (message) => {
+    if (!dmRoom) return;
+  
+    socket.emit("dm_message", {
+      room: dmRoom,
+      from: username,
+      message
+    });
+  
+    // Echo the message on sender's side
+    setDMMessages(prev => [...prev, { from: username, message }]);
+  };
+  
+  
   /* The actual React app UI below: (or the important part)
    * Conditionally renders either the Login Screen (before entering chat) 
    *    OR the Chat Interface (once user has logged in).

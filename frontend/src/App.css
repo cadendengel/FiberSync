@@ -451,6 +451,23 @@ input:checked + .slider:before {
   background-color: #e60000;
 }
 
+.dev-console-button {
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+
+.dev-console-button:hover {
+  background-color: #e60000;
+}
+
 .dev-tools-panel {
   position: fixed;
   top: 100px;

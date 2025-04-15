@@ -7,6 +7,7 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
+import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
 
 // Throwing down a bunch of comments to explain my changes:
@@ -41,6 +42,7 @@ function App() {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [deletionSuccess, setDeletionSuccess] = useState(false);
   const [noMessagesToDelete, setNoMessagesToDelete] = useState(false);
+  const [isDevConsoleOpen, setIsDevConsoleOpen] = useState(false);
 
   ///////////////////////////////
   //       DEVELOPER MODE        //
@@ -96,6 +98,10 @@ function App() {
       console.error("Error deleting all messages:", error);
     }
   };
+
+  const toggleDevConsole = () => {
+    setIsDevConsoleOpen(!isDevConsoleOpen);
+  }
   
   
   /////////////////////////////////
@@ -440,8 +446,14 @@ function App() {
           <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
             Delete All Messages
           </button>
+          <button className="dev-console-button" onClick={toggleDevConsole}>
+            Toggle Dev Console
+          </button>
         </div>
       )}
+        {isDevConsoleOpen && (
+          <DevConsole />
+        )}
       <div className="container">
         {!enteredChat ? (
           <div className="entry-box">

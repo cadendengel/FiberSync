@@ -28,7 +28,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
       console.error("Error fetching profile data:", error);
     }
     try {
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, { username: user.username });
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, { username: user.username });
       setProfileData((prev) => ({ ...prev, description: response.data.description }));
     }
     catch (error) {

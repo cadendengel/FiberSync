@@ -41,7 +41,12 @@ function App() {
   const [isDeveloperMode, setIsDeveloperMode] = useState(false);
   const [deletionSuccess, setDeletionSuccess] = useState(false);
   const [noMessagesToDelete, setNoMessagesToDelete] = useState(false);
-
+  const [confirmState, setConfirmState] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
+ 
   ///////////////////////////////
   //       DEVELOPER MODE        //
   ///////////////////////////////
@@ -79,39 +84,48 @@ function App() {
     }
   };
 
+  // Confimration prompt for committing destructive operations
+  const openConfirmation = (message, onConfirm) => {
+    setConfirmState({
+      isOpen: true,
+      message,
+      onConfirm,
+    });
+  };
+  
   // Deletes messages on all channels
-  const handleDevDeleteAllMessages = async () => {
+  const handleDevDeleteAllMessages = () => {
     if (messages.length === 0) {
-      setNoMessagesToDelete(true); // Show "no messages" popup
-      setTimeout(() => setNoMessagesToDelete(false), 3000); // Hide after 3s
+      setNoMessagesToDelete(true);
+      setTimeout(() => setNoMessagesToDelete(false), 3000);
       return;
     }
   
-    try {
-      const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`);
-      console.log("All messages deleted:", response.data);
-      fetchMessages(activeChannel);
-  
-      setDeletionSuccess(true); // Show success popup
-      setTimeout(() => setDeletionSuccess(false), 3000); // Hide after 3s
-    } catch (error) {
-      console.error("Error deleting all messages:", error);
-    }
-  };
+    openConfirmation("Are you sure you want to delete all messages?", async () => {
+      try {
+        const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`);
+        console.log("All messages deleted:", response.data);
+        fetchMessages(activeChannel);
+        setDeletionSuccess(true);
+        setTimeout(() => setDeletionSuccess(false), 3000);
+      } catch (error) {
+        console.error("Error deleting all messages:", error);
+      }
+    });
+  };  
 
-  // deletes individual user
-  const handleDevDeleteUser = async (usernameToDelete) => {
-    try {
-      await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${usernameToDelete}`);
-      console.log(`User ${usernameToDelete} deleted`);
-      // Refresh the user sidebar after deletion
-      fetchSidebar();
-    } catch (error) {
-      console.error(`Error deleting user ${usernameToDelete}:`, error);
-    }
+  // Deletes individual user
+  const handleDevDeleteUser = (usernameToDelete) => {
+    openConfirmation(`Are you sure you want to delete user "${usernameToDelete}"?`, async () => {
+      try {
+        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${usernameToDelete}`);
+        console.log(`User ${usernameToDelete} deleted`);
+        fetchSidebar();
+      } catch (error) {
+        console.error(`Error deleting user ${usernameToDelete}:`, error);
+      }
+    });
   };
-  
- 
   
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
@@ -455,6 +469,30 @@ function App() {
           <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
             Delete All Messages
           </button>
+        </div>
+      )}
+            {confirmState.isOpen && (
+        <div className="confirm-overlay">
+          <div className="confirm-box">
+            <p>{confirmState.message}</p>
+            <div className="confirm-actions">
+              <button
+                onClick={() => {
+                  confirmState.onConfirm();
+                  setConfirmState({ ...confirmState, isOpen: false });
+                }}
+              >
+                Yes
+              </button>
+              <button
+                onClick={() =>
+                  setConfirmState({ ...confirmState, isOpen: false })
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
         </div>
       )}
       <div className="container">

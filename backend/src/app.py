@@ -469,6 +469,40 @@ def delete_message():
         return jsonify({"error": "Message_id still in database"}), 404
 
 # ======================================= #
+#            Direct Messaging             # 
+# ======================================= #
+# This section does not post to the Database and serves to host the WebSocket rooms for Direct Messaging
+@socketio.on("start_dm_session")
+def handle_start_dm_session(data):
+    from_user = data["from"]
+    to_user = data["to"]
+    
+    # This should generate a room name for any user pair, might have problems if two users have similar names??
+    room_id = "_".join(sorted([from_user, to_user]))
+
+    print(f"DM session started between {from_user} and {to_user}, room: {room_id}")
+    join_room(room_id, sid=request.sid)
+    emit("dm_session_started", {"room": room_id}, room=room_id)
+
+@socketio.on("dm_message")
+def handle_dm_message(data):
+    room = data["room"]
+    from_user = data["from"]
+    message = data["message"]
+    
+    print(f"[DM] {from_user} to room {room}: {message}")
+    emit("receive_dm", {"from": from_user, "message": message}, room=room)
+
+
+@socketio.on("leave_dm")
+def handle_leave_dm(data):
+    room = data.get("room")
+    if room:
+        leave_room(room)
+        print(f"User left DM room {room}")
+
+
+# ======================================= #
 #               User Status               # 
 # ======================================= #
 # This section will track when a user is connected or not.

@@ -94,7 +94,7 @@ def get_user_count():
 
 
 # Get user timestamp
-@app.route('/api/users/timestamp', methods=['GET'])
+@app.route('/api/users/timestamp', methods=['POST'])
 def get_user_timestamp():
     data = request.json
     username = data.get('username')
@@ -110,7 +110,7 @@ def get_user_timestamp():
 
 
 # Get user description
-@app.route('/api/users/description', methods=['GET'])
+@app.route('/api/users/description', methods=['POST'])
 def get_user_description():
     data = request.json
     username = data.get('username')
@@ -120,7 +120,7 @@ def get_user_description():
     
     description = userDB.get_description_by_username(username)
     if not description:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "Description not found"}), 404
 
     return jsonify({"description": description}), 200
 

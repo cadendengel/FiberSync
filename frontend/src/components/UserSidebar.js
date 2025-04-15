@@ -19,6 +19,22 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
   const [isEditingProfile, setIsEditingProfile] = useState(false); // State to track if editing profile
   const [editProfileData, setEditProfileData] = useState({ description: "" }); // State to store edited profile data
   
+  
+  const updateProfileData = async (user) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/timestamp`, {username: user.username});
+      setProfileData((prev) => ({ ...prev, timestamp: response.data.timestamp }));
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+    try {
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, { username: user.username });
+      setProfileData((prev) => ({ ...prev, description: response.data.description }));
+    }
+    catch (error) {
+      console.error("Error fetching profile description:", error);
+    }
+  };
 
   // Inactivity logic
   const startInactivityTimer = useCallback(() => {
@@ -219,7 +235,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
               {/* Dropdown menu when clicked */}
               {activeUserMenu === user.username && (
                 <div className="user-dropdown">
-                  <button onClick={() => setViewingProfile(user)}>View Profile</button>
+                  <button onClick={() => {updateProfileData(user); setViewingProfile(user);}}>View Profile</button>
                   <button onClick={() => openDM(user.username)}>Send Message</button>
                   {isDeveloperMode && (
                     <button

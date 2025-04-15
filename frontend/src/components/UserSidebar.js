@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './UserSidebar.css'; // Modular CSS if you break it out later
 
 
-function UserSidebar({ username, users, socket }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -152,6 +152,18 @@ function UserSidebar({ username, users, socket }) {
                 <div className="user-dropdown">
                   <button onClick={() => alert(`You're viewing ${user.username}'s profile!`)}>View Profile</button>
                   <button onClick={() => openDM(user.username)}>Send Message</button>
+                  {isDeveloperMode && (
+                    <button
+                      onClick={() => {
+                          // add confirmation soon
+                          onDevDeleteUser(user.username); 
+                          // possible end of if statement here for next task
+                      }}
+                      style={{ color: "red" }}
+                    >
+                      ❌ Delete User
+                    </button>
+                  )}
                 </div>
               )}
             </li>

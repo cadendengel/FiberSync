@@ -55,9 +55,9 @@ function App() {
   ///////////////////////////////
   useEffect(() => {
     const handleKeyDown = (event) => {
-      // WINDOWS: Check if Shift + Alt + P are pressed
-      // MAC: Check if Option + Shift + P are pressed
-      if ((event.shiftKey && event.altKey && event.key === "p") || event.key === '∏') {
+      // WINDOWS: Check if Alt + P are pressed
+      // MAC: Check if Option + P are pressed
+      if ((event.altKey && event.key === "p") || event.key === 'π') {
         if (!isDeveloperMode) {
           // Enter Developer Mode: prompt for password
           const password = prompt("Enter Developer Mode Password:");
@@ -459,7 +459,7 @@ function App() {
     {isDeveloperMode && (
       <>
         <div className="dev-banner">
-          Developer Mode Activated ("Ctrl" + "Alt" + 'p' to deactivate)
+          Developer Mode Activated ("Alt" + 'p' to deactivate)
         </div>
         {deletionSuccess && (
           <div className="popup-message success">All messages deleted.</div>

@@ -1,0 +1,117 @@
+// Might be unused, but keeping it for future reference
+
+.dev-console-button {
+  margin: 1rem auto;
+  padding: 0.5rem 1rem;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  display: block;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}
+  
+.dev-console-button:hover {
+  background-color: #e60000;
+}
+
+
+
+.dev-console {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #222;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: absolute;
+  top: 50px;
+  left: 50px;
+  resize: both;
+  overflow: hidden;
+}
+
+.dev-console:active {
+  cursor: grabbing;
+}
+
+.dev-console:active {
+  position: absolute;
+  z-index: 1000;
+}
+
+body {
+  user-select: none;
+}
+
+.dev-console {
+  touch-action: none;
+}
+
+
+
+.console-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #333;
+  color: white;
+  border-radius: 8px 8px 0 0;
+}
+
+.console-body {
+  flex: 1;
+  padding: 1rem;
+  background-color: #444;
+  color: white;
+  overflow-y: auto;
+}
+
+.console-output {
+  background-color: #555;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  width: 100%;
+  min-height: 50px;
+  overflow-y: auto; /* Allow scrolling if content exceeds max height */
+  height: 100%; /* Adjust height dynamically */
+  flex-grow: 1; /* Allow it to grow within the body */
+  resize: none; /* Disable resizing */
+}
+
+.console-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  background-color: #333;
+  color: white;
+  border-radius: 0 0 8px 8px;
+}
+
+.console-input {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: none;
+  background-color: #555;
+  color: white;
+  font-size: 1rem;
+}
+
+.console-submit {
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+}

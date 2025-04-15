@@ -2,6 +2,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv, dotenv_values
 import os
 import hashlib
+import time
 
 load_dotenv()
 
@@ -48,7 +49,7 @@ def get_salt_by_username(username):
 
 def add_user(username, password, cookies):
     # generate timestamp
-    timestamp = int(os.time())
+    timestamp = int(time.time())
     
     # generate salt
     salt = os.urandom(16)

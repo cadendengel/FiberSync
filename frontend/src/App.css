@@ -612,3 +612,12 @@ input:checked + .slider:before {
   background-color: #4752c4;
 }
 
+.profile-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid white;
+}
+
+

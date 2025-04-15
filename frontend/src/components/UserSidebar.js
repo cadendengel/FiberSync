@@ -136,7 +136,13 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
             {viewingProfile && (
         <div className="profile-popup" onClick={() => setViewingProfile(null)}>
           <div className="profile-card" onClick={(e) => e.stopPropagation()}>
-            <div className="profile-picture">👤</div>
+          <div className="profile-picture">
+              <img
+                src={`https://ui-avatars.com/api/?name=${viewingProfile.username}&background=random&color=fff&size=128`}
+                alt={`${viewingProfile.username}'s avatar`}
+                className="profile-avatar"
+              />
+            </div>
             <div className="profile-info">
               <h3>{viewingProfile.username}</h3>
               <p className={`status ${viewingProfile.status}`}>{viewingProfile.status}</p>

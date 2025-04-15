@@ -498,9 +498,6 @@ function App() {
       from: username,
       message
     });
-  
-    // Echo the message on sender's side
-    setDMMessages(prev => [...prev, { from: username, message }]);
   };
   
   

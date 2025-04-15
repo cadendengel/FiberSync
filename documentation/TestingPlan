@@ -24,6 +24,27 @@ Below are the Tests planned for our FLASK Backend:
                 return: jsonify({"authenticated": boolean success/failure})
         Database
 
+        UserStatus
+        Routes
+            update_user_status()
+                method: POST
+                fields: string username, string status ("online" or "offline")
+                return: jsonify({"message": string})
+            get_user_status()
+                method: GET
+                fields: string username
+                return: jsonify({"status": string})
+        Tests
+            test_update_and_get_user_status()
+                creates a user, sets status to "online", then checks returned status
+            test_update_status_for_nonexistent_user()
+                attempts to update status for a non-existent user; checks status code
+            test_update_status_to_offline()
+                creates a user, sets to "online", then "offline", and verifies the final status
+
+
+
+
 This document outlines the current and planned unit tests across our backend and frontend.
 Note: Tests currently marked as skipped or commented out are retained in the codebase for future repair and to be reintegrated. 
 Once other features have been implemented we'll begin working to resolve database state issues that interfere with consistent test behavior.

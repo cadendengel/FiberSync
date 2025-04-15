@@ -13,6 +13,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
   const [snapEnabled, setSnapEnabled] = useState(false); // New state to get the box back in corner
   const dmBoxRef = useRef();
   const [minimized, setMinimized] = useState(false);
+  const [viewingProfile, setViewingProfile] = useState(null);
 
 
   // Inactivity logic
@@ -132,6 +133,23 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     <div className="chat-sidebar">
       <h2>Users</h2>
       <ul className="user-list">
+            {viewingProfile && (
+        <div className="profile-popup" onClick={() => setViewingProfile(null)}>
+          <div className="profile-card" onClick={(e) => e.stopPropagation()}>
+            <div className="profile-picture">👤</div>
+            <div className="profile-info">
+              <h3>{viewingProfile.username}</h3>
+              <p className={`status ${viewingProfile.status}`}>{viewingProfile.status}</p>
+              <button onClick={() => {
+                openDM(viewingProfile.username);
+                setViewingProfile(null);
+              }}>
+                Message
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <li className="user-entry">
         <div>
           👤 <span className={`status-indicator ${status}`}></span> {username} (you)
@@ -150,7 +168,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
               {/* Dropdown menu when clicked */}
               {activeUserMenu === user.username && (
                 <div className="user-dropdown">
-                  <button onClick={() => alert(`You're viewing ${user.username}'s profile!`)}>View Profile</button>
+                  <button onClick={() => setViewingProfile(user)}>View Profile</button>
                   <button onClick={() => openDM(user.username)}>Send Message</button>
                   {isDeveloperMode && (
                     <button

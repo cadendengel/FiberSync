@@ -23,7 +23,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
   const updateProfileData = async (user) => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/timestamp`, {username: user.username});
-      const timestamp = new Date(response.data.timestamp).toUTCString();
+      const timestamp = new Date(response.data.timestamp * 1000).toUTCString();
       setProfileData((prev) => ({ ...prev, timestamp: timestamp }));
     } catch (error) {
       console.error("Error fetching profile data:", error);

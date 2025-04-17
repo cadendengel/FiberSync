@@ -116,11 +116,11 @@ def get_user_description():
     username = data.get('username')
 
     if not username:
-        return jsonify({"error": "Missing username"}), 400
+        return jsonify({"error": "Missing username"}), 404
     
     description = userDB.get_description_by_username(username)
     if not description:
-        return jsonify({"error": "Description not found"}), 404
+        return jsonify({"error": "Description not found"}), 204
 
     return jsonify({"description": description}), 200
 

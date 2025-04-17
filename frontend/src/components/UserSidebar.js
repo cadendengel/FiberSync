@@ -3,8 +3,7 @@ import './UserSidebar.css'; // Modular CSS if you break it out later
 import axios from 'axios';
 
 
-function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM }) {
-function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, get }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM, get }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open

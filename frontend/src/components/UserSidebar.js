@@ -30,9 +30,9 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     }
     try {
       const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, { username: user.username });
-      setProfileData((prev) => ({ ...prev, description: response.data.description }));
-    }
-    catch (error) {
+      const description = response.data.description || "I have no description right now!";
+      setProfileData((prev) => ({ ...prev, description: description }));
+    } catch (error) {
       console.error("Error fetching profile description:", error);
     }
   };
@@ -184,10 +184,11 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
                 {profileData ? (
                   <>
                     <p>User Since: {profileData.timestamp}</p>
+                    <br></br>
                     <p>{profileData.description}</p> 
                   </>
                 ) : (
-                  <p>User has not edited their description</p>
+                  <p>Loading profile data...</p>
                 )}
             </div>
             {/* Edit Profile Section */}
@@ -218,7 +219,7 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
         </div>
       )}
       <li className="user-entry">
-        <div onClick={() => setViewingProfile({ username, status })}>
+        <div onClick={() => {updateProfileData({ username, status }); setViewingProfile({ username, status })}}>
           {/* User's own profile */}
           👤 <span className={`status-indicator ${status}`}></span> {username} (you)
         </div>

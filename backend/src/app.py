@@ -266,7 +266,7 @@ def handle_message(data):
     from bson.objectid import ObjectId
 
     message_id = str(ObjectId())  # Generate a unique message ID
-    timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get UTC timestamp
 
     # Save message to the database
     msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])

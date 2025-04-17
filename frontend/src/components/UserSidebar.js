@@ -1,13 +1,35 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import './UserSidebar.css'; // Modular CSS if you break it out later
+import axios from 'axios';
 
 
 function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, get }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
   const [viewingProfile, setViewingProfile] = useState(null);
-
+  const [profileData, setProfileData] = useState(null); // State to store profile data
+  const [isEditingProfile, setIsEditingProfile] = useState(false); // State to track if editing profile
+  const [editProfileData, setEditProfileData] = useState({ description: "" }); // State to store edited profile data
+  
+  
+  const updateProfileData = async (user) => {
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/timestamp`, {username: user.username});
+      const timestamp = new Date(response.data.timestamp * 1000).toUTCString();
+      setProfileData((prev) => ({ ...prev, timestamp: timestamp }));
+    } catch (error) {
+      console.error("Error fetching profile data:", error);
+    }
+    try {
+      const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, { username: user.username });
+      const description = response.data.description || "I have no description right now!";
+      setProfileData((prev) => ({ ...prev, description: description }));
+    } catch (error) {
+      console.error("Error fetching profile description:", error);
+    }
+  };
 
   // Inactivity logic
   const startInactivityTimer = useCallback(() => {
@@ -50,6 +72,91 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     setActiveUserMenu(activeUserMenu === user ? null : user);
   };
 
+  const openDM = (user) => {
+    setSelectedUser(user);
+    setNotifications((prev) => ({ ...prev, [user]: false }));
+    setActiveUserMenu(null);
+  };
+
+  const closeDM = () => setSelectedUser(null);
+
+  const startDragging = (e) => {
+    const box = dmBoxRef.current;
+    const offsetX = e.clientX - box.getBoundingClientRect().left;
+    const offsetY = e.clientY - box.getBoundingClientRect().top;
+  
+    const handleMouseMove = (eMove) => {
+      setDmBoxPosition({
+        x: eMove.clientX - offsetX,
+        y: eMove.clientY - offsetY
+      });
+    };
+  
+    const stopDragging = () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", stopDragging);
+    };
+  
+    document.addEventListener("mousemove", handleMouseMove);
+    document.addEventListener("mouseup", stopDragging);
+  };
+
+  const snapToCorner = () => {
+    const margin = 20;
+    const chatWidth = 400; // match default dm-box width
+    const chatHeight = 350; // match default dm-box height
+  
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+  
+    const x = screenWidth - chatWidth - margin;
+    const y = screenHeight - chatHeight - margin;
+  
+    setSnapEnabled(true);
+    setDmBoxPosition({ x, y });
+  
+    // Optionally disable snap after it animates
+    setTimeout(() => setSnapEnabled(false), 300);
+  };
+
+  const sendMessage = (event, user) => {
+    if (event.key === "Enter") {
+      const newMessage = event.target.value.trim();
+      if (!newMessage) return;
+
+      setMessages((prev) => ({
+        ...prev,
+        [user]: [...(prev[user] || []), { sender: "You", text: newMessage }],
+      }));
+
+      event.target.value = "";
+
+      setTimeout(() => {
+        setMessages((prev) => ({
+          ...prev,
+          [user]: [...(prev[user] || []), { sender: user, text: "I received your message!" }],
+        }));
+
+        if (selectedUser !== user) {
+          setNotifications((prev) => ({ ...prev, [user]: true }));
+        }
+      }, 3000);
+    }
+  };
+
+  const handleEditProfile = async () => {
+    try {
+      await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, {
+        username: username,
+        description: editProfileData.description,
+      });
+      setProfileData((prev) => ({ ...prev, description: editProfileData.description }));
+      setIsEditingProfile(false);
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
+
   return (
     <div className="chat-sidebar">
       <h2>Users</h2>
@@ -68,15 +175,46 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
               <h3>{viewingProfile.username}</h3>
               <p className={`status ${viewingProfile.status}`}>{viewingProfile.status}</p>
               <div className="profile-description-box">
-              {/* Placeholder for now, will contain user description later */}
-              <p className="description-placeholder">This user hasn't written a description yet.</p>
+                {profileData ? (
+                  <>
+                    <p>User Since: {profileData.timestamp}</p>
+                    <br></br>
+                    <p>{profileData.description}</p> 
+                  </>
+                ) : (
+                  <p>Loading profile data...</p>
+                )}
             </div>
+            {/* Edit Profile Section */}
+            {viewingProfile.username === username && (
+              <div className="edit-profile-section">
+                {isEditingProfile ? (
+                  <div className="edit-profile-form">
+                    <textarea
+                      value={editProfileData.description}
+                      onChange={(e) => setEditProfileData({ description: e.target.value })}
+                      placeholder="Update your description..."
+                    />
+                    <button onClick={handleEditProfile}>Save</button>
+                    <button onClick={() => setIsEditingProfile(false)}>Cancel</button>
+                  </div>
+                ) : (
+                  <button onClick={() => {
+                    setIsEditingProfile(true);
+                    setEditProfileData({ description: profileData?.description || "" });
+                  }}>
+                    Edit Profile
+                  </button>
+                )}
+              </div>
+            )}
             </div>
           </div>
         </div>
       )}
       <li className="user-entry">
-        <div>
+        <div onClick={() => {updateProfileData({ username, status }); setViewingProfile({ username, status })}}>
+          {/* User's own profile */}
           👤 <span className={`status-indicator ${status}`}></span> {username} (you)
         </div>
       </li>
@@ -92,8 +230,8 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
               {/* Dropdown menu when clicked */}
               {activeUserMenu === user.username && (
                 <div className="user-dropdown">
-                  <button onClick={() => setViewingProfile(user)}>View Profile</button>
-                  <button onClick={() => onStartDM(user.username)}>Send Message</button>
+                  <button onClick={() => {updateProfileData(user); setViewingProfile(user);}}>View Profile</button>
+                  <button onClick={() => openDM(user.username)}>Send Message</button>
                   {isDeveloperMode && (
                     <button
                       onClick={() => {

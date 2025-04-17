@@ -94,7 +94,7 @@ def get_user_count():
 
 
 # Get user timestamp
-@app.route('/api/users/timestamp', methods=['GET'])
+@app.route('/api/users/timestamp', methods=['POST'])
 def get_user_timestamp():
     data = request.json
     username = data.get('username')
@@ -110,17 +110,17 @@ def get_user_timestamp():
 
 
 # Get user description
-@app.route('/api/users/description', methods=['GET'])
+@app.route('/api/users/description', methods=['POST'])
 def get_user_description():
     data = request.json
     username = data.get('username')
 
     if not username:
-        return jsonify({"error": "Missing username"}), 400
+        return jsonify({"error": "Missing username"}), 404
     
     description = userDB.get_description_by_username(username)
     if not description:
-        return jsonify({"error": "User not found"}), 404
+        return jsonify({"error": "Description not found"}), 204
 
     return jsonify({"description": description}), 200
 
@@ -266,7 +266,7 @@ def handle_message(data):
     from bson.objectid import ObjectId
 
     message_id = str(ObjectId())  # Generate a unique message ID
-    timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get UTC timestamp
 
     # Save message to the database
     msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])

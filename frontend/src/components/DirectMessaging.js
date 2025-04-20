@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import './DirectMessaging.css';
 
-function DirectMessaging({ dmTarget, dmMessages, onSend, onClose }) {
+function DirectMessaging({ username, dmTarget, dmMessages, onSend, onClose }) {
   const [input, setInput] = useState("");
   const [position, setPosition] = useState({ x: null, y: null });
   const dmRef = useRef(null);
@@ -61,8 +61,8 @@ function DirectMessaging({ dmTarget, dmMessages, onSend, onClose }) {
       <div className="dm-messages">
         {dmMessages.map((msg, idx) => (
           <div
-            key={idx}
-            className={`dm-message ${msg.from === dmTarget ? "from-them" : "from-me"}`}
+          key={idx}
+            className={`dm-message ${msg.from === username ? "from-me" : "from-them"}`}
           >
             <strong>{msg.from}:</strong> {msg.message}
           </div>

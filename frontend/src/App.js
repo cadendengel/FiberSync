@@ -11,6 +11,9 @@ import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
 import DirectMessaging from "./components/DirectMessaging";
 
+// Move to top of file, outside App()
+const notificationSound = new Audio("/notification.mp3");
+notificationSound.volume = 0.5;
 
 // Throwing down a bunch of comments to explain my changes:
 /* Axios Requests: Now uses an environment variable to toggle between development & deployment
@@ -50,16 +53,12 @@ function App() {
   const [dmMessages, setDMMessages] = useState([]);
   const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
   const [isDMOpen, setIsDMOpen] = useState(false);
-  const [dmNotifications, setDMNotifications] = useState({});
 
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     message: "",
     onConfirm: () => {},
   });
-
-  const notificationSound = new Audio("/notification.mp3");
-  notificationSound.volume = 0.5;
 
   ///////////////////////////////
   //       DEVELOPER MODE        //
@@ -462,44 +461,45 @@ function App() {
   useEffect(() => {
     if (!username) return;
   
-    const handleDMSessionStarted = ({ room }) => {
-      console.log("DM session started in room:", room);
-      setDMRoom(room);
-      setDMMessages([]);  // Reset DM history
-      setIsDMOpen(true);  // Trigger DM UI
-    };
+    const handleDMInvite = ({ from }) => {
+      const accept = window.confirm(`${from} wants to start a Direct Message. Accept?`);
   
-    const handleReceiveDM = ({ from, message }) => {
-      console.log(`DM from ${from}: ${message}`);
+      // Reload and play sound
+      notificationSound.pause();
+      notificationSound.currentTime = 0;
+      notificationSound.play();
   
-      if (from !== username && from !== dmTarget) {
-        notificationSound.play();
-        setDMNotifications(prev => ({ ...prev, [from]: true }));
+      if (accept) {
+        socket.emit("dm_accept", {
+          from: username, // you're the recipient
+          to: from        // original sender
+        });
+        console.log(`Accepted DM invite from ${from}`);
+      } else {
+        console.log(`Declined DM invite from ${from}`);
       }
-  
-      setDMMessages(prev => [...prev, { from, message }]);
     };
   
-    socket.on("dm_session_started", handleDMSessionStarted);
-    socket.on("receive_dm", handleReceiveDM);
+    socket.on("dm_invite", handleDMInvite);
   
     return () => {
-      socket.off("dm_session_started", handleDMSessionStarted);
-      socket.off("receive_dm", handleReceiveDM);
+      socket.off("dm_invite", handleDMInvite);
     };
-  }, [username, dmTarget]);
+  }, [username]);
+  
   
 
-  const startDMWithUser = (targetUsername) => {
+  const inviteToDM = (targetUsername) => {
     if (targetUsername === username) return;
   
-    socket.emit("start_dm_session", {
+    socket.emit("dm_invite", {
       from: username,
       to: targetUsername
     });
   
-    setDMTarget(targetUsername);
+    console.log(`📨 DM invite sent to ${targetUsername}`);
   };
+  
 
   const sendDirectMessage = (message) => {
     if (!dmRoom) return;
@@ -509,8 +509,7 @@ function App() {
       from: username,
       message
     });
-  };
-  
+  };  
   
   /* The actual React app UI below: (or the important part)
    * Conditionally renders either the Login Screen (before entering chat) 
@@ -624,11 +623,7 @@ function App() {
                 socket={socket}
                 isDeveloperMode={isDeveloperMode}
                 onDevDeleteUser={handleDevDeleteUser}
-                onStartDM={startDMWithUser}
-                dmNotifications={dmNotifications}
-                clearDMNotification={(user) =>
-                  setDMNotifications((prev) => ({ ...prev, [user]: false }))
-                }
+                onStartDM={inviteToDM}
               />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
@@ -636,6 +631,7 @@ function App() {
         )}
         {isDMOpen && (
           <DirectMessaging
+            username={username}
             dmTarget={dmTarget}
             dmMessages={dmMessages}
             onSend={sendDirectMessage}

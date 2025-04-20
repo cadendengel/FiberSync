@@ -3,7 +3,7 @@ import './UserSidebar.css'; // Modular CSS if you break it out later
 import axios from 'axios';
 
 
-function UserSidebar({username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM, dmNotifications, clearDMNotification }) {
+function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
@@ -71,10 +71,12 @@ function UserSidebar({username, users, socket, isDeveloperMode, onDevDeleteUser,
     setActiveUserMenu(activeUserMenu === user ? null : user);
   };
 
-  const openDM = (user) => {
-    clearDMNotification(user); // clear red dot
-    onStartDM(user);           // start DM session
-    setActiveUserMenu(null);   // close dropdown
+  const inviteToDM = (user) => {
+    socket.emit("dm_invite", {
+      from: username,
+      to: user
+    });
+    setActiveUserMenu(null); // close dropdown
   };
     
   const handleEditProfile = async () => {
@@ -159,14 +161,13 @@ function UserSidebar({username, users, socket, isDeveloperMode, onDevDeleteUser,
               <div onClick={() => toggleUserMenu(user.username)}>
                 👤 <span className={`status-indicator ${user.status}`}></span> 
                 {user.username}
-                {dmNotifications?.[user.username] && <span className="dm-badge">🔴</span>}
               </div>
 
               {/* Dropdown menu when clicked */}
               {activeUserMenu === user.username && (
                 <div className="user-dropdown">
                   <button onClick={() => {updateProfileData(user); setViewingProfile(user);}}>View Profile</button>
-                  <button onClick={() => openDM(user.username)}>Send Message</button>
+                  <button onClick={() => inviteToDM(user.username)}>Invite to Message</button>
                   {isDeveloperMode && (
                     <button
                       onClick={() => {

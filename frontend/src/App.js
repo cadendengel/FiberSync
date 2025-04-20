@@ -462,36 +462,43 @@ function App() {
     if (!username) return;
   
     const handleDMInvite = ({ from }) => {
-      const accept = window.confirm(`${from} wants to start a Direct Message. Accept?`);
-  
-      // Reload and play sound
       notificationSound.pause();
       notificationSound.currentTime = 0;
       notificationSound.play();
   
+      const accept = window.confirm(`${from} wants to start a Direct Message. Accept?`);
       if (accept) {
+        setDMTarget(from);
         socket.emit("dm_accept", {
-          from: username, // you're the recipient
-          to: from        // original sender
+          from: username,
+          to: from,
         });
-        console.log(`Accepted DM invite from ${from}`);
-      } else {
-        console.log(`Declined DM invite from ${from}`);
       }
     };
   
+    const handleDMSessionStarted = ({ room }) => {
+      console.log(`DM session started in room: ${room}`);
+      setDMRoom(room);
+      setDMMessages([]);
+      setIsDMOpen(true);
+    };
+  
     socket.on("dm_invite", handleDMInvite);
+    socket.on("dm_session_started", handleDMSessionStarted);
   
     return () => {
       socket.off("dm_invite", handleDMInvite);
+      socket.off("dm_session_started", handleDMSessionStarted);
     };
   }, [username]);
+  
   
   
 
   const inviteToDM = (targetUsername) => {
     if (targetUsername === username) return;
-  
+    setDMTarget(targetUsername); // So the sender sees the name
+
     socket.emit("dm_invite", {
       from: username,
       to: targetUsername

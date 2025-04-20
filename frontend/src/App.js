@@ -50,14 +50,17 @@ function App() {
   const [dmMessages, setDMMessages] = useState([]);
   const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
   const [isDMOpen, setIsDMOpen] = useState(false);
-
+  const [dmNotifications, setDMNotifications] = useState({});
 
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     message: "",
     onConfirm: () => {},
   });
- 
+
+  const notificationSound = new Audio("/notification.mp3");
+  notificationSound.volume = 0.5;
+
   ///////////////////////////////
   //       DEVELOPER MODE        //
   ///////////////////////////////
@@ -467,6 +470,13 @@ function App() {
   
     const handleReceiveDM = ({ from, message }) => {
       console.log(`DM from ${from}: ${message}`);
+    
+      // Play sound if you're not currently chatting with them
+      if (from !== dmTarget) {
+        notificationSound.play();
+        setDMNotifications(prev => ({ ...prev, [from]: true }));
+      }
+    
       setDMMessages(prev => [...prev, { from, message }]);
     };
   
@@ -614,6 +624,10 @@ function App() {
                 isDeveloperMode={isDeveloperMode}
                 onDevDeleteUser={handleDevDeleteUser}
                 onStartDM={startDMWithUser}
+                dmNotifications={dmNotifications}
+                clearDMNotification={(user) =>
+                  setDMNotifications((prev) => ({ ...prev, [user]: false }))
+                }
               />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />

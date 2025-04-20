@@ -3,7 +3,7 @@ import './UserSidebar.css'; // Modular CSS if you break it out later
 import axios from 'axios';
 
 
-function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM, get }) {
+function UserSidebar({username, users, socket, isDeveloperMode, onDevDeleteUser, onStartDM, dmNotifications, clearDMNotification }) {
   const [status, setStatus] = useState("online"); // Default to online
   const inactivityTimer = useRef(null);
   const [activeUserMenu, setActiveUserMenu] = useState(null); // tracks which user's menu is open
@@ -72,77 +72,11 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
   };
 
   const openDM = (user) => {
-    setSelectedUser(user);
-    setNotifications((prev) => ({ ...prev, [user]: false }));
-    setActiveUserMenu(null);
+    clearDMNotification(user); // clear red dot
+    onStartDM(user);           // start DM session
+    setActiveUserMenu(null);   // close dropdown
   };
-
-  const closeDM = () => setSelectedUser(null);
-
-  const startDragging = (e) => {
-    const box = dmBoxRef.current;
-    const offsetX = e.clientX - box.getBoundingClientRect().left;
-    const offsetY = e.clientY - box.getBoundingClientRect().top;
-  
-    const handleMouseMove = (eMove) => {
-      setDmBoxPosition({
-        x: eMove.clientX - offsetX,
-        y: eMove.clientY - offsetY
-      });
-    };
-  
-    const stopDragging = () => {
-      document.removeEventListener("mousemove", handleMouseMove);
-      document.removeEventListener("mouseup", stopDragging);
-    };
-  
-    document.addEventListener("mousemove", handleMouseMove);
-    document.addEventListener("mouseup", stopDragging);
-  };
-
-  const snapToCorner = () => {
-    const margin = 20;
-    const chatWidth = 400; // match default dm-box width
-    const chatHeight = 350; // match default dm-box height
-  
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
-  
-    const x = screenWidth - chatWidth - margin;
-    const y = screenHeight - chatHeight - margin;
-  
-    setSnapEnabled(true);
-    setDmBoxPosition({ x, y });
-  
-    // Optionally disable snap after it animates
-    setTimeout(() => setSnapEnabled(false), 300);
-  };
-
-  const sendMessage = (event, user) => {
-    if (event.key === "Enter") {
-      const newMessage = event.target.value.trim();
-      if (!newMessage) return;
-
-      setMessages((prev) => ({
-        ...prev,
-        [user]: [...(prev[user] || []), { sender: "You", text: newMessage }],
-      }));
-
-      event.target.value = "";
-
-      setTimeout(() => {
-        setMessages((prev) => ({
-          ...prev,
-          [user]: [...(prev[user] || []), { sender: user, text: "I received your message!" }],
-        }));
-
-        if (selectedUser !== user) {
-          setNotifications((prev) => ({ ...prev, [user]: true }));
-        }
-      }, 3000);
-    }
-  };
-
+    
   const handleEditProfile = async () => {
     try {
       await axios.put(`${process.env.REACT_APP_BACKEND_URL}/api/users/description`, {
@@ -223,7 +157,9 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
           user?.username && user.username !== "You" && (
             <li key={user.username} className="user-entry">
               <div onClick={() => toggleUserMenu(user.username)}>
-                👤 <span className={`status-indicator ${user.status}`}></span> {user.username}
+                👤 <span className={`status-indicator ${user.status}`}></span> 
+                {user.username}
+                {dmNotifications?.[user.username] && <span className="dm-badge">🔴</span>}
               </div>
 
               {/* Dropdown menu when clicked */}

@@ -11,6 +11,9 @@ import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
 import DirectMessaging from "./components/DirectMessaging";
 
+// Move to top of file, outside App()
+const notificationSound = new Audio("/notification.mp3");
+notificationSound.volume = 0.5;
 
 // Throwing down a bunch of comments to explain my changes:
 /* Axios Requests: Now uses an environment variable to toggle between development & deployment
@@ -50,6 +53,7 @@ function App() {
   const [dmMessages, setDMMessages] = useState([]);
   const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
   const [isDMOpen, setIsDMOpen] = useState(false);
+  const [pendingDMInvite, setPendingDMInvite] = useState(null); // Custom UI for DM Acceptance
 
 
   const [confirmState, setConfirmState] = useState({
@@ -57,7 +61,12 @@ function App() {
     message: "",
     onConfirm: () => {},
   });
- 
+
+  const handleDMMessage = ({ from, message }) => {
+    console.log(`DM from ${from}: ${message}`);
+    setDMMessages((prev) => [...prev, { from, message }]);
+  };
+
   ///////////////////////////////
   //       DEVELOPER MODE        //
   ///////////////////////////////
@@ -454,41 +463,68 @@ function App() {
     return () => socket.off("connect", handleReconnect);
   }, [username, enteredChat]);
 
+  useEffect(() => {
+    if (!username) return;
+  
+    socket.on("receive_dm", handleDMMessage);
+  
+    return () => {
+      socket.off("receive_dm", handleDMMessage);
+    };
+  }, [username]);
 
   // UseEffect for Direct Messaging:
   useEffect(() => {
-    // When DM session is initialized
-    const handleDMSessionStarted = ({ room }) => {
-      console.log("DM session started in room:", room);
+    if (!username) return;
+  
+    const handleDMInvite = ({ from }) => {
+      console.log(`DM INVITE RECEIVED from ${from}`);
+
+      notificationSound.pause();
+      notificationSound.currentTime = 0;
+      notificationSound.play();
+  
+      setPendingDMInvite(from);  // Show a custom prompt
+    };
+  
+    // For boigtesting
+    window.testDMInvite = (sender) => {
+      handleDMInvite({ from: sender });
+    };
+
+    const handleDMSessionStarted = ({ room, withUser }) => {
+      console.log(`DM session started with ${withUser} in room: ${room}`);
+      setDMTarget(withUser);
       setDMRoom(room);
-      setDMMessages([]);  // Reset DM history
-      setIsDMOpen(true);  // Trigger DM UI
+      setDMMessages([]);
+      setIsDMOpen(true);
     };
   
-    const handleReceiveDM = ({ from, message }) => {
-      console.log(`DM from ${from}: ${message}`);
-      setDMMessages(prev => [...prev, { from, message }]);
-    };
-  
+    socket.on("dm_invite", handleDMInvite);
     socket.on("dm_session_started", handleDMSessionStarted);
-    socket.on("receive_dm", handleReceiveDM);
   
     return () => {
+      socket.off("dm_invite", handleDMInvite);
       socket.off("dm_session_started", handleDMSessionStarted);
-      socket.off("receive_dm", handleReceiveDM);
+      socket.off("receive_dm", handleDMMessage); // cleanup here
     };
-  }, []);
-
-  const startDMWithUser = (targetUsername) => {
-    if (targetUsername === username) return;
+  }, [username]);
   
-    socket.emit("start_dm_session", {
+  
+  
+
+  const inviteToDM = (targetUsername) => {
+    if (targetUsername === username) return;
+    setDMTarget(targetUsername); // So the sender sees the name
+
+    socket.emit("dm_invite", {
       from: username,
       to: targetUsername
     });
   
-    setDMTarget(targetUsername);
+    console.log(`📨 DM invite sent to ${targetUsername}`);
   };
+  
 
   const sendDirectMessage = (message) => {
     if (!dmRoom) return;
@@ -499,7 +535,6 @@ function App() {
       message
     });
   };
-  
   
   /* The actual React app UI below: (or the important part)
    * Conditionally renders either the Login Screen (before entering chat) 
@@ -613,7 +648,7 @@ function App() {
                 socket={socket}
                 isDeveloperMode={isDeveloperMode}
                 onDevDeleteUser={handleDevDeleteUser}
-                onStartDM={startDMWithUser}
+                onStartDM={inviteToDM}
               />
             </div>
             <ChatInput onSendMessage={handleSendMessage} />
@@ -621,6 +656,7 @@ function App() {
         )}
         {isDMOpen && (
           <DirectMessaging
+            username={username}
             dmTarget={dmTarget}
             dmMessages={dmMessages}
             onSend={sendDirectMessage}
@@ -632,6 +668,24 @@ function App() {
               setIsDMOpen(false);
             }}
           />
+        )}
+        {pendingDMInvite && (
+          <div className="dm-confirm-popup">
+            <div className="dm-confirm-box">
+              <p>{pendingDMInvite} wants to start a Direct Message.</p>
+              <div className="dm-confirm-buttons">
+                <button onClick={() => {
+                  socket.emit("dm_accept", {
+                    from: username,
+                    to: pendingDMInvite,
+                  });
+                  setDMTarget(pendingDMInvite);
+                  setPendingDMInvite(null);
+                }}>Accept</button>
+                <button onClick={() => setPendingDMInvite(null)}>Decline</button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

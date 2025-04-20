@@ -472,17 +472,42 @@ def delete_message():
 #            Direct Messaging             # 
 # ======================================= #
 # This section does not post to the Database and serves to host the WebSocket rooms for Direct Messaging
-@socketio.on("start_dm_session")
-def handle_start_dm_session(data):
-    from_user = data["from"]
-    to_user = data["to"]
-    
-    # This should generate a room name for any user pair, might have problems if two users have similar names??
-    room_id = "_".join(sorted([from_user, to_user]))
+# WebSocket Event: Handles DM Invite
+@socketio.on("dm_invite")
+def handle_dm_invite(data):
+    from_user = data.get("from")
+    to_user = data.get("to")
+    print(f"DM invite from {from_user} to {to_user}")
 
-    print(f"DM session started between {from_user} and {to_user}, room: {room_id}")
-    join_room(room_id, sid=request.sid)
-    emit("dm_session_started", {"room": room_id}, room=room_id)
+    for sid, user in sid_to_username.items():
+        if user == to_user:
+            emit("dm_invite", {"from": from_user}, room=sid)
+            break
+
+# WebSocket Event: Handles DM Acceptance and Room Setup
+@socketio.on("dm_accept")
+def handle_dm_accept(data):
+    from_user = data.get("from")  # The user who accepted the invite
+    to_user = data.get("to")      # The original inviter
+
+    room_id = "_".join(sorted([from_user, to_user]))
+    print(f"DM session established between {from_user} and {to_user}, room: {room_id}")
+
+    for sid, user in sid_to_username.items():
+        if user == from_user:
+            join_room(room_id, sid=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": to_user  # this user is DMing to_user
+            }, room=sid)
+        elif user == to_user:
+            join_room(room_id, sid=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": from_user  # this user is DMing from_user
+            }, room=sid)
+
+
 
 @socketio.on("dm_message")
 def handle_dm_message(data):

@@ -460,7 +460,8 @@ function App() {
 
   // UseEffect for Direct Messaging:
   useEffect(() => {
-    // When DM session is initialized
+    if (!username) return;
+  
     const handleDMSessionStarted = ({ room }) => {
       console.log("DM session started in room:", room);
       setDMRoom(room);
@@ -470,13 +471,12 @@ function App() {
   
     const handleReceiveDM = ({ from, message }) => {
       console.log(`DM from ${from}: ${message}`);
-    
-      // Play sound if you're not currently chatting with them
-      if (from !== dmTarget) {
+  
+      if (from !== username && from !== dmTarget) {
         notificationSound.play();
         setDMNotifications(prev => ({ ...prev, [from]: true }));
       }
-    
+  
       setDMMessages(prev => [...prev, { from, message }]);
     };
   
@@ -487,7 +487,8 @@ function App() {
       socket.off("dm_session_started", handleDMSessionStarted);
       socket.off("receive_dm", handleReceiveDM);
     };
-  }, []);
+  }, [username, dmTarget]);
+  
 
   const startDMWithUser = (targetUsername) => {
     if (targetUsername === username) return;

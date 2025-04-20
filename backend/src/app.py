@@ -487,20 +487,26 @@ def handle_dm_invite(data):
 # WebSocket Event: Handles DM Acceptance and Room Setup
 @socketio.on("dm_accept")
 def handle_dm_accept(data):
-    from_user = data.get("from")  # the user who accepted
-    to_user = data.get("to")      # the original inviter
+    from_user = data.get("from")  # The user who accepted the invite
+    to_user = data.get("to")      # The original inviter
 
     room_id = "_".join(sorted([from_user, to_user]))
     print(f"DM session established between {from_user} and {to_user}, room: {room_id}")
 
-    # Join both users to the room
     for sid, user in sid_to_username.items():
-        if user == from_user or user == to_user:
+        if user == from_user:
             join_room(room_id, sid=sid)
-            if user == from_user:
-                emit("dm_session_started", {"room": room_id, "withUser": to_user}, room=sid)
-            else:
-                emit("dm_session_started", {"room": room_id, "withUser": from_user}, room=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": to_user  # this user is DMing to_user
+            }, room=sid)
+        elif user == to_user:
+            join_room(room_id, sid=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": from_user  # this user is DMing from_user
+            }, room=sid)
+
 
 
 @socketio.on("dm_message")

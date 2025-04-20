@@ -654,5 +654,22 @@ input:checked + .slider:before {
   color: #888;
 }
 
+.dm-confirm-popup {
+  position: fixed;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border: 1px solid #aaa;
+  padding: 1rem;
+  z-index: 1000;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+.dm-confirm-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
 
 

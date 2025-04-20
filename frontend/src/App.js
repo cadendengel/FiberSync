@@ -54,6 +54,7 @@ function App() {
   const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
   const [isDMOpen, setIsDMOpen] = useState(false);
 
+
   const [confirmState, setConfirmState] = useState({
     isOpen: false,
     message: "",
@@ -462,6 +463,8 @@ function App() {
     if (!username) return;
   
     const handleDMInvite = ({ from }) => {
+      console.log(`📩 DM INVITE RECEIVED from ${from}`); // ADD THIS LINE
+
       notificationSound.pause();
       notificationSound.currentTime = 0;
       notificationSound.play();
@@ -476,8 +479,14 @@ function App() {
       }
     };
   
-    const handleDMSessionStarted = ({ room }) => {
-      console.log(`DM session started in room: ${room}`);
+    // For boigtesting
+    window.testDMInvite = (sender) => {
+      handleDMInvite({ from: sender });
+    };
+
+    const handleDMSessionStarted = ({ room, withUser }) => {
+      console.log(`DM session started with ${withUser} in room: ${room}`);
+      setDMTarget(withUser);
       setDMRoom(room);
       setDMMessages([]);
       setIsDMOpen(true);

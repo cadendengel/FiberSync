@@ -71,12 +71,12 @@ function UserSidebar({ username, users, socket, isDeveloperMode, onDevDeleteUser
     setActiveUserMenu(activeUserMenu === user ? null : user);
   };
 
-  const inviteToDM = (user) => {
+  const inviteToDM = (usernameTarget) => {
     socket.emit("dm_invite", {
       from: username,
-      to: user
+      to: usernameTarget // string only
     });
-    setActiveUserMenu(null); // close dropdown
+    setActiveUserMenu(null);
   };
     
   const handleEditProfile = async () => {

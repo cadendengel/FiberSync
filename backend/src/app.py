@@ -497,7 +497,10 @@ def handle_dm_accept(data):
     for sid, user in sid_to_username.items():
         if user == from_user or user == to_user:
             join_room(room_id, sid=sid)
-            emit("dm_session_started", {"room": room_id}, room=sid)
+            if user == from_user:
+                emit("dm_session_started", {"room": room_id, "withUser": to_user}, room=sid)
+            else:
+                emit("dm_session_started", {"room": room_id, "withUser": from_user}, room=sid)
 
 
 @socketio.on("dm_message")

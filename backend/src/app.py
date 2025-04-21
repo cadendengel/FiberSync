@@ -359,11 +359,12 @@ def send_message():
         "id": data["messageid"],
         "timestamp": data["timestamp"],
         "user": data["user"],
-        "text": data["text"]
+        "text": data["text"],
+        "channel": data["channel"]
     }
 
     # Store the message in the database
-    msgDB.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
+    msgDB.add_message(data["messageid"], data["timestamp"], data["user"], data["text"], data["channel"])
 
     return jsonify(chat_event), 201
 

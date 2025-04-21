@@ -79,3 +79,40 @@
     border-radius: 4px;
   }
   
+  .dm-warning-banner {
+    background-color: #333;
+    color: #aaa;
+    font-size: 12px;
+    padding: 6px;
+    text-align: center;
+    border-bottom: 1px solid #444;
+  }
+  
+  .dm-end-button {
+    background: #ff4d4d;
+    border: none;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    cursor: pointer;
+  }
+  
+  .dm-end-session-button {
+    width: 100%;
+    background-color: #ff4d4d;
+    color: white;
+    padding: 10px 0;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-top: 1px solid #333;
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    transition: background-color 0.2s;
+  }
+  
+  .dm-end-session-button:hover {
+    background-color: #e63939;
+  }
+  

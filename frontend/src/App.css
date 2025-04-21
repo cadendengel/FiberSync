@@ -22,8 +22,8 @@ h1 {
   color: #4a90e2;
   text-transform: uppercase;
   letter-spacing: 3px;
-  text-shadow: 0 0 5px #4a90e2, 
-               0 0 10px #4a90e2, 
+  text-shadow: 0 0 5px #4a90e2, 0 0 10px #4a90e2;
+
 }
 
 /* Center Container */
@@ -34,8 +34,6 @@ h1 {
   height: 100vh;
   width: 100vw;
 }
-
-/* CADEN: NEED TO DOUBLE CHECK THIS WITH CHRIS C. */
 
 /* Login Form */
 .login-form {

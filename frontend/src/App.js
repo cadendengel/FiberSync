@@ -510,7 +510,20 @@ function App() {
     };
   }, [username]);
   
+  useEffect(() => {
+    const handleDMSessionEnded = () => {
+      console.log("DM session ended.");
+      setDMMessages([{ from: "system", message: "This DM session has ended." }]);
+      setTimeout(() => {
+        setDMRoom(null);
+        setDMTarget(null);
+        setIsDMOpen(false);
+      }, 3000); // Optional delay before auto-closing
+    };
   
+    socket.on("dm_session_ended", handleDMSessionEnded);
+    return () => socket.off("dm_session_ended", handleDMSessionEnded);
+  }, []);
   
 
   const inviteToDM = (targetUsername) => {
@@ -656,18 +669,19 @@ function App() {
         )}
         {isDMOpen && (
           <DirectMessaging
-            username={username}
-            dmTarget={dmTarget}
-            dmMessages={dmMessages}
-            onSend={sendDirectMessage}
-            onClose={() => {
-              socket.emit("leave_dm", { room: dmRoom });
-              setDMRoom(null);
-              setDMMessages([]);
-              setDMTarget(null);
-              setIsDMOpen(false);
-            }}
-          />
+          username={username}
+          dmTarget={dmTarget}
+          dmMessages={dmMessages}
+          onSend={sendDirectMessage}
+          onClose={() => {
+            socket.emit("leave_dm", { room: dmRoom });
+            setDMRoom(null);
+            setDMMessages([]);
+            setDMTarget(null);
+            setIsDMOpen(false);
+          }}
+          onEndSession={() => socket.emit("end_dm_session", { room: dmRoom })}
+        />
         )}
         {pendingDMInvite && (
           <div className="dm-confirm-popup">

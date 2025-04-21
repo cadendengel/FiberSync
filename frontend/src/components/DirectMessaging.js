@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import './DirectMessaging.css';
 
-function DirectMessaging({ username, dmTarget, dmMessages, onSend, onClose }) {
+function DirectMessaging({ username, dmTarget, dmMessages, onSend, onClose, onEndSession }) {
   const [input, setInput] = useState("");
   const [position, setPosition] = useState({ x: null, y: null });
   const dmRef = useRef(null);
@@ -58,6 +58,9 @@ function DirectMessaging({ username, dmTarget, dmMessages, onSend, onClose }) {
         <span>Direct Message with <strong>{dmTarget}</strong></span>
         <button className="dm-close-button" onClick={onClose}>×</button>
       </div>
+      <div className="dm-warning-banner">
+        This is a temporary DM session. Messages will not be saved.
+      </div>
       <div className="dm-messages">
         {dmMessages.map((msg, idx) => (
           <div
@@ -78,6 +81,9 @@ function DirectMessaging({ username, dmTarget, dmMessages, onSend, onClose }) {
         />
         <button onClick={handleSend}>Send</button>
       </div>
+      <button className="dm-end-session-button" onClick={onEndSession}>
+        End Session
+      </button>
     </div>
   );
 }

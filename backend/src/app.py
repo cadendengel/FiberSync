@@ -526,6 +526,14 @@ def handle_leave_dm(data):
         leave_room(room)
         print(f"User left DM room {room}")
 
+@socketio.on("end_dm_session")
+def handle_end_dm_session(data):
+    room = data.get("room")
+    if room:
+        emit("dm_session_ended", {}, room=room)
+        for sid in socketio.server.rooms(room):
+            leave_room(room, sid=sid)
+
 
 # ======================================= #
 #               User Status               # 

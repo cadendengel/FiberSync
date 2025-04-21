@@ -271,7 +271,10 @@ class TestRoutes(unittest.TestCase):
     ##################
     
     # ROUTES TESTED:
+    # - create_user()
+    # - create_message()
     # - update_reaction()
+    # - get_messages(channel)
     def test_update_reaction(self):
         # Add a message
         response = self.client.post('/api/messages/create', json={

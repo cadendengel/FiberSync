@@ -176,7 +176,7 @@ def user_login():
     
 # Create user
 @app.route('/api/users/create', methods=['POST'])
-def user_create():
+def create_user():
     data = request.json
     username = data.get('username')
     password = data.get('password')

@@ -217,29 +217,24 @@ Some of the Tests below target outdated features and need to be updated a little
   - Handles long messages without breaking layout.
   Planned Update: Messages are now dynamically fetched — test should be adjusted to simulate prop changes or WebSocket injections.
 
+### Direct Messaging
+- **Component:** `Direct Messaging`
+  **Test File:** `frontend/src/components/__tests__/DirectMessaging.test.js`
+  - Renders DM window with recipient’s name
+  - Displays system warning: "This is a temporary DM session..."
+  - Shows all passed dmMessages correctly, styled as from-me or from-them
+  - Input updates when typing
+  - Pressing Enter or clicking "Send" emits message and clears input
+  - “End Session” button emits end_dm_session and triggers onClose
+
+### User List & Options
+- **Component:** `User Sidebar`
+  **Test File:** `frontend/src/components/__tests__/UserSidebar.test.js`
+  - Clicking “Invite to Message” calls socket.emit with correct usernames
+  - Properly renders user status (online, away, offline)
+  - Profile viewing popup renders on click and includes “Edit Profile” if user is self
+  - Clicking "Edit Profile" shows textarea; submitting triggers PUT request
+  - DM invite UI appears when pendingDMInvite is triggered
+
 ## Planned Tests by Category
 Many of the tests below have already been implemented but with older features, need to be adjusted.
-
-### UserSidebar
-- **Component:** UserSidebar
-  **Planned Tests:**
-    - Renders a list of users passed as props
-    - Displays online/offline indicator next to each user
-    - Hides or filters out current logged-in user from the list
-    - Handles empty user list gracefully (no crash/UI fallback)
-    - Supports re-render when user list updates via socket or prop change
-
-### Direct Messaging
-- **Component(s):** (Likely split between UserSidebar, ChatWindow, and ChatInput with DM context)
-  **Planned Tests:**
-    - Clicking a user opens a Direct Message preview or modal
-    - “Send Message” button appears and opens the DM chat UI
-    - Messages sent in DM context only appear for sender and recipient
-    - UI reflects current DM target (e.g., shows recipient's name)
-    - DMs persist during session (but are cleared on refresh if no storage is used)
-    - DM socket messages are routed correctly based on active target
-
-### App Root
-- Component: `App.js` or routing container
-  - Ensure routes render correct components.
-  - Basic smoke tests to confirm the app loads without crashing.

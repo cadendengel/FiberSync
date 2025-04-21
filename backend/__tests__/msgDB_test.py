@@ -66,3 +66,28 @@ class TestMsgDB(unittest.IsolatedAsyncioTestCase):
         msgDB.delete_message("test_message_id2")
         messages = msgDB.get_all_messages()
         self.assertEqual(msgDB.get_message_count(), 0)
+        
+    def test_add_reaction(self):
+        msgDB.add_message("test_message_id", "test_timestamp", "test_user", "test_text", "test_channel")
+        msgDB.add_emoji_to_message("test_message_id", "👍")
+        reaction = msgDB.get_emoji_count_by_messageid("test_message_id", "👍")
+        self.assertEqual(reaction, 1)
+        
+    def test_remove_reaction(self):
+        msgDB.add_message("test_message_id", "test_timestamp", "test_user", "test_text", "test_channel")
+        msgDB.add_emoji_to_message("test_message_id", "👍")
+        reaction = msgDB.get_emoji_count_by_messageid("test_message_id", "👍")
+        self.assertEqual(reaction, 1)
+        msgDB.remove_emoji_from_reactions("test_message_id", "👍")
+        reaction = msgDB.get_emoji_count_by_messageid("test_message_id", "👍")
+        self.assertEqual(reaction, 0)
+        
+        
+    def test_get_reactions_by_messageid(self):
+        msgDB.add_message("test_message_id", "test_timestamp", "test_user", "test_text", "test_channel")
+        msgDB.add_emoji_to_message("test_message_id", "👍")
+        msgDB.add_emoji_to_message("test_message_id", "👎")
+        reactions = msgDB.get_reactions_by_messageid("test_message_id")
+        self.assertEqual(reactions["👍"], 1)
+        self.assertEqual(reactions["👎"], 1)
+        

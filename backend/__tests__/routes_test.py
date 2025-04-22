@@ -266,4 +266,50 @@ class TestRoutes(unittest.TestCase):
 
 
 
+    ##################
+    # Reaction Tests #
+    ##################
+    
+    # ROUTES TESTED:
+    # - create_user()
+    # - create_message()
+    # - update_reaction()
+    # - get_messages(channel)
+    def test_update_reaction(self):
+        # Add a message
+        response = self.client.post('/api/messages/create', json={
+            "messageid": "1",
+            "timestamp": "2025-04-21T12:00:00Z",
+            "user": "testuser",
+            "text": "Hello, world!",
+            "channel": "general"
+        })
+        self.assertEqual(response.status_code, 201, "Failed to create message")
 
+        # Add a reaction to the message
+        response = self.client.post('/api/messages/reactions', json={
+            "message_id": "1",
+            "emoji": "👍",
+            "mode": "inc"
+        })
+        self.assertEqual(response.status_code, 200, "Failed to add reaction")
+
+        # Verify the reaction was added
+        response = self.client.get('/api/messages/general')
+        self.assertEqual(response.status_code, 200, "Failed to fetch messages")
+        messages = response.get_json()
+        self.assertIn("👍", messages[0].get("reactions", {}), "Reaction not found in message")
+
+        # Remove the reaction from the message
+        response = self.client.post('/api/messages/reactions', json={
+            "message_id": "1",
+            "emoji": "👍",
+            "mode": "dec"
+        })
+        self.assertEqual(response.status_code, 200, "Failed to remove reaction")
+
+        # Verify the reaction was removed
+        response = self.client.get('/api/messages/general')
+        self.assertEqual(response.status_code, 200, "Failed to fetch messages")
+        messages = response.get_json()
+        self.assertNotIn("👍", messages[0].get("reactions", {}), "Reaction still present in message")

@@ -36,7 +36,7 @@ def remove_emoji_from_reactions(messageid, emoji):
     db.messages.update_one({"messageid": messageid}, {"$unset": {f"reactions.{emoji}": None}})
 
 def get_reactions_by_messageid(messageid):
-    db.messages.find_one({"messageid": messageid})["reactions"]
+    return db.messages.find_one({"messageid": messageid})["reactions"]
 
 def get_emoji_count_by_messageid(messageid, emoji):
     return db.messages.find_one({"messageid": messageid})["reactions"].get(emoji, 0)

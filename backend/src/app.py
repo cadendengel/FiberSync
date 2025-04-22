@@ -1,4 +1,8 @@
-print("Starting Flask App...") # This is debug text. We can remove it if anyone wants.
+import os
+import sys
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# print("Starting Flask App...") # This is debug text. We can remove it if anyone wants. Commenting out for tests
 
 import eventlet
 import eventlet.wsgi
@@ -6,17 +10,31 @@ eventlet.monkey_patch()  # Enable async support
 
 from flask import Flask, jsonify, request, send_from_directory, session
 from flask_cors import CORS
-import os
 from datetime import datetime, timezone
-from src.UserDB import userDB
-from src.MessageDB import msgDB
+from backend.src.UserDB import userDB
+from backend.src.MessageDB import msgDB
 from flask_socketio import SocketIO, emit, join_room, leave_room
+
+# DevConsole imports
+import io
+import contextlib
 
 # ===== Initialize Flask App ===== #
 app = Flask(__name__)
 CORS(app)
+
+# Added for security tests, but provides security off of every request
+@app.after_request
+def apply_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'              # Prevent browser from guessing content type
+    response.headers['X-Frame-Options'] = 'DENY'                        # Prevent site being loaded in an iFrame
+    response.headers['Content-Security-Policy'] = "default-src 'self'"  # Limit content sources
+    return response
+
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="eventlet", ping_interval=5, ping_timeout=10)
 
+# Track which socket ID is tied to which username
+sid_to_username = {}
 
 # ===== Root Route to Verify Backend Status ===== #
 # Changes: No longer serves React App to Browser
@@ -47,8 +65,15 @@ def test_mongo():
 # ======================================= #
 #             User Management             # 
 # ======================================= #
-# This section is responsible for username storage. Later, it will be extended to include password authentication.
-# For now, it only stores a username when a user enters the app.
+# This section is responsible for user database functions.
+
+@app.route('/api/users/<username>', methods=['DELETE'])
+def delete_user_by_name_route(username):
+    try:
+        userDB.delete_user(username)
+        return {"message": f"{username} deleted successfully"}, 200
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 # Get all users (for debugging or potential user list feature)
 @app.route('/api/users', methods=['GET'])
@@ -66,6 +91,57 @@ def get_all_users():
 def get_user_count():
     count = userDB.get_user_count()
     return jsonify({"count": count}), 200
+
+
+# Get user timestamp
+@app.route('/api/users/timestamp', methods=['POST'])
+def get_user_timestamp():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    
+    timestamp = userDB.get_timestamp_by_username(username)
+    if not timestamp:
+        return jsonify({"error": "User not found"}), 404
+
+    return jsonify({"timestamp": timestamp}), 200
+
+
+# Get user description
+@app.route('/api/users/description', methods=['POST'])
+def get_user_description():
+    data = request.json
+    username = data.get('username')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 404
+    
+    description = userDB.get_description_by_username(username)
+    if not description:
+        return jsonify({"error": "Description not found"}), 204
+
+    return jsonify({"description": description}), 200
+
+
+# Update user description
+@app.route('/api/users/description', methods=['PUT'])
+def update_user_description():
+    data = request.json
+    username = data.get('username')
+    description = data.get('description')
+
+    if not username:
+        return jsonify({"error": "Missing username"}), 400
+    if not description:
+        return jsonify({"error": "Missing description"}), 400
+    
+    if userDB.get_user_by_username(username):
+        userDB.update_description(username, description)
+        return jsonify({"message": "User description updated successfully"}), 200
+    else:
+        return jsonify({"error": "User not found"}), 404
 
 
 # Delete all users
@@ -100,7 +176,7 @@ def user_login():
     
 # Create user
 @app.route('/api/users/create', methods=['POST'])
-def user_create():
+def create_user():
     data = request.json
     username = data.get('username')
     password = data.get('password')
@@ -190,7 +266,7 @@ def handle_message(data):
     from bson.objectid import ObjectId
 
     message_id = str(ObjectId())  # Generate a unique message ID
-    timestamp = datetime.utcnow().isoformat()  # Get UTC timestamp
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Get UTC timestamp
 
     # Save message to the database
     msgDB.add_message(message_id, timestamp, data["user"], data["text"], data["channel"])
@@ -220,6 +296,9 @@ def create_channel():
         return jsonify({"error": "Channel name required"}), 400
 
     if msgDB.add_channel(channel_name):
+        # Broadcast the new channel to all connected clients
+        socketio.emit("update_channels", {}, to=None)
+        
         return jsonify({"name": channel_name}), 201
     else:
         return jsonify({"error": "Channel limit reached (5 max)"}), 400
@@ -257,6 +336,10 @@ def delete_channel():
         return jsonify({"error": "Missing channel name"}), 400
 
     msgDB.delete_channel(channel_name)
+    
+    # Broadcast the deleted channel to all connected clients
+    socketio.emit("update_channels", {}, to=None)
+    
     return jsonify({"message": f"Channel '{channel_name}' and its messages deleted"}), 200
 
 
@@ -276,11 +359,12 @@ def send_message():
         "id": data["messageid"],
         "timestamp": data["timestamp"],
         "user": data["user"],
-        "text": data["text"]
+        "text": data["text"],
+        "channel": data["channel"]
     }
 
     # Store the message in the database
-    msgDB.add_message(data["messageid"], data["timestamp"], data["user"], data["text"])
+    msgDB.add_message(data["messageid"], data["timestamp"], data["user"], data["text"], data["channel"])
 
     return jsonify(chat_event), 201
 
@@ -386,6 +470,73 @@ def delete_message():
         return jsonify({"error": "Message_id still in database"}), 404
 
 # ======================================= #
+#            Direct Messaging             # 
+# ======================================= #
+# This section does not post to the Database and serves to host the WebSocket rooms for Direct Messaging
+# WebSocket Event: Handles DM Invite
+@socketio.on("dm_invite")
+def handle_dm_invite(data):
+    from_user = data.get("from")
+    to_user = data.get("to")
+    print(f"DM invite from {from_user} to {to_user}")
+
+    for sid, user in sid_to_username.items():
+        if user == to_user:
+            emit("dm_invite", {"from": from_user}, room=sid)
+            break
+
+# WebSocket Event: Handles DM Acceptance and Room Setup
+@socketio.on("dm_accept")
+def handle_dm_accept(data):
+    from_user = data.get("from")  # The user who accepted the invite
+    to_user = data.get("to")      # The original inviter
+
+    room_id = "_".join(sorted([from_user, to_user]))
+    print(f"DM session established between {from_user} and {to_user}, room: {room_id}")
+
+    for sid, user in sid_to_username.items():
+        if user == from_user:
+            join_room(room_id, sid=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": to_user  # this user is DMing to_user
+            }, room=sid)
+        elif user == to_user:
+            join_room(room_id, sid=sid)
+            emit("dm_session_started", {
+                "room": room_id,
+                "withUser": from_user  # this user is DMing from_user
+            }, room=sid)
+
+
+
+@socketio.on("dm_message")
+def handle_dm_message(data):
+    room = data["room"]
+    from_user = data["from"]
+    message = data["message"]
+    
+    print(f"[DM] {from_user} to room {room}: {message}")
+    emit("receive_dm", {"from": from_user, "message": message}, room=room)
+
+
+@socketio.on("leave_dm")
+def handle_leave_dm(data):
+    room = data.get("room")
+    if room:
+        leave_room(room)
+        print(f"User left DM room {room}")
+
+@socketio.on("end_dm_session")
+def handle_end_dm_session(data):
+    room = data.get("room")
+    if room:
+        emit("dm_session_ended", {}, room=room)
+        for sid in socketio.server.rooms(room):
+            leave_room(room, sid=sid)
+
+
+# ======================================= #
 #               User Status               # 
 # ======================================= #
 # This section will track when a user is connected or not.
@@ -397,19 +548,53 @@ def delete_message():
 
 
 # WebSocket Event: Handles user connection
-#   - Updates user status in the database on disconnect (deployment, not development only, I think)
-@socketio.on("disconnect")
-def handle_disconnect():
-    username = request.args.get("username")
+#   - Updates user status in the database (deployment, not development only, I think)
+#   - Tracks WebSocket SID -> username mappings for disconnection cleanup
+#   - On "offline", disconnect below: updates DB + emits + removes/pops from sid map
+
+'''You were using `request.args.get("username")` to extract the username
+   from that WebSocket handshake business deal query string thing which works on login but it was stale or no longer dynamic
+   but it looked like Websocket can use `data.get("username")` from client side emit calls 
+   as long as we pass data into the function on this end. 
+   (https://forum.chirpstack.io/t/how-to-get-data-from-websocket-using-python/16892)
+   This is from client-side `socket.emit()` events... `data` from `socket.emit()` gives us access to real-time, 
+   event-based ~payloads~ is what the tech gurus seem to be calling it. '''
+@socketio.on("user_status")
+def handle_user_status(data):
+    username = data.get("username")
+    status = data.get("status")
+    sid = request.sid
     print("Username:", username)
 
     if username:
+        sid_to_username[sid] = username  # Track SID → username
 
-        userDB.update_status(username, "offline")
-        print(f"{username} disconnected with SID {request.sid}")
+        if status == "online":
+            userDB.update_status(username, "online")
+            print(f"{username} connected with SID {sid}")
+            emit("user_status", {"username": username, "status": "online"}, broadcast=True)
+
+        elif status == "offline":
+            userDB.update_status(username, "offline")
+            print(f"{username} disconnected with SID {sid}")
+            emit("user_status", {"username": username, "status": "offline"}, broadcast=True)
+
+        else:
+            print(f"Invalid status: {status}")
     else:
-        print(f"No username in session for SID {request.sid}")
+        print(f"No username provided for SID {sid}")
 
+@socketio.on('disconnect')
+def handle_disconnect():
+    sid = request.sid
+    username = sid_to_username.pop(sid, None)
+
+    if username:
+        print(f"{username} disconnected (SID {sid})")
+        userDB.update_status(username, "offline")
+        emit("user_status", {"username": username, "status": "offline"}, broadcast=True)
+    else:
+        print(f"Disconnected SID {sid} with no associated username")
 
 # Update user status (Mark online/offline)
 @app.route('/api/user-status', methods=['POST'])
@@ -477,6 +662,40 @@ def update_reaction():
 
     return jsonify({"message": "reaction/s successfully added to message"}), 200
 
+
+##################
+# Developer Mode #
+##################
+@app.route('/api/devconsole', methods=['POST'])
+def dev_console_command():
+    data = request.json
+    command = data.get('command')
+
+    if not command:
+        return jsonify({"error": "Missing command"}), 400
+
+    # Restrict the execution environment
+    allowed_globals = {
+        "get_user_count": userDB.get_user_count,
+        # "get_all_users": userDB.get_all_users, # Uncomment if needed, returns a cursor object, so it might not work as expected
+        "get_user_by_username": userDB.get_user_by_username,
+        "print": print,  # Allow print for debugging
+    }
+
+    # Capture the output of the command
+    output = io.StringIO()
+    try:
+        with contextlib.redirect_stdout(output):
+            # Use eval for expressions and exec for statements
+            if "=" in command or " " in command.split("(")[0]:  # Likely a statement
+                exec(command, {"__builtins__": None}, allowed_globals)
+            else:  # Likely an expression
+                result = eval(command, {"__builtins__": None}, allowed_globals)
+                print(result)  # Print the result to capture it in the output
+
+        return jsonify({"message": "Command executed successfully", "output": output.getvalue()}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 # ================================================== #
 #            STARTING FLASK SERVER                   #

@@ -1,3 +1,4 @@
+import './ChatInput.css';
 import React, { useState } from 'react';
 
 function ChatInput({ onSendMessage }) {
@@ -33,7 +34,14 @@ function ChatInput({ onSendMessage }) {
         onKeyDown={handleKeyPress}
         className="chat-input" 
       />
-      <button onClick={handleSend} className="send-button">Send</button>
+      {/*Changed the button to be disabled when there is no message*/}
+      <button 
+        onClick={handleSend} 
+        className="send-button"
+        disabled={!message.trim()}
+      >
+        Send
+      </button>
     </div>
   );
 }

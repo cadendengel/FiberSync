@@ -3,6 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import ChatInput from "../ChatInput";
 import "@testing-library/jest-dom";
 
+// All required ChatInput tests completed as per Testing Plan (SCRUM-119) - Chris 4/10/25
+
 describe("ChatInput Component - Unit Tests", () => {
     test("Typing updates the input field", () => {
     render(<ChatInput onSendMessage={() => {}} />);
@@ -57,6 +59,12 @@ describe("ChatInput Component - Unit Tests", () => {
 
     // Expect input field to be empty after sending
     expect(inputField.value).toBe("");
+  });
+
+  test("Send button is disabled for empty input", () => {
+    render(<ChatInput onSendMessage={() => {}} />);
+    const sendButton = screen.getByText("Send");
+    expect(sendButton).toBeDisabled();
   });
 
   // We probably want to be able to send empty messages eventually, so this test is temporary.

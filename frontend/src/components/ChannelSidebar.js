@@ -1,3 +1,4 @@
+import './ChannelSidebar.css';
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
@@ -28,6 +29,26 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
     }
     fetchChannels();
   }, []);
+  
+  // Add websocket for fetching on "update_channels" event
+  useEffect(() => {
+    async function fetchChannels() {
+      try {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/channels`);
+        setChannels(response.data);
+        console.log("Channels updated:", response.data);
+      } catch (error) {
+        console.error("Error fetching channels:", error);
+      }
+    }
+    fetchChannels();
+  
+      socket.on("update_channels", fetchChannels);
+  
+      return () => {
+        socket.off("update_channels", fetchChannels);
+      };
+    }, []);
 
 
 
@@ -64,6 +85,9 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
       // Clear input field and hide the input box
       setNewChannelName("");
       setShowInput(false);
+
+      // Emit broadcast event to notify other clients
+      socket.emit("channel_created");
     } catch (error) {
       console.error("Error creating channel:", error);
     }
@@ -113,6 +137,11 @@ function ChannelSidebar({ activeChannel, setActiveChannel }) {
   
     try {
       // Perform API update here (Future implementation)
+      // CADEN: make sure to add a backend websocket event for this
+      //        just like in create_channel() and delete_channel()
+      //        should just be:
+      //                        socketio.emit("update_channels", {}, to=None)
+      //        inside of app.py --> whatever the function is called
       console.log(`Channel renamed from ${editingChannel} to ${editedChannelName}`);
         
       // Update local state for now

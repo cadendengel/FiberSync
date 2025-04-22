@@ -7,7 +7,13 @@ import ChannelSidebar from './components/ChannelSidebar';
 import ChatWindow from './components/ChatWindow';
 import UserSidebar from './components/UserSidebar';
 import ChatInput from './components/ChatInput';
+import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
+import DirectMessaging from "./components/DirectMessaging";
+
+// Move to top of file, outside App()
+const notificationSound = new Audio("/notification.mp3");
+notificationSound.volume = 0.5;
 
 // Throwing down a bunch of comments to explain my changes:
 /* Axios Requests: Now uses an environment variable to toggle between development & deployment
@@ -38,10 +44,113 @@ function App() {
   const [messages, setMessages] = useState([]);
   const [users, setUsers] = useState([]);
   const [activeChannel, setActiveChannel] = useState("Home"); // Home is now the default channel
+  const [isDeveloperMode, setIsDeveloperMode] = useState(false);
+  const [deletionSuccess, setDeletionSuccess] = useState(false);
+  const [noMessagesToDelete, setNoMessagesToDelete] = useState(false);
+  const [isDevConsoleOpen, setIsDevConsoleOpen] = useState(false);
+  // States for Direct Messaging
+  const [dmRoom, setDMRoom] = useState(null);
+  const [dmMessages, setDMMessages] = useState([]);
+  const [dmTarget, setDMTarget] = useState(null); // Who you’re messaging
+  const [isDMOpen, setIsDMOpen] = useState(false);
+  const [pendingDMInvite, setPendingDMInvite] = useState(null); // Custom UI for DM Acceptance
 
 
+  const [confirmState, setConfirmState] = useState({
+    isOpen: false,
+    message: "",
+    onConfirm: () => {},
+  });
 
+  const handleDMMessage = ({ from, message }) => {
+    console.log(`DM from ${from}: ${message}`);
+    setDMMessages((prev) => [...prev, { from, message }]);
+  };
 
+  ///////////////////////////////
+  //       DEVELOPER MODE        //
+  ///////////////////////////////
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      // WINDOWS: Check if Alt + P are pressed
+      // MAC: Check if Option + P are pressed
+      if ((event.altKey && event.key === "p") || event.key === 'π') {
+        if (!isDeveloperMode) {
+          // Enter Developer Mode: prompt for password
+          const password = prompt("Enter Developer Mode Password:");
+          if (password === "devpass") {
+            setIsDeveloperMode(true);
+          } else {
+            alert("Incorrect password!");
+          }
+        } else {
+          // Exit Developer Mode: no password needed
+          setIsDeveloperMode(false);
+        }
+      }
+    };
+ 
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isDeveloperMode]); // Dependency array to track changes in developer mode state
+  
+  // Base developer mode gateway
+  const activateDevMode = () => {
+    const password = prompt("Enter Developer Mode Password:");
+    if (password === "devpass") {
+      setIsDeveloperMode(true);
+    } else {
+      alert("Incorrect password!");
+    }
+  };
+
+  // Confimration prompt for committing destructive operations
+  const openConfirmation = (message, onConfirm) => {
+    setConfirmState({
+      isOpen: true,
+      message,
+      onConfirm,
+    });
+  };
+  
+  // Deletes messages on all channels
+  const handleDevDeleteAllMessages = () => {
+    if (messages.length === 0) {
+      setNoMessagesToDelete(true);
+      setTimeout(() => setNoMessagesToDelete(false), 3000);
+      return;
+    }
+  
+    openConfirmation("Are you sure you want to delete all messages?", async () => {
+      try {
+        const response = await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/messages/all`);
+        console.log("All messages deleted:", response.data);
+        fetchMessages(activeChannel);
+        setDeletionSuccess(true);
+        setTimeout(() => setDeletionSuccess(false), 3000);
+      } catch (error) {
+        console.error("Error deleting all messages:", error);
+      }
+    });
+  };  
+
+  // Deletes individual user
+  const handleDevDeleteUser = (usernameToDelete) => {
+    openConfirmation(`Are you sure you want to delete user "${usernameToDelete}"?`, async () => {
+      try {
+        await axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/${usernameToDelete}`);
+        console.log(`User ${usernameToDelete} deleted`);
+        fetchSidebar();
+      } catch (error) {
+        console.error(`Error deleting user ${usernameToDelete}:`, error);
+      }
+    });
+  };
+
+  const toggleDevConsole = () => {
+    setIsDevConsoleOpen(!isDevConsoleOpen);
+  }
+  
   /////////////////////////////////
   // MESSAGES/CHANNELS FUNCTIONS //
   /////////////////////////////////
@@ -126,16 +235,25 @@ function App() {
       setUsername(response.data.username);
 
       // Update user status to online
+      //socket.emit("user_status", { username: response.data.username, status: "online" });
+      
+      
+      /*
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username: response.data.username, status: "online" })
       .then((response) => console.log("User status updated:", response.data)) // Debugging log
       .catch((error) => console.error("Error updating user status:", error));
+      */
 
       // Update socket query with the username
       socket.disconnect();
       socket.io.opts.query = { username: response.data.username };
       socket.connect();
-
-      setEnteredChat(true); // Enter the chat 
+      // Note for Caden is he wants to use:
+      // - Moved the Emit user_status = 'online' after socket connects, commented out old location on line 129
+      socket.once("connect", () => {
+        socket.emit("user_status", {username: response.data.username, status: "online" });
+      setEnteredChat(true); // Enter the chat, moved this inside the then statement but
+      });
       return;
     })
     .catch((error) => {
@@ -175,15 +293,21 @@ function App() {
       // Login with username and password
       axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/users/login`, { username, password, cookie: document.cookie })
       .then((response) => {
-        // Update user status to online
+        //socket.emit("user_status", { username, status: "online" });
+        /*
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "online" })
         .then((response) => console.log("User status updated:", response.data)) // Debugging log
         .catch((error) => console.error("Error updating user status:", error));
+        */
 
         // Update socket query with the username
         socket.disconnect();
         socket.io.opts.query = { username };
         socket.connect();
+        // Update user status to online
+        socket.once("connect", () => {
+          socket.emit("user_status", { username, status: "online" });
+        });
 
         // User logged in successfully
         setEnteredChat(true);
@@ -277,16 +401,46 @@ function App() {
   }, [activeChannel]);
 
 
+  /* Websocket User Status Handling:
+     *   - Listens for user status updates from the backend and updates the sidebar in real-time, no need to manually refresh
+     *   - Ensures users persist correctly and don't duplicate
+     */
+  useEffect(() => {
+    const handleUserStatusUpdate = (payload) => {
+      const { username: updatedUsername, status } = payload;
+      console.log(`User ${updatedUsername} is now ${status}`);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u.username === updatedUsername ? { ...u, status } : u
+        )
+      );
+    };
+
+    socket.on("user_status", handleUserStatusUpdate);
+
+    return () => {
+      socket.off("user_status", handleUserStatusUpdate);
+    };
+  }, []);
+  
+
   // Handle closing of the window and final update of user status to offline
   useEffect(() => {
     const handleWindowClose = (ev) => {
+      /*
       if (enteredChat) {
         // Update user status to offline
         axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/user-status`, { username, status: "offline" })
           .then((response) => console.log("User status updated:", response.data)) // Debugging log
           .catch((error) => console.error("Error updating user status:", error));
       }
+      */
+
+      // Update user status to offline
       // Disconnect the WebSocket, prevent errors
+      if (enteredChat && socket.connected) {
+        socket.emit("user_status", { username, status: "offline" });
+      }
       socket.disconnect();
     }
 
@@ -298,7 +452,103 @@ function App() {
     }
   }, [enteredChat, username]);
 
+  useEffect(() => {
+    const handleReconnect = () => {
+      if (username && enteredChat) {
+        socket.emit("user_status", { username, status: "online" });
+      }
+    };
+  
+    socket.on("connect", handleReconnect);
+    return () => socket.off("connect", handleReconnect);
+  }, [username, enteredChat]);
 
+  useEffect(() => {
+    if (!username) return;
+  
+    socket.on("receive_dm", handleDMMessage);
+  
+    return () => {
+      socket.off("receive_dm", handleDMMessage);
+    };
+  }, [username]);
+
+  // UseEffect for Direct Messaging:
+  useEffect(() => {
+    if (!username) return;
+  
+    const handleDMInvite = ({ from }) => {
+      console.log(`DM INVITE RECEIVED from ${from}`);
+
+      notificationSound.pause();
+      notificationSound.currentTime = 0;
+      notificationSound.play();
+  
+      setPendingDMInvite(from);  // Show a custom prompt
+    };
+  
+    // For boigtesting
+    window.testDMInvite = (sender) => {
+      handleDMInvite({ from: sender });
+    };
+
+    const handleDMSessionStarted = ({ room, withUser }) => {
+      console.log(`DM session started with ${withUser} in room: ${room}`);
+      setDMTarget(withUser);
+      setDMRoom(room);
+      setDMMessages([]);
+      setIsDMOpen(true);
+    };
+  
+    socket.on("dm_invite", handleDMInvite);
+    socket.on("dm_session_started", handleDMSessionStarted);
+  
+    return () => {
+      socket.off("dm_invite", handleDMInvite);
+      socket.off("dm_session_started", handleDMSessionStarted);
+      socket.off("receive_dm", handleDMMessage); // cleanup here
+    };
+  }, [username]);
+  
+  useEffect(() => {
+    const handleDMSessionEnded = () => {
+      console.log("DM session ended.");
+      setDMMessages([{ from: "system", message: "This DM session has ended." }]);
+      setTimeout(() => {
+        setDMRoom(null);
+        setDMTarget(null);
+        setIsDMOpen(false);
+      }, 3000); // Optional delay before auto-closing
+    };
+  
+    socket.on("dm_session_ended", handleDMSessionEnded);
+    return () => socket.off("dm_session_ended", handleDMSessionEnded);
+  }, []);
+  
+
+  const inviteToDM = (targetUsername) => {
+    if (targetUsername === username) return;
+    setDMTarget(targetUsername); // So the sender sees the name
+
+    socket.emit("dm_invite", {
+      from: username,
+      to: targetUsername
+    });
+  
+    console.log(`📨 DM invite sent to ${targetUsername}`);
+  };
+  
+
+  const sendDirectMessage = (message) => {
+    if (!dmRoom) return;
+  
+    socket.emit("dm_message", {
+      room: dmRoom,
+      from: username,
+      message
+    });
+  };
+  
   /* The actual React app UI below: (or the important part)
    * Conditionally renders either the Login Screen (before entering chat) 
    *    OR the Chat Interface (once user has logged in).
@@ -308,56 +558,152 @@ function App() {
    */
 
   return (
-    <div className="container">
-      {!enteredChat ? (
-        <div className="entry-box">
-          <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin}/>
-          <h1>FiberSync</h1>
-          <div className="switch-container">
-            <label className="switch">
-              <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
-              <span className="slider round"></span>
-            </label>
-            <p>{isNewUser ? "Create new user" : "Login"}</p>
-          </div>
-          <input
-            type="text"
-            className="username-input"
-            placeholder="Enter your username..."
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          />
-          <input
-            type="password"
-            className="password-input"
-            placeholder="Enter your password..."
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleLogin()}
-          />
-
-          <button className="enter-button" onClick={handleLogin}>➡</button>
+    <div className={`App ${isDeveloperMode ? "dev-mode" : ""}`}>
+    {isDeveloperMode && (
+      <>
+        <div className="dev-banner">
+          Developer Mode Activated ("Alt" + 'p' to deactivate)
         </div>
-      ) : (
-        <>
-        <div className="chat-layout">
-            <ChannelSidebar activeChannel={activeChannel} setActiveChannel={setActiveChannel} />
-            <div className="chat-main">
-              <ChatWindow 
-                username = {username}
-                messages={messages}
-                onMessagesUpdate={(updatedMessages) => setMessages(updatedMessages)}
-                onDeleteMessage={handleDeleteMessage}
-                onEditMessage={handleEditMessage} />
-            </div>
-            <UserSidebar username={username} users={users} />
-          </div>
-          <ChatInput onSendMessage={handleSendMessage} />
-        </>
+        {deletionSuccess && (
+          <div className="popup-message success">All messages deleted.</div>
+        )}
+        {noMessagesToDelete && (
+          <div className="popup-message error">No messages to delete.</div>
+        )}
+      </>
+    )}
+      <button className="dev-mode-button" onClick={activateDevMode}>Enter Developer Mode</button>
+      {isDeveloperMode && (
+        <div className="dev-tools-panel">
+          <h3>Developer Mode Commands</h3>
+          <button className="delete-messages-button" onClick={handleDevDeleteAllMessages}>
+            Delete All Messages
+          </button>
+          <button className="dev-console-button" onClick={toggleDevConsole}>
+            Toggle Dev Console
+          </button>
+        </div>
       )}
+        {isDevConsoleOpen && (
+          <DevConsole />
+        )}
+            {confirmState.isOpen && (
+        <div className="confirm-overlay">
+          <div className="confirm-box">
+            <p>{confirmState.message}</p>
+            <div className="confirm-actions">
+              <button
+                onClick={() => {
+                  confirmState.onConfirm();
+                  setConfirmState({ ...confirmState, isOpen: false });
+                }}
+              >
+                Yes
+              </button>
+              <button
+                onClick={() =>
+                  setConfirmState({ ...confirmState, isOpen: false })
+                }
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="container">
+        {!enteredChat ? (
+          <div className="entry-box">
+            <img src={logo} alt="FiberSync Logo" className="logo" onClick={cookieLogin} />
+            <h1>FiberSync</h1>
+            <div className="switch-container">
+              <label className="switch">
+                <input type="checkbox" onClick={() => setIsNewUser(!isNewUser)} />
+                <span className="slider round"></span>
+              </label>
+              <p>{isNewUser ? "Create new user" : "Login"}</p>
+            </div>
+            <input
+              type="text"
+              className="username-input"
+              placeholder="Enter your username..."
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+            <input
+              type="password"
+              className="password-input"
+              placeholder="Enter your password..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+            />
+            <button className="enter-button" onClick={handleLogin}>➡</button>
+          </div>
+        ) : (
+          <>
+            <div className="chat-layout">
+              <ChannelSidebar
+                activeChannel={activeChannel}
+                setActiveChannel={setActiveChannel} />
+              <div className="chat-main">
+                <ChatWindow 
+                  username={username}
+                  messages={messages}
+                  onMessagesUpdate={(updatedMessages) => setMessages(updatedMessages)}
+                  onDeleteMessage={handleDeleteMessage}
+                  onEditMessage={handleEditMessage} />
+              </div>
+              <UserSidebar
+                username={username}
+                users={users}
+                socket={socket}
+                isDeveloperMode={isDeveloperMode}
+                onDevDeleteUser={handleDevDeleteUser}
+                onStartDM={inviteToDM}
+              />
+            </div>
+            <ChatInput onSendMessage={handleSendMessage} />
+          </>
+        )}
+        {isDMOpen && (
+          <DirectMessaging
+          username={username}
+          dmTarget={dmTarget}
+          dmMessages={dmMessages}
+          onSend={sendDirectMessage}
+          onClose={() => {
+            socket.emit("leave_dm", { room: dmRoom });
+            setDMRoom(null);
+            setDMMessages([]);
+            setDMTarget(null);
+            setIsDMOpen(false);
+          }}
+          onEndSession={() => socket.emit("end_dm_session", { room: dmRoom })}
+        />
+        )}
+        {pendingDMInvite && (
+          <div className="dm-confirm-popup">
+            <div className="dm-confirm-box">
+              <p>{pendingDMInvite} wants to start a Direct Message.</p>
+              <div className="dm-confirm-buttons">
+                <button onClick={() => {
+                  socket.emit("dm_accept", {
+                    from: username,
+                    to: pendingDMInvite,
+                  });
+                  setDMTarget(pendingDMInvite);
+                  setPendingDMInvite(null);
+                }}>Accept</button>
+                <button onClick={() => setPendingDMInvite(null)}>Decline</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  );
+  );  
 }
 
   export default App;

@@ -15,7 +15,7 @@ https://fibersync-fd2e2.web.app/
 
 ## General Information
 
-We are a team of programmers called the Changelings (Chris Beverly, Chris Clark, Caden Dengel, and Ricky Mosqueda-Torres) 
+We are a team of programmers called the Changelings (Chris Clark, Caden Dengel, and Ricky Mosqueda-Torres) 
 working together to create a privately hosted messaging application so that students, professionals, and recreational users 
 can utilize a platform that accounts for their working environment and prioritizes their data and privacy.
 
@@ -24,61 +24,72 @@ can utilize a platform that accounts for their working environment and prioritiz
 *	<a href="https://flask.palletsprojects.com/en/stable/">Flask</a> - Backend web Framework for API
 *	<a href="https://www.python.org/">Python</a> - Primary backend Programming Language
 *	<a href="https://react.dev/">React</a> - Frontend UI
-*	Database Technology - Options for storage
+*   <a href="https://axios-http.com/docs/api_intro/">Axios</a> - Axios calls to connect frontend to backend
+*   <a href="https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/">Websockets</a> - Realtime user-to-user communication
+*	Database
 	*	<a href="https://www.mongodb.com/">MongoDB</a> - Flexible document-based database
-	*	<a href="https://www.sqlite.org/">SQLite</a> - Lightweight option, possibly better for the scope of this project
-*	Authentication Technology - TBD
-*	Deployment Technology - TBD
+*	Deployment
+	* <a href="https://www.render.com/">Render</a> - Hosting Backend
+	* <a href="https://firebase.google.com/">Firebase</a> - Hosting Frontend
 
 
+## Features
 Sprint 3:
-* 
-*
-* 
-* 
+* Move relevant features over from axios calls to websocket communication for realtime updates 
+* Add profile features for a more user-friendly experience
+* Add a developer mode for testing and moderation
+* Update UI and css structure to be more developer/SOLID-friendly and modernize the frontend
 
 Contributions:
 
 Clark:
 
 * Jira Task: 
-	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-CHANGE"> SCRUM-CHANGE</a>
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-XXX"> SCRUM-XXX</a>
 
-Caden:
-
-* Jira Task: 
-	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-CHANGE"> SCRUM-CHANGE</a>
+Caden: I worked on backend and frontend enhancements including developer mode routes,
+ websocket-based real-time updates, reaction testing, and profile data integration,
+ along with database schema updates and comprehensive SA16 testing and results documentation.
+ 
+* Jira Task: Implement backend routes to handle developer mode actions
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-92"> SCRUM-92</a>
+* Jira Task: Write tests for reaction storage, retrieval, and UI updates.
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-99"> SCRUM-99</a>
+* Jira Task: Reimplement Realtime User Status Frontend Updates via Websockets
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-104"> SCRUM-104</a>
+* Jira Task: Reimplement Realtime Channel Frontend Updates via Websockets
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-105"> SCRUM-105</a>
+* Jira Task: Implement Account Creation Timestamp and User Description Fields in Database
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-110"> SCRUM-110</a>
+* Jira Task: Link Database to Profile Popup via API Call
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-111"> SCRUM-111</a>
+* Jira Task: Caden - SA16 Testing Plan
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-116"> SCRUM-116</a>
+* Jira Task: Caden - SA16 Test Execution and Results
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-120"> SCRUM-120</a>
 	
 Ricky: I worked on UI improvements, added key features like the Developer Mode toggle and destructive action confirmations, implemented and tested message/user deletion, and helped design and test user profile functionalities.
 
 * Jira Task: Add Scrollbar to UserSidebar
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-107"> SCRUM-107</a>
-	
 * Jira Task: Create a Hidden UI toggle or Login Feature to activate Developer Mode
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-88"> SCRUM-88</a>
-	
 * Jira Task: Implement a "Delete All Messages" button to clear chat history
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-89"> SCRUM-89</a>
-
 * Jira Task: Ricky - SA16 Testing Plan
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-118"> SCRUM-118</a>
-
 * Jira Task: Ricky - SA16 Test Execution and Results
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-121"> SCRUM-121</a>
-
 * Jira Task: Implement a "Delete User" button to remove a User from DB
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-90"> SCRUM-90</a>
-
 * Jira Task: Add confirmation prompts for destructive operations
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-91"> SCRUM-91</a>
-
 * Jira Task: Design UI for User Profile Popup
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-109"> SCRUM-109</a>
-
 * Jira Task: Write tests to verify editing and deletion functionality
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-62"> SCRUM-62</a>
 
-## Features
+
 Sprint 2: For our second sprint, we aimed to expand upon the foundation established in Sprint 1 by refining existing features and adding new functionality. Our goals included:
 * Enhancing real-time messaging functionality with better UI/UX improvements.
 * Implementing User Status features
@@ -135,7 +146,6 @@ Additional Tasks I, Caden, Assumed Responsibility of:
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-65"> SCRUM-65</a>
 * Implement automatic reconnection handling for lost connections:
 	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-66"> SCRUM-66</a>
-	
 	
 Ricky: I focused on the frontend/UI of the website, ensuring that it adapts to different screen sizes. Additionally, I worked on linking reactions to the database.
 
@@ -203,35 +213,27 @@ Ricky: Created a user status database, implemented frontend display for statuses
    * <a href="https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-33">SCRUM-33</a>
 
 
-
-Chris B:
-
-
-
 ## Screenshots
 <img src="https://i.imgur.com/QxqSWGx.png" alt="AI Generated Secure Chat Logo" width="500" height="500">
-<!-- If you have screenshots you'd like to share, include them here. -->
 
 
 ## Project Status
--  In-Progress: Beginning Development in Sprint 3.
-
+-  Sprint 3 complete.
 
 ## Room for Improvement
-
 *	Gather users or "beta testers" to collect usability features
-*	Address hosting and server resource concerns
+*	Address security concerns
+*   Fine-tune small bugs and the usability of the software
 
-To do:
+**To-do in Sprint 4:**
+1. Fully switch to websockets where relevant
+2. Segment and separate our larger files into several subsections
+3. Introduce Fiber, an AI 'user'
+4. Add in (a) minigame(s)
+5. Switch to a fully browser-based, peer-to-peer, encrypted DM feature (establish DM connection via websocket, then communication directly)
+6. Add developer mode features and rework entry (devpass stored in user-viewable plaintext)
+7. add more/etc.
 
-**Sprint 3:**
-1. Improve Performance
-2. Improve UI/UX for the Chat Interface
-3. Implement small Direct Messaging sessions
-4. Implement Developer Mode for Administrative Actions
-5. Implement User Profiles
-6. Improve the real-time functionalities
-[Optimistically] Introduce Fiber, an active AI "user"
 
 ## Acknowledgements
 - This project is inspired by Discord and Slack. Discord is too "gamer" centric and unprofessional to appeal

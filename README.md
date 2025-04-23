@@ -42,10 +42,24 @@ Sprint 3:
 
 Contributions:
 
-Clark:
+Clark: I worked on improving the structure and user experience of the frontend interface. This included modularizing CSS into component-specific files, implementing real-time WebSocket-based direct messaging (eventually via an invite system) and SA16 testing and results documentation on the frontend.
 
-* Jira Task: 
-	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-XXX"> SCRUM-XXX</a>
+* Jira Task: Update Direct Message UI
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-100"> SCRUM-100</a>
+* Jira Task: Implement Real-Time Direct Messaging Functionality
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-101"> SCRUM-101</a>
+* Jira Task: Add Real-Time Notification for Beginning DMs
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-102"> SCRUM-102</a>
+* Jira Task: Handle DM Session Closure and Conditional Deletion
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-103"> SCRUM-103</a>
+* Jira Task: Write Frontend Unit Tests for WebSocket DM Logic
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-106"> SCRUM-106</a>
+* Jira Task: Modernize the Frontend UI
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-108"> SCRUM-108</a>
+* Jira Task: Chris - SA16 Testing Plan
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-117"> SCRUM-117</a>
+* Jira Task: Chris - SA16 Test Execution and Results
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-119"> SCRUM-119</a>
 
 Caden: I worked on backend and frontend enhancements including developer mode routes,
  websocket-based real-time updates, reaction testing, and profile data integration,

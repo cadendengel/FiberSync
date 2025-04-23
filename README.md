@@ -31,6 +31,53 @@ can utilize a platform that accounts for their working environment and prioritiz
 *	Deployment Technology - TBD
 
 
+Sprint 3:
+* 
+*
+* 
+* 
+
+Contributions:
+
+Clark:
+
+* Jira Task: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-CHANGE"> SCRUM-CHANGE</a>
+
+Caden:
+
+* Jira Task: 
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-CHANGE"> SCRUM-CHANGE</a>
+	
+Ricky: I worked on UI improvements, added key features like the Developer Mode toggle and destructive action confirmations, implemented and tested message/user deletion, and helped design and test user profile functionalities.
+
+* Jira Task: Add Scrollbar to UserSidebar
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-107"> SCRUM-107</a>
+	
+* Jira Task: Create a Hidden UI toggle or Login Feature to activate Developer Mode
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-88"> SCRUM-88</a>
+	
+* Jira Task: Implement a "Delete All Messages" button to clear chat history
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-89"> SCRUM-89</a>
+
+* Jira Task: Ricky - SA16 Testing Plan
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-118"> SCRUM-118</a>
+
+* Jira Task: Ricky - SA16 Test Execution and Results
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-121"> SCRUM-121</a>
+
+* Jira Task: Implement a "Delete User" button to remove a User from DB
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-90"> SCRUM-90</a>
+
+* Jira Task: Add confirmation prompts for destructive operations
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-91"> SCRUM-91</a>
+
+* Jira Task: Design UI for User Profile Popup
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-109"> SCRUM-109</a>
+
+* Jira Task: Write tests to verify editing and deletion functionality
+	* <a href = "https://cs3398-changelings-spring.atlassian.net/browse/SCRUM-62"> SCRUM-62</a>
+
 ## Features
 Sprint 2: For our second sprint, we aimed to expand upon the foundation established in Sprint 1 by refining existing features and adding new functionality. Our goals included:
 * Enhancing real-time messaging functionality with better UI/UX improvements.

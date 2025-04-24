@@ -672,7 +672,7 @@ def dev_console_command():
     command = data.get('command')
     devpass = data.get('devpass')
     
-    if not devpass or devpass != os.getenv('DEV_PASS'):
+    if not devpass or devpass != os.getenv('REACT_APP_DEVPASS'):
         return jsonify({"error": "Invalid developer password"}), 403
 
     if not command:

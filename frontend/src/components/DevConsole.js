@@ -2,7 +2,7 @@ import './DevConsole.css';
 import React, { useState } from "react";
 import axios from "axios";
 
-function DevConsole(devpass) {
+function DevConsole({ devpass }) {
     const [consoleOutput, setConsoleOutput] = useState("Output will appear here...");
     const [command, setCommand] = useState("");
     const [position, setPosition] = useState({ x: 50, y: 50 });
@@ -21,7 +21,7 @@ function DevConsole(devpass) {
         try {
             const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/api/devconsole`, {
                 command: command,
-                devpass
+                devpass: devpass
             });
             setConsoleOutput((prevOutput) => `${prevOutput}\n> ${command}\n${response.data.output}`);
         } catch (error) {

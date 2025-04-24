@@ -7,10 +7,6 @@ pipelines:
           name: Test
           script:
             - npm install && npm test
-            - echo $GOOGLE_APPLICATION_CREDENTIALS_JSON
-            - echo $FIREBASE_PROJECT
-            - echo $KEY_FILE
-            - echo $GOOGLE_APPLICATION_CREDENTIALS
 
       - step:
           name: Backend Tests

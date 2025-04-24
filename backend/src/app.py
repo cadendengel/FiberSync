@@ -670,6 +670,10 @@ def update_reaction():
 def dev_console_command():
     data = request.json
     command = data.get('command')
+    devpass = data.get('devpass')
+    
+    if not devpass or devpass != os.getenv('DEV_PASS'):
+        return jsonify({"error": "Invalid developer password"}), 403
 
     if not command:
         return jsonify({"error": "Missing command"}), 400

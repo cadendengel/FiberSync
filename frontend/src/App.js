@@ -586,7 +586,9 @@ function App() {
         </div>
       )}
         {isDevConsoleOpen && (
-          <DevConsole />
+          <DevConsole
+            devpass={process.env.REACT_APP_DEVPASS}
+          />
         )}
             {confirmState.isOpen && (
         <div className="confirm-overlay">

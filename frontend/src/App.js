@@ -98,7 +98,7 @@ function App() {
   // Base developer mode gateway
   const activateDevMode = () => {
     const password = prompt("Enter Developer Mode Password:");
-    if (password === $) {
+    if (password === process.env.REACT_APP_DEVPASS) {
       setIsDeveloperMode(true);
     } else {
       alert("Incorrect password!");

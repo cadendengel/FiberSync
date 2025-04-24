@@ -10,6 +10,9 @@ import ChatInput from './components/ChatInput';
 import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
 import DirectMessaging from "./components/DirectMessaging";
+import dotenv from 'dotenv';
+dotenv.config();
+
 
 // Move to top of file, outside App()
 const notificationSound = new Audio("/notification.mp3");
@@ -78,7 +81,7 @@ function App() {
         if (!isDeveloperMode) {
           // Enter Developer Mode: prompt for password
           const password = prompt("Enter Developer Mode Password:");
-          if (password === "devpass") {
+          if (password === $DEVPASS) {
             setIsDeveloperMode(true);
           } else {
             alert("Incorrect password!");
@@ -97,7 +100,7 @@ function App() {
   // Base developer mode gateway
   const activateDevMode = () => {
     const password = prompt("Enter Developer Mode Password:");
-    if (password === "devpass") {
+    if (password === $) {
       setIsDeveloperMode(true);
     } else {
       alert("Incorrect password!");

@@ -10,8 +10,6 @@ import ChatInput from './components/ChatInput';
 import DevConsole from './components/DevConsole';
 import { io } from "socket.io-client";
 import DirectMessaging from "./components/DirectMessaging";
-import dotenv from 'dotenv';
-dotenv.config();
 
 
 // Move to top of file, outside App()
@@ -81,7 +79,7 @@ function App() {
         if (!isDeveloperMode) {
           // Enter Developer Mode: prompt for password
           const password = prompt("Enter Developer Mode Password:");
-          if (password === $DEVPASS) {
+          if (password === process.env.REACT_APP_DEVPASS) {
             setIsDeveloperMode(true);
           } else {
             alert("Incorrect password!");

@@ -90,6 +90,35 @@ def delete_user(username):
 def delete_all_users():
     db.users.delete_many({})
 
+def delete_duplicate_users():
+    """Delete duplicate user documents by username, keeping the oldest record.
+
+    Returns:
+        int: Number of duplicate documents removed.
+    """
+    deleted_count = 0
+
+    # Group by username and keep the first inserted document (smallest _id).
+    duplicate_groups = db.users.aggregate([
+        {"$sort": {"_id": 1}},
+        {
+            "$group": {
+                "_id": "$username",
+                "ids": {"$push": "$_id"},
+                "count": {"$sum": 1}
+            }
+        },
+        {"$match": {"count": {"$gt": 1}}}
+    ])
+
+    for group in duplicate_groups:
+        duplicate_ids = group["ids"][1:]
+        if duplicate_ids:
+            result = db.users.delete_many({"_id": {"$in": duplicate_ids}})
+            deleted_count += result.deleted_count
+
+    return deleted_count
+
 
 #########################
 # user status functions #

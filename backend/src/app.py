@@ -142,6 +142,13 @@ def update_user_description():
         return jsonify({"message": "User description updated successfully"}), 200
     else:
         return jsonify({"error": "User not found"}), 404
+    
+    
+# Delete duplicate users (for debugging, temporary bug fix)
+@app.route('/api/users/duplicates', methods=['DELETE'])
+def delete_duplicate_users():
+    userDB.delete_duplicate_users()
+    return jsonify({"message": "Duplicate users deleted successfully"}), 200
 
 
 # Delete all users

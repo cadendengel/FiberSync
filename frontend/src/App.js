@@ -356,7 +356,15 @@ function App() {
     .then((response) => console.log("User status updated:", response.data)) // Debugging log
     .catch((error) => console.error("Error updating user status:", error));
   }
-  window.setUserOffline = setUserOffline; // Expose the function to the window object`
+  window.setUserOffline = setUserOffline; // Expose the function to the window object
+
+  // Find and delete duplicate users, temporary bug fix, will be accessible from the inspect element console for now
+  const deleteDuplicateUsers = () => {
+    axios.delete(`${process.env.REACT_APP_BACKEND_URL}/api/users/duplicates`)
+    .then((response) => console.log("Duplicate users deleted:", response.data)) // Debugging log
+    .catch((error) => console.error("Error deleting duplicate users:", error));
+  }
+  window.deleteDuplicateUsers = deleteDuplicateUsers; // Expose the function to the window object
   
 
   /////////////////////
